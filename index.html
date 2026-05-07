@@ -3723,6 +3723,7 @@
         let communityMode = 'feed';
 
         function switchCommunityMode(mode, el) {
+            if (typeof Sfx !== 'undefined') Sfx.play('pan');
             communityMode = mode;
             document.querySelectorAll('#community-pivots .pivot-item').forEach(p => p.classList.remove('active'));
             el.classList.add('active');
@@ -4377,6 +4378,7 @@
         }
 
         function switchDiscoverMode(mode, el) {
+            if (typeof Sfx !== 'undefined') Sfx.play('pan');
             document.querySelectorAll('#discover-pivots .pivot-item').forEach(p => p.classList.remove('active'));
             if (el) el.classList.add('active');
             document.getElementById('discover-trending').style.display = mode === 'trending' ? 'block' : 'none';
@@ -5638,10 +5640,10 @@
             lastPlay: {},
             lastHoverTarget: null,
             sounds: {
-                select: new Audio('xbox360 metro soundeffects/Select.wav'),
-                back: new Audio('xbox360 metro soundeffects/Back.wav'),
-                hover: new Audio('xbox360 metro soundeffects/SelectA.wav'),
-                pan: new Audio('xbox360 metro soundeffects/PageRight.wav')
+                select: 'xbox360 metro soundeffects/Select.wav',
+                back: 'xbox360 metro soundeffects/Back.wav',
+                hover: 'xbox360 metro soundeffects/SelectA.wav',
+                pan: 'xbox360 metro soundeffects/PageRight.wav'
             },
             play(type) {
                 if (!this.enabled) return;
@@ -5650,12 +5652,22 @@
                 this.lastPlay[type] = now;
 
                 try {
-                    const audio = this.sounds[type].cloneNode();
+                    const audio = new Audio(this.sounds[type]);
                     audio.volume = type === 'hover' ? 0.2 : (type === 'pan' ? 0.4 : 0.6);
-                    audio.preservesPitch = false;
-                    audio.playbackRate = 0.9 + Math.random() * 0.2;
-                    audio.play().catch(e => {});
-                } catch (e) {}
+                    
+                    // User requested pitch change only for "tab moving" (pan) and "cling" (hover/select)
+                    // No pitch change for "closing" (back)
+                    if (type === 'pan' || type === 'hover' || type === 'select') {
+                        audio.preservesPitch = false;
+                        audio.playbackRate = 0.95 + Math.random() * 0.1;
+                    }
+                    
+                    audio.play().catch(e => {
+                        console.warn(`Sfx ${type} failed:`, e);
+                    });
+                } catch (e) {
+                    console.error(`Sfx ${type} error:`, e);
+                }
             },
             toggle(enabled) {
                 this.enabled = enabled;
@@ -5683,8 +5695,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             // Bind SFX Events
+            // Use capture phase for clicks to ensure we catch them even if stopped by children
             document.body.addEventListener('click', e => {
-                const target = e.target.closest('.btn-back, .btn-back-text, .detail-close, .metro-btn, .metro-tile, .nav-item, .pivot-item, .filter-chip, .color-swatch, .inbox-item, .switch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn');
+                const target = e.target.closest('button, .btn-back, .btn-back-text, .detail-close, .metro-btn, .metro-tile, .nav-item, .pivot-item, .filter-chip, .color-swatch, .inbox-item, .switch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .wide-info-tile');
                 if (!target) return;
                 
                 if (target.matches('.btn-back, .btn-back-text, .detail-close')) {
@@ -5692,10 +5705,10 @@
                 } else {
                     Sfx.play('select');
                 }
-            });
+            }, true);
             
             document.body.addEventListener('mouseover', e => {
-                const target = e.target.closest('.metro-btn, .metro-tile, .nav-item, .pivot-item, .color-swatch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .filter-chip');
+                const target = e.target.closest('button, .metro-btn, .metro-tile, .nav-item, .pivot-item, .color-swatch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .filter-chip, .wide-info-tile');
                 if (target && target !== Sfx.lastHoverTarget) {
                     Sfx.play('hover');
                     Sfx.lastHoverTarget = target;
