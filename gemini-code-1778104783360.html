@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AniList: Zune AMOLED</title>
+    
+    <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* =========================================
+           AMOLED ZUNE CORE & THEME VARIABLES
+           ========================================= */
+        :root {
+            --accent: #1ba1e2; 
+            
+            /* Dark Theme (Default) */
+            --bg: #000000;
+            --surface: #111111;
+            --surface-hover: #1a1a1a;
+            --input-bg: #111111;
+            --text-main: #ffffff;
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.4);
+            --hero-bg-text: rgba(255, 255, 255, 0.08);
+            
+            --metro-easing: cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        /* Light Theme Overrides */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --surface: #f0f0f0;
+            --surface-hover: #e4e4e4;
+            --input-bg: #e0e0e0;
+            --text-main: #000000;
+            --text: #000000;
+            --text-dim: rgba(0, 0, 0, 0.6);
+            --hero-bg-text: rgba(0, 0, 0, 0.06);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body, html {
+            height: 100%; 
+            background-color: var(--bg) !important;
+            color: var(--text-main) !important;
+            font-family: "Segoe UI Light", "Segoe WP Light", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif !important;
+            font-weight: 300;
+            overflow: hidden;
+            text-transform: lowercase; 
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { color: var(--text-main); }
+
+        ::-webkit-scrollbar { display: none; }
+        .content-scroll::-webkit-scrollbar { width: 4px; display: block; }
+        .content-scroll::-webkit-scrollbar-track { background: transparent; }
+        .content-scroll::-webkit-scrollbar-thumb { background: var(--surface-hover); border-radius: 0; }
+        .content-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+        /* =========================================
+           PANORAMA LAYOUT ENGINE
+           ========================================= */
+        .panorama-container {
+            display: flex; height: 100vh; width: 100vw;
+            overflow-x: auto; overflow-y: hidden;
+            scroll-snap-type: x mandatory; scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; 
+            position: relative; z-index: 5;
+        }
+
+        .header-section {
+            width: 85vw; flex: 0 0 85vw; height: 100vh;
+            padding: 210px 40px 100px 60px; 
+            margin-right: 15vw; 
+            scroll-snap-align: start; display: flex; flex-direction: column;
+        }
+
+        /* MASSIVE METRO HEADERS */
+        .metro-huge-title {
+            font-family: 'Segoe UI Light', 'Segoe UI Variable Display', 'Segoe UI', sans-serif;
+            font-size: 6.5rem;
+            font-weight: 100; /* Reverted to classic thin weight */
+            line-height: 0.8;
+            margin: 0 0 30px 0;
+            letter-spacing: -4px;
+            color: var(--text-main);
+            white-space: nowrap;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        /* Massive Background Text */
+        .zune-hero-bg {
+            position: fixed; top: 10px; left: 60px;
+            font-size: 180px; 
+            font-weight: 100; /* Reverted to classic thin weight */
+            color: var(--hero-bg-text);
+            white-space: nowrap; z-index: 0; pointer-events: none;
+            letter-spacing: -8px; line-height: 1;
+            will-change: transform;
+            transition: color 0.3s;
+        }
+
+        /* Pivot Navigation (Top Bar) */
+        .xbox-nav {
+            position: fixed; top: 130px; left: 60px; z-index: 100;
+            display: flex; gap: 30px; align-items: baseline;
+            transition: transform 0.4s var(--metro-easing); 
+            will-change: transform;
+        }
+
+        .nav-item {
+            font-size: 24px; font-weight: 300; color: var(--text-dim);
+            cursor: pointer; transition: color 0.2s; white-space: nowrap;
+        }
+        .nav-item:hover { color: var(--text-main); opacity: 0.8; }
+        .nav-item.active { font-size: 48px; font-weight: 200; color: var(--text-main); letter-spacing: -1px; opacity: 1; }
+
+        .content-scroll { 
+            flex: 1; overflow-y: auto; padding-right: 40px; padding-bottom: 150px; 
+            z-index: 10; position: relative; 
+        }
+
+        /* =========================================
+           TOP RIGHT NAV
+           ========================================= */
+        .top-right-nav { position: fixed; top: 20px; right: 40px; z-index: 1000; display: none; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropbtn { width: 45px; height: 45px; object-fit: cover; border: 2px solid transparent; background: var(--surface); cursor: pointer; transition: all 0.2s; }
+        .dropbtn:hover { border-color: var(--accent); }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 55px; background-color: var(--surface); min-width: 180px; z-index: 1001; border: 2px solid var(--surface-hover); }
+        .dropdown-content a { color: var(--text-dim); padding: 12px 16px; text-decoration: none; display: block; font-size: 14px; transition: background 0.1s; }
+        .dropdown-content a:hover { background-color: var(--accent); color: #fff; }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        /* =========================================
+           START MENU GRID
+           ========================================= */
+        .start-screen-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 110px);
+            grid-auto-rows: 110px;
+            gap: 10px;
+            padding-bottom: 40px;
+        }
+
+        .metro-tile-start {
+            background-color: var(--accent);
+            color: #ffffff;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 12px;
+            transition: transform 0.1s var(--metro-easing);
+            border: none; border-radius: 0;
+        }
+        .metro-tile-start:active { transform: scale(0.95); }
+        .metro-tile-start.small { grid-column: span 1; grid-row: span 1; }
+        .metro-tile-start.medium { grid-column: span 2; grid-row: span 2; }
+        .metro-tile-start.wide { grid-column: span 4; grid-row: span 2; }
+
+        .start-icon {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem; opacity: 0.9;
+        }
+
+        .start-title {
+            font-family: 'Segoe UI Light', 'Segoe UI', sans-serif;
+            font-size: 1.1rem; font-weight: 300; z-index: 2; color: #fff;
+        }
+
+        .profile-tile img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6;
+        }
+        .profile-tile .start-title {
+            position: relative; z-index: 2; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); font-weight: 400;
+        }
+
+        /* =========================================
+           GENERAL UI COMPONENTS
+           ========================================= */
+        .metro-btn { background: var(--surface); color: var(--text-main); border: 2px solid transparent; padding: 12px 30px; font-size: 18px; font-weight: 400; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .metro-btn:hover, .metro-btn:active { background: var(--accent); color: #fff; }
+        .metro-btn.primary { background: var(--accent); color: #fff; }
+        .metro-btn.primary:hover { filter: brightness(1.2); }
+
+        .metro-input { background: var(--input-bg); border: 2px solid transparent; color: var(--text); padding: 12px 16px; font-size: 24px; font-family: inherit; font-weight: 300; width: 100%; max-width: 600px; margin-bottom: 20px; outline: none; transition: all 0.2s; }
+        .metro-input:focus { border-color: var(--accent); }
+
+        .pivot-headers, .feed-tabs { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+        .pivot-item, .feed-tab { font-size: 24px; font-weight: 300; color: var(--text-dim); cursor: pointer; transition: color 0.2s; }
+        .pivot-item.active, .feed-tab.active { color: var(--text); font-weight: 400;}
+
+        .media-type-switch { display: flex; gap: 10px; margin-bottom: 20px; }
+        .mts-btn { background: transparent; border: 2px solid var(--surface-hover); color: var(--text-dim); padding: 8px 20px; font-size: 16px; cursor: pointer; transition: all 0.2s; font-family: inherit;}
+        .mts-btn.active, .mts-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .load-more-btn {
+            background: transparent; border: 2px solid var(--surface-hover); color: var(--text-main); padding: 12px; width: 100%; text-align: center; font-family: inherit; font-size: 1.1rem; cursor: pointer; margin-top: 10px; margin-bottom: 30px; transition: all 0.2s; text-transform: lowercase;
+        }
+        .load-more-btn:hover, .load-more-btn:active { border-color: var(--accent); background: var(--surface); color: var(--text); }
+
+        /* =========================================
+           TILES & 3D FLIPPING GRIDS
+           ========================================= */
+        .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); grid-auto-rows: 140px; gap: 10px; }
+        
+        .tile { background: transparent; perspective: 1000px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
+        .tile:hover { border-color: var(--text-main); }
+        .tile:active { transform: scale(0.95); }
+        
+        .tile-label { position: absolute; bottom: 8px; left: 10px; right: 10px; font-size: 14px; font-weight: 400; z-index: 2; line-height: 1.2; color: #fff; background: rgba(0,0,0,0.8); padding: 4px; }
+        .tile-badge, .tile-score { position: absolute; font-size: 12px; font-weight: 400; z-index: 2; padding: 2px 6px; color: #fff; }
+        .tile-badge { top: 8px; right: 8px; background: var(--accent); }
+        .tile-score { top: 8px; left: 8px; background: rgba(0,0,0,0.8); color: var(--accent); }
+        
+        .flip-tile-inner { width: 100%; height: 100%; transition: transform 0.6s var(--metro-easing); transform-style: preserve-3d; position: relative; }
+        .tile:hover .flip-tile-inner, .tile.flipped .flip-tile-inner { transform: rotateY(180deg); }
+        .flip-tile-front, .flip-tile-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; top: 0; left: 0; overflow: hidden; background: var(--surface);}
+        .flip-tile-front img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: opacity 0.2s; }
+        .tile:hover .flip-tile-front img { opacity: 1; }
+        .flip-tile-back { transform: rotateY(180deg); background: var(--accent); color: #fff; padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .tile-back-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .tile-back-rating { font-size: 1.5rem; font-weight: 300; }
+
+        /* =========================================
+           WP MESSAGING INBOX
+           ========================================= */
+        .inbox-list { display: flex; flex-direction: column; margin-top: 10px; }
+        .inbox-item { display: flex; gap: 15px; align-items: center; cursor: pointer; padding: 12px 10px; transition: background 0.2s; border-bottom: 1px solid transparent; }
+        .inbox-item:hover, .inbox-item:active { background: var(--surface-hover); }
+        .inbox-avatar { width: 55px; height: 55px; background: var(--surface); flex-shrink: 0; }
+        .inbox-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .inbox-content { flex-grow: 1; overflow: hidden; }
+        .inbox-sender { font-size: 1.4rem; color: var(--text-main); margin-bottom: -2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 400; }
+        .inbox-preview { font-size: 1rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .inbox-time { font-size: 0.9rem; color: var(--accent); padding-left: 10px; align-self: flex-start; margin-top: 5px; }
+
+        /* =========================================
+           LISTS (Activity/Community)
+           ========================================= */
+        .prog-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; max-width: 1000px; }
+        .prog-item { display: flex; align-items: center; gap: 15px; padding: 10px; background: var(--surface); transition: background 0.1s, border-color 0.1s; border: 2px solid transparent;}
+        .prog-item:hover, .prog-item:active { background: var(--surface-hover); border-color: var(--accent); }
+        .prog-thumb, .prog-avatar { width: 50px; height: 70px; object-fit: cover; background: var(--surface-hover); flex-shrink: 0; cursor: pointer; }
+        .prog-avatar { width: 45px; height: 45px; border-radius: 50%; }
+        .prog-info { flex: 1; min-width: 0; }
+        .prog-user { font-size: 14px; color: var(--accent); font-weight: 400; margin-bottom: 2px; cursor: pointer; display: inline-block;}
+        .prog-status { font-size: 14px; color: var(--text-dim); line-height: 1.3; }
+        .prog-status span { color: var(--text); font-weight: 400; cursor: pointer; transition: color 0.1s;}
+        .prog-status span:hover { color: var(--accent); }
+        .prog-time { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+        .search-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .filter-chip { padding: 8px 16px; font-size: 14px; cursor: pointer; background: var(--surface); color: var(--text-dim); transition: all 0.15s; border: 2px solid transparent; font-family: inherit;}
+        .filter-chip:hover, .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* =========================================
+           WINDOWS PHONE SETTINGS MENU
+           ========================================= */
+        .settings-list { display: flex; flex-direction: column; gap: 30px; }
+        .settings-item-header { font-size: 1.5rem; color: var(--text-main); font-weight: 300; margin-bottom: 5px; }
+        .settings-item-sub { font-size: 1rem; color: var(--text-dim); margin-bottom: 10px; }
+        
+        select.metro-select {
+            background-color: var(--surface); color: var(--text-main); border: 2px solid var(--text-dim);
+            padding: 10px; font-size: 1.2rem; font-family: inherit; width: 100%; max-width: 400px;
+        }
+        select.metro-select:focus { border-color: var(--accent); outline: none; }
+
+        .color-picker { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 10px; 
+            max-width: 400px;
+        }
+        .color-swatch { width: 100%; aspect-ratio: 1; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+        .color-swatch:active { transform: scale(0.9); }
+        .color-swatch.active { border-color: var(--text-main); }
+
+        /* Switch Toggle */
+        .switch { position: relative; display: inline-block; width: 60px; height: 30px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .check { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface-hover); border: 2px solid var(--text-main); transition: .4s; }
+        .check:before { position: absolute; content: ""; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: var(--text-main); transition: .4s; }
+        input:checked + .check { background-color: var(--accent); border-color: var(--accent); }
+        input:checked + .check:before { transform: translateX(30px); background-color: #fff; }
+
+        /* =========================================
+           OVERLAYS & DETAILED PANELS
+           ========================================= */
+        #login-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; justify-content: center; padding: 10%; transition: background-color 0.3s;}
+        
+        #detail-panel { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: none; overflow-y: auto; padding: 60px 40px; transition: background-color 0.3s; }
+        .detail-close { position: fixed; top: 30px; right: 40px; font-size: 40px; font-weight: 100; cursor: pointer; color: var(--text-dim); transition: color 0.2s; z-index: 5001;}
+        .detail-close:hover { color: var(--accent); }
+
+        .zune-tag { border: 2px solid var(--surface-hover); padding: 4px 12px; font-size: 14px; font-weight: 400; color: var(--text-dim); background: var(--surface); display: inline-block;}
+        
+        .list-management-box { display: flex; flex-direction: column; gap: 8px; background: transparent; margin-top: 15px; }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
+        .status-btn { background: var(--surface); color: var(--text); border: 2px solid transparent; padding: 10px; text-align: center; font-size: 14px; cursor: pointer; transition: all 0.1s; }
+        .status-btn:hover { border-color: var(--accent); }
+        .status-btn.active { background: var(--accent); color: white; }
+        .status-btn.full { grid-column: 1 / -1; }
+        
+        .metro-hub-wrapper { flex-grow: 1; position: relative; overflow: hidden; }
+        .metro-hub { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); grid-auto-rows: 140px; gap: 15px; align-content: start; transition: transform 0.4s var(--metro-easing), opacity 0.4s; }
+        
+        .metro-subview { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: translateX(100%); opacity: 0; transition: transform 0.4s var(--metro-easing), opacity 0.4s; overflow-y: auto; padding-right: 15px; padding-bottom: 50px; display: none; background: var(--bg);}
+        .metro-subview.active { transform: translateX(0); opacity: 1; display: block; }
+        .metro-hub.hidden { transform: translateX(-50px); opacity: 0; pointer-events: none; }
+
+        .subview-header { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--surface); }
+        .btn-back { background: var(--surface); border: 2px solid transparent; color: var(--text); width: 45px; height: 45px; font-size: 20px; cursor: pointer; transition: all 0.2s; }
+        .btn-back:hover { border-color: var(--accent); background: var(--accent); color: #fff;}
+        .subview-title { font-size: 40px; font-weight: 200; color: var(--accent); }
+
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .char-card { display: flex; background: var(--surface); height: 80px; overflow: hidden; transition: transform 0.1s; border: 2px solid transparent;}
+        .char-card:hover { border-color: var(--accent); }
+        .char-img { width: 60px; height: 100%; object-fit: cover; }
+        .char-info { flex: 1; padding: 10px; display: flex; flex-direction: column; justify-content: center; min-width:0; }
+        .char-name { font-size: 16px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+        .char-role { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+        .grid-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .panel { background: var(--surface); padding: 20px; margin-bottom: 20px; border: 2px solid transparent;}
+        .panel:hover { border-color: var(--surface-hover); }
+        .heatmap { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; }
+        .heat-dot { width: 10px; height: 10px; background: var(--bg); }
+        .heat-dot.active { background: var(--accent); }
+        .anime-grid-mini { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; }
+        .anime-poster { width: 100%; aspect-ratio: 2/3; background: var(--surface); object-fit: cover; cursor: pointer; border: 2px solid transparent;}
+        .anime-poster:hover { border-color: var(--accent); }
+
+        #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--accent); color: #fff; padding: 15px 30px; font-size: 16px; z-index: 9000; opacity: 0; transition: all 0.3s; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* =========================================
+           MOBILE RESPONSIVENESS
+           ========================================= */
+        @media (max-width: 768px) {
+            .header-section { width: 100vw; flex: 0 0 100vw; padding: 180px 20px 80px 20px; margin-right: 0;}
+            .metro-huge-title { font-size: 5rem; margin-bottom: 20px; letter-spacing: -2px;}
+            .zune-hero-bg { font-size: 120px; top: 10px; left: 20px; }
+            
+            .xbox-nav { top: 100px; left: 20px; gap: 15px; }
+            .nav-item { font-size: 20px; }
+            .nav-item.active { font-size: 32px; }
+            
+            .content-scroll { padding-right: 0; }
+            .top-right-nav { top: 20px; right: 20px; }
+            
+            #detail-panel { padding: 60px 20px; }
+            .detail-close { top: 20px; right: 20px; font-size: 36px; }
+            
+            .start-screen-grid { grid-template-columns: repeat(2, calc(50vw - 25px)); grid-auto-rows: calc(50vw - 25px); }
+            .metro-tile-start.wide { grid-column: span 2; grid-row: span 1; }
+            .metro-tile-start.medium { grid-column: span 1; grid-row: span 1; }
+            
+            .tile-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); grid-auto-rows: 110px; }
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+    </style>
+</head>
+<body class="m4-cloak">
+
+    <div id="login-overlay">
+        <h1 class="metro-huge-title" style="color: var(--accent); margin-bottom: 10px;">anilist</h1>
+        <p style="font-size: 32px; font-weight: 300; color: var(--text-dim); margin-bottom: 50px;">social collection</p>
+        <div style="display: flex; gap: 15px; flex-wrap:wrap;">
+            <button class="metro-btn primary" onclick="login()"><i class="fa-solid fa-right-to-bracket"></i> sign in</button>
+            <button class="metro-btn" onclick="guestMode()"><i class="fa-solid fa-user-secret"></i> guest mode</button>
+        </div>
+    </div>
+
+    <div id="detail-panel">
+        <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
+        <div id="detail-content" style="height: 100%; position: relative;"></div>
+    </div>
+
+    <div id="toast"></div>
+
+    <div class="zune-hero-bg" id="dynamic-header">start profile library community discover inbox system</div>
+
+    <div class="xbox-nav" id="main-nav" style="display: none;">
+        <div class="nav-item active" onclick="scrollToSection(0)">start</div>
+        <div class="nav-item" onclick="scrollToSection(1)">user</div>
+        <div class="nav-item" onclick="scrollToSection(2)">library</div>
+        <div class="nav-item" onclick="scrollToSection(3)">community</div>
+        <div class="nav-item" onclick="scrollToSection(4)">discover</div>
+        <div class="nav-item" onclick="scrollToSection(5)">inbox</div>
+        <div class="nav-item" onclick="scrollToSection(6)">system</div>
+    </div>
+
+    <div class="top-right-nav" id="top-right-nav">
+        <div class="dropdown">
+            <img id="top-right-avatar" class="dropbtn" src="https://via.placeholder.com/50" alt="Profile" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';">
+            <div class="dropdown-content">
+                <a href="#" onclick="scrollToSection(1); return false;"><i class="fa-solid fa-user fa-fw"></i> profile</a>
+                <a href="#" onclick="scrollToSection(5); return false;"><i class="fa-solid fa-envelope fa-fw"></i> notifications</a>
+                <a href="#" onclick="scrollToSection(6); return false;"><i class="fa-solid fa-gear fa-fw"></i> settings</a>
+                <a href="#" onclick="logout(); return false;"><i class="fa-solid fa-power-off fa-fw"></i> sign out</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="panorama-container" id="app-container" style="display: none;">
+
+        <section class="header-section">
+            <h1 class="metro-huge-title">start</h1>
+            <div class="content-scroll" style="padding-top: 10px;">
+                
+                <div class="start-screen-grid">
+                    <div class="metro-tile-start medium profile-tile" style="background-color: var(--surface);" onclick="scrollToSection(1)">
+                        <img id="start-tile-avatar" src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';" alt="Guest">
+                        <div class="start-title" id="start-tile-user" style="padding: 10px; background: rgba(0,0,0,0.6); width: 100%;">guest</div>
+                    </div>
+                    
+                    <div class="metro-tile-start medium" style="background-color: #60a917;" onclick="scrollToSection(2)">
+                        <i class="fa-solid fa-book-open start-icon"></i>
+                        <span class="start-title">library</span>
+                    </div>
+                    
+                    <div class="metro-tile-start medium" style="background-color: #f39c12;" onclick="scrollToSection(4)">
+                        <i class="fa-solid fa-magnifying-glass start-icon"></i>
+                        <span class="start-title">discover</span>
+                    </div>
+                    
+                    <div class="metro-tile-start medium" style="background-color: #d80073;" onclick="scrollToSection(5)">
+                        <span class="start-title" style="font-size: 4rem; align-self: center; margin: auto; font-weight: 200; line-height: 1;" id="start-tile-notif">0</span>
+                        <span class="start-title">inbox</span>
+                    </div>
+
+                    <div class="metro-tile-start wide" style="background-color: #a20025;" onclick="scrollToSection(3)">
+                        <i class="fa-solid fa-users start-icon"></i>
+                        <span class="start-title">community</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="header-section">
+            <h1 class="metro-huge-title">user</h1>
+            <div class="content-scroll">
+                <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 40px;">
+                    <div style="width: 120px; height: 120px; background: var(--surface); overflow: hidden;">
+                        <img id="user-page-avatar" src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';" style="width:100%; height:100%; object-fit: cover;" alt="avatar">
+                    </div>
+                    <div style="padding-bottom: 5px;">
+                        <h1 class="metro-huge-title" id="user-page-name" style="color: var(--accent); margin-bottom: 10px;">guest</h1>
+                        <div style="color: var(--text-dim); font-size: 1.2rem;" id="user-page-sub">login via anilist</div>
+                    </div>
+                </div>
+
+                <div class="settings-list" style="margin-bottom: 40px;">
+                    <div class="settings-item" style="cursor: pointer;" onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">
+                        <div class="settings-item-header">anime list</div>
+                        <div class="settings-item-sub">track watching and completed</div>
+                    </div>
+                    <div class="settings-item" style="cursor: pointer;" onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">
+                        <div class="settings-item-header">manga list</div>
+                        <div class="settings-item-sub">track reading and completed</div>
+                    </div>
+                    <div class="settings-item" style="cursor: pointer;" onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">
+                        <div class="settings-item-header">overview</div>
+                        <div class="settings-item-sub">favorites, stats, and history</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="header-section">
+            <h1 class="metro-huge-title">library</h1>
+            <div class="content-scroll">
+                <div class="media-type-switch">
+                    <button class="mts-btn active" onclick="switchMediaType('ANIME',this)">anime</button>
+                    <button class="mts-btn" onclick="switchMediaType('MANGA',this)">manga</button>
+                </div>
+                <div class="pivot-headers" id="library-pivots">
+                    <div class="pivot-item active" data-status="CURRENT">watching</div>
+                    <div class="pivot-item" data-status="COMPLETED">completed</div>
+                    <div class="pivot-item" data-status="PLANNING">planned</div>
+                    <div class="pivot-item" data-status="PAUSED">paused</div>
+                    <div class="pivot-item" data-status="DROPPED">dropped</div>
+                </div>
+                <div class="tile-grid" id="library-grid"><div style="color:var(--text-dim);">loading...</div></div>
+            </div>
+        </section>
+
+        <section class="header-section">
+            <h1 class="metro-huge-title">community</h1>
+            <div class="content-scroll">
+                <h2 style="color: var(--text); font-weight: 200; margin-bottom: 20px;">public chatter</h2>
+                <div class="prog-list" id="public-feed"><div style="color:var(--text-dim);">loading...</div></div>
+            </div>
+        </section>
+
+        <section class="header-section">
+            <h1 class="metro-huge-title">discover</h1>
+            <div class="content-scroll">
+                <input type="text" class="metro-input" id="search-input" placeholder="search anime or manga...">
+                <div class="search-filters">
+                    <button class="filter-chip active" data-type="ANIME" onclick="setSearchType('ANIME',this)">anime</button>
+                    <button class="filter-chip" data-type="MANGA" onclick="setSearchType('MANGA',this)">manga</button>
+                    <button class="filter-chip" data-sort="TRENDING_DESC" onclick="setSort('TRENDING_DESC',this)">trending</button>
+                    <button class="filter-chip" data-sort="SCORE_DESC" onclick="setSort('SCORE_DESC',this)">top rated</button>
+                    <button class="filter-chip" data-sort="POPULARITY_DESC" onclick="setSort('POPULARITY_DESC',this)">popular</button>
+                </div>
+                <div class="tile-grid" id="search-results"></div>
+            </div>
+        </section>
+
+        <section class="header-section">
+            <h1 class="metro-huge-title" id="notif-page-title">inbox</h1>
+            <div class="content-scroll">
+                <div class="pivot-headers">
+                    <div class="pivot-item active" onclick="switchInboxCategory('unread', this)">unread</div>
+                    <div class="pivot-item" onclick="switchInboxCategory('past', this)">past</div>
+                </div>
+                <div class="inbox-list" id="notif-list"><div style="color:var(--text-dim);">loading...</div></div>
+            </div>
+        </section>
+
+        <section class="header-section">
+            <h1 class="metro-huge-title">system</h1>
+            <div class="content-scroll">
+                <div class="settings-list">
+                    
+                    <div class="settings-item">
+                        <div class="settings-item-header">background</div>
+                        <select class="metro-select" id="theme-select" onchange="setThemeMode(this.value)">
+                            <option value="system">system</option>
+                            <option value="dark">dark</option>
+                            <option value="light">light</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-item-header">accent color</div>
+                        <div class="settings-item-sub">current: <span id="st-theme-sub">default</span></div>
+                        <div class="color-picker" id="theme-colors">
+                            <div class="color-swatch" style="background:#1ba1e2;" data-color="#1ba1e2" data-name="cobalt"></div>
+                            <div class="color-swatch" style="background:#e51400;" data-color="#e51400" data-name="crimson"></div>
+                            <div class="color-swatch" style="background:#60a917;" data-color="#60a917" data-name="emerald"></div>
+                            <div class="color-swatch" style="background:#e3a21a;" data-color="#e3a21a" data-name="amber"></div>
+                            <div class="color-swatch" style="background:#aa00ff;" data-color="#aa00ff" data-name="violet"></div>
+                            <div class="color-swatch" style="background:#00aba9;" data-color="#00aba9" data-name="cyan"></div>
+                            <div class="color-swatch" style="background:#d80073;" data-color="#d80073" data-name="magenta"></div>
+                            <div class="color-swatch" style="background:#fa6800;" data-color="#fa6800" data-name="orange"></div>
+                        </div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-item-header">title language</div>
+                        <select class="metro-select" id="title-select">
+                            <option value="romaji">romaji</option>
+                            <option value="english">english</option>
+                            <option value="native">native</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-item-header">adult content</div>
+                        <div class="settings-item-sub">show 18+ media</div>
+                        <label class="switch">
+                            <input type="checkbox" id="adult-toggle">
+                            <span class="check"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-item" style="margin-top: 20px;">
+                        <button class="metro-btn primary" onclick="logout()"><i class="fa-solid fa-power-off"></i> sign out</button>
+                    </div>
+
+                    <div class="settings-item" style="margin-top: 10px;">
+                        <div class="settings-item-header">about</div>
+                        <div class="settings-item-sub">anilist metro v5. amoled zune edition.</div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+
+<script>
+// ==========================================
+// CONFIG & STATE
+// ==========================================
+const CLIENT_ID = 40698;
+let accessToken = localStorage.getItem('anilist_token');
+let currentUserId = null;
+let allListsData = { ANIME: {}, MANGA: {} };
+let currentMediaType = 'ANIME';
+let currentLibStatus = 'CURRENT';
+let searchType = 'ANIME';
+let searchSort = null;
+let isGuest = false;
+let feedMode = 'following';
+let inboxMode = 'unread';
+
+let currentMediaCache = null;
+let libraryItemsPerPage = 50;
+let currentLibraryPage = 1;
+let activityPage = 1;
+let notifPage = 1;
+let communityPage = 1;
+
+// ==========================================
+// TILE GENERATOR (3D FLIPPING LIVE TILES)
+// ==========================================
+function createFlipTile(id, type, coverImage, title, fullTitle, score, status, progressStr) {
+    return `
+    <div class="tile flip-tile" onclick="openDetailById(${id},'${type}')">
+        <div class="flip-tile-inner">
+            <div class="flip-tile-front">
+                <img src="${coverImage}" loading="lazy"/>
+                ${score ? `<div class="tile-score">${score}</div>` : ''}
+                ${status ? `<div class="tile-badge">${status}</div>` : ''}
+                <div class="tile-label">${title.toLowerCase()}</div>
+            </div>
+            <div class="flip-tile-back">
+                <div class="tile-back-title">${fullTitle.toLowerCase()}</div>
+                ${progressStr ? `<div style="font-size:12px; margin-bottom:5px; color:rgba(255,255,255,0.7);">${progressStr.toLowerCase()}</div>` : ''}
+                <div class="tile-back-rating"><i class="fa-solid fa-star"></i> ${score || 'n/a'}</div>
+            </div>
+        </div>
+    </div>`;
+}
+
+function initLiveTiles() {
+    setInterval(() => {
+        const tiles = document.querySelectorAll('.flip-tile');
+        if (tiles.length === 0) return;
+        const randomTile = tiles[Math.floor(Math.random() * tiles.length)];
+        randomTile.classList.add('flipped');
+        setTimeout(() => { randomTile.classList.remove('flipped'); }, 4000);
+    }, 2500);
+}
+initLiveTiles();
+
+// ==========================================
+// PANORAMA & SCROLL ENGINE (ZUNE PARALLAX)
+// ==========================================
+const container = document.getElementById('app-container');
+const bgHero = document.getElementById('dynamic-header');
+const topNav = document.getElementById('main-nav');
+const navItems = document.querySelectorAll('.nav-item');
+let activeNavIndex = -1;
+
+let isDown = false, startX, scrollLeft;
+const interactiveElements = 'button, a, i, input, select, .status-btn, .tile, .prog-item, .pivot-item, .filter-chip, .mts-btn, .feed-tab, .trending-tile, .inbox-item, .detail-close, canvas, .color-swatch, .dropbtn, .dropdown-content, .metro-tile-start, .anime-poster, iframe, .btn-back, .wp-setting-item, .btn-back-text, .switch, .check';
+
+container.addEventListener('mousedown', (e) => {
+    if (e.target.closest(interactiveElements)) return;
+    isDown = true; container.style.cursor = 'grabbing'; container.style.scrollSnapType = 'none';
+    startX = e.pageX - container.offsetLeft; scrollLeft = container.scrollLeft;
+});
+container.addEventListener('mouseleave', () => { if(isDown){ isDown = false; container.style.cursor = ''; container.style.scrollSnapType = 'x mandatory'; }});
+container.addEventListener('mouseup',    () => { if(isDown){ isDown = false; container.style.cursor = ''; container.style.scrollSnapType = 'x mandatory'; }});
+container.addEventListener('mousemove',  (e) => {
+    if (!isDown) return; e.preventDefault(); container.scrollLeft = scrollLeft - (e.pageX - container.offsetLeft - startX) * 1.5;
+});
+container.addEventListener('wheel', (evt) => {
+    if (Math.abs(evt.deltaX) > Math.abs(evt.deltaY)) return;
+    if (evt.shiftKey && evt.deltaY !== 0) { evt.preventDefault(); container.scrollLeft += evt.deltaY * 2; }
+}, { passive: false });
+document.addEventListener('keydown', (e) => {
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
+    if (e.key === 'Escape') { closeDetail(); return; }
+    const w = window.innerWidth > 768 ? window.innerWidth * 0.85 : window.innerWidth;
+    if (e.key === 'ArrowRight') { e.preventDefault(); container.scrollBy({ left:  w, behavior: 'smooth' }); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); container.scrollBy({ left: -w, behavior: 'smooth' }); }
+});
+
+function scrollPanorama(dir) { 
+    const w = window.innerWidth > 768 ? window.innerWidth * 0.85 : window.innerWidth; 
+    container.scrollBy({ left: dir * w, behavior: 'smooth' }); 
+}
+
+container.addEventListener('scroll', () => {
+    const width = window.innerWidth > 768 ? window.innerWidth * 0.85 : window.innerWidth;
+    const scrollRatio = container.scrollLeft / width;
+    const idx = Math.round(scrollRatio);
+    
+    bgHero.style.transform = `translateX(${-scrollRatio * 15}vw)`;
+
+    if (activeNavIndex !== idx) {
+        activeNavIndex = idx;
+        navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
+        if (navItems[idx]) {
+            const offset = navItems[idx].offsetLeft;
+            topNav.style.transform = `translateX(-${offset}px)`;
+        }
+    }
+});
+
+function scrollToSection(index) { 
+    const width = window.innerWidth > 768 ? window.innerWidth * 0.85 : window.innerWidth;
+    container.scrollTo({ left: width * index, behavior: 'smooth' });
+}
+
+// ==========================================
+// LIGHT / DARK THEME LOGIC
+// ==========================================
+function applyThemeMode(mode) {
+    if (mode === 'system') {
+        const isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+    } else {
+        document.documentElement.setAttribute('data-theme', mode);
+    }
+    const select = document.getElementById('theme-select');
+    if(select) select.value = mode;
+}
+
+function setThemeMode(mode) {
+    localStorage.setItem('theme_mode', mode);
+    applyThemeMode(mode);
+}
+
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+    if(localStorage.getItem('theme_mode') === 'system') applyThemeMode('system');
+});
+
+// ==========================================
+// COLOR & THEMING (No Color Wheel)
+// ==========================================
+function setTheme(color, name) {
+    document.documentElement.style.setProperty('--accent', color);
+    localStorage.setItem('metro_theme', color);
+    localStorage.setItem('metro_theme_name', name || color);
+    
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+    const exactSwatch = document.querySelector(`.color-swatch[data-color="${color}"]`);
+    if(exactSwatch) exactSwatch.classList.add('active');
+
+    const sub = document.getElementById('st-theme-sub');
+    if(sub) sub.innerText = (name || color);
+    showToast('accent updated');
+}
+
+const savedTheme = localStorage.getItem('metro_theme') || '#1ba1e2';
+document.documentElement.style.setProperty('--accent', savedTheme);
+
+document.addEventListener("DOMContentLoaded", () => {
+    const savedThemeName = localStorage.getItem('metro_theme_name') || 'cobalt';
+    const sub = document.getElementById('st-theme-sub');
+    if(sub) sub.innerText = savedThemeName;
+    
+    document.querySelectorAll('#theme-colors .color-swatch').forEach(swatch => {
+        if (swatch.dataset.color === savedTheme) swatch.classList.add('active');
+        swatch.addEventListener('click', e => { setTheme(e.target.dataset.color, e.target.dataset.name); });
+    });
+    
+    const savedThemeMode = localStorage.getItem('theme_mode') || 'system';
+    applyThemeMode(savedThemeMode);
+});
+
+// ==========================================
+// AUTH & VIEWS
+// ==========================================
+function checkAuth() {
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const token = params.get('access_token');
+    if (token) { localStorage.setItem('anilist_token', token); accessToken = token; window.history.replaceState(null, null, window.location.pathname); }
+    if (accessToken) {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('app-container').style.display = 'flex';
+        document.getElementById('main-nav').style.display = 'flex';
+        document.getElementById('top-right-nav').style.display = 'block';
+        
+        const firstNav = navItems[0];
+        if(firstNav) topNav.style.transform = `translateX(-${firstNav.offsetLeft}px)`;
+        
+        loadUserData();
+    }
+}
+function login() { window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`; }
+function guestMode() {
+    isGuest = true;
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app-container').style.display = 'flex';
+    document.getElementById('main-nav').style.display = 'flex';
+    
+    const firstNav = navItems[0];
+    if(firstNav) topNav.style.transform = `translateX(-${firstNav.offsetLeft}px)`;
+
+    document.getElementById('user-page-name').innerText = 'guest';
+    document.getElementById('start-tile-user').innerText = 'guest';
+    document.getElementById('notif-list').innerHTML = '<div style="color:var(--text-dim);">sign in to see notifications.</div>';
+    loadPublicCommunityFeed();
+}
+function logout() { localStorage.removeItem('anilist_token'); location.reload(); }
+
+// ==========================================
+// API
+// ==========================================
+async function fetchAPI(query, variables = {}) {
+    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+    if (accessToken && !isGuest) headers['Authorization'] = 'Bearer ' + accessToken;
+    const res = await fetch('https://graphql.anilist.co', { method: 'POST', headers, body: JSON.stringify({ query, variables }) });
+    const json = await res.json();
+    if (json.errors) { console.error(json.errors); throw new Error(json.errors[0].message); }
+    return json.data;
+}
+function timeAgo(ts) {
+    const h = Math.floor((Date.now() - ts * 1000) / 3600000), d = Math.floor(h / 24);
+    if (h < 1) return 'just now'; if (h < 24) return h + 'h ago';
+    if (d === 1) return 'yesterday'; if (d < 7) return d + 'd ago'; return d + ' days ago';
+}
+function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+
+// ==========================================
+// USER DATA
+// ==========================================
+async function loadUserData() {
+    if (isGuest) return;
+    const q = `query { Viewer { id name avatar { large } statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead } } unreadNotificationCount } }`;
+    try {
+        const data = await fetchAPI(q);
+        const v = data.Viewer; currentUserId = v.id;
+        
+        document.getElementById('user-page-name').innerText = v.name.toLowerCase();
+        document.getElementById('start-tile-user').innerText = v.name.toLowerCase();
+        
+        document.getElementById('top-right-avatar').src = v.avatar.large;
+        document.getElementById('user-page-avatar').src = v.avatar.large;
+        document.getElementById('start-tile-avatar').src = v.avatar.large;
+        
+        document.getElementById('user-page-sub').innerText = `${v.statistics.anime.count} anime // ${v.statistics.manga.count} manga`;
+
+        if (v.unreadNotificationCount > 0) {
+            document.getElementById('notif-page-title').innerHTML = `inbox <span style="background:var(--accent); color:#fff; font-size:40px; padding:2px 10px; vertical-align:top;">${v.unreadNotificationCount}</span>`;
+            document.getElementById('start-tile-notif').innerText = v.unreadNotificationCount;
+        }
+        
+        loadLibrary('ANIME'); loadLibrary('MANGA');
+        loadPublicCommunityFeed(); loadNotifications('unread');
+    } catch (err) { console.error(err); if (err.message.includes('Invalid token')) logout(); }
+}
+
+// ==========================================
+// PUBLIC COMMUNITY FEED
+// ==========================================
+async function loadPublicCommunityFeed(append = false) {
+    const el = document.getElementById('public-feed');
+    if (!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; communityPage = 1; }
+    
+    const q = `query($page: Int) { Page(page:$page,perPage:20) { pageInfo { hasNextPage } activities(isFollowing:false,sort:ID_DESC,type:MEDIA_LIST) { ... on ListActivity { status progress createdAt user { name avatar { large } } media { id type title { english romaji } coverImage { large } } } } } }`;
+    try {
+        const data = await fetchAPI(q, { page: communityPage }); 
+        if (!append) el.innerHTML = '';
+        
+        const acts = data.Page.activities.filter(a => a.media && a.user);
+        acts.forEach(act => {
+            const title = act.media.title.english || act.media.title.romaji;
+            let action = act.status || ''; if (act.progress) action += ' ' + act.progress + ' of';
+            el.innerHTML += `<div class="prog-item">
+                <img src="${act.user.avatar.large}" class="prog-avatar" onclick="openUserDetail('${act.user.name}')" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';"/>
+                <div class="prog-info">
+                    <div class="prog-user" onclick="openUserDetail('${act.user.name}')">${act.user.name.toLowerCase()}</div>
+                    <div class="prog-status">${action.toLowerCase()} <span onclick="openDetailById(${act.media.id}, '${act.media.type}')">${title.toLowerCase()}</span></div>
+                    <div class="prog-time">${timeAgo(act.createdAt)}</div>
+                </div>
+                <img src="${act.media.coverImage.large}" class="prog-thumb" style="width:42px;height:56px;" onclick="openDetailById(${act.media.id}, '${act.media.type}')"/>
+            </div>`;
+        });
+        
+        let btn = document.getElementById('load-more-community');
+        if (btn) btn.remove();
+        if (data.Page.pageInfo.hasNextPage) {
+            el.innerHTML += `<button class="load-more-btn" id="load-more-community" onclick="loadMoreCommunity()">load more...</button>`;
+        }
+    } catch(e) { if(!append) el.innerHTML = '<div style="color:var(--text-dim);">could not load community feed.</div>'; }
+}
+function loadMoreCommunity() { communityPage++; loadPublicCommunityFeed(true); }
+
+// ==========================================
+// LIBRARY
+// ==========================================
+async function loadLibrary(mediaType) {
+    if (isGuest) return;
+    const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { status entries { score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
+    const data = await fetchAPI(q, { userId: currentUserId, type: mediaType });
+    allListsData[mediaType] = {};
+    data.MediaListCollection.lists.forEach(list => { allListsData[mediaType][list.status] = list.entries; });
+    if (mediaType === 'ANIME') renderLibrary('CURRENT');
+}
+
+function renderLibrary(status, append = false) {
+    if (isGuest) return;
+    const el = document.getElementById('library-grid');
+    if (!append) { el.innerHTML = ''; currentLibraryPage = 1; }
+    const entries = (allListsData[currentMediaType] || {})[status] || [];
+    document.querySelector('#library-pivots .pivot-item[data-status="CURRENT"]').innerText = currentMediaType === 'ANIME' ? 'watching' : 'reading';
+
+    if (!entries.length && !append) { el.innerHTML = '<div style="color:var(--text-dim);">no entries found.</div>'; return; }
+
+    const chunk = entries.slice((currentLibraryPage - 1) * libraryItemsPerPage, currentLibraryPage * libraryItemsPerPage);
+    const existingBtn = document.getElementById('load-more-lib-btn'); if (existingBtn) existingBtn.remove();
+
+    chunk.forEach(entry => {
+        const title = entry.media.title.english || entry.media.title.romaji;
+        const total = currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters;
+        const sc = entry.score >= 8 ? 'score-high' : entry.score >= 5 ? 'score-mid' : entry.score > 0 ? 'score-low' : '';
+        const progressStr = `progress: ${entry.progress} / ${total || '?'}`;
+        const badge = status === 'CURRENT' ? (entry.progress + (total ? '/'+total : '')) : '';
+        
+        el.innerHTML += createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage.large, title, title, entry.score, badge, progressStr);
+    });
+
+    if (entries.length > currentLibraryPage * libraryItemsPerPage) {
+        el.innerHTML += `<button class="load-more-btn" id="load-more-lib-btn" onclick="loadMoreLibrary()" style="grid-column: 1 / -1;">load more...</button>`;
+    }
+}
+function loadMoreLibrary() { currentLibraryPage++; renderLibrary(currentLibStatus, true); }
+
+function switchMediaType(type, btn) {
+    currentMediaType = type; 
+    document.querySelectorAll('.mts-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLibStatus = 'CURRENT'; 
+    document.querySelectorAll('#library-pivots .pivot-item').forEach((p, i) => p.classList.toggle('active', i === 0));
+    renderLibrary('CURRENT');
+}
+document.querySelectorAll('#library-pivots .pivot-item').forEach(item => {
+    item.addEventListener('click', e => {
+        document.querySelectorAll('#library-pivots .pivot-item').forEach(s => s.classList.remove('active'));
+        e.target.classList.add('active'); currentLibStatus = e.target.dataset.status; renderLibrary(currentLibStatus);
+    });
+});
+
+// ==========================================
+// SEARCH
+// ==========================================
+let searchTimeout = null;
+document.getElementById('search-input').addEventListener('input', e => {
+    clearTimeout(searchTimeout); const term = e.target.value.trim();
+    if (term.length < 2) { document.getElementById('search-results').innerHTML = ''; return; }
+    searchTimeout = setTimeout(() => doSearch(term), 450);
+});
+async function doSearch(term) {
+    const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">searching...</div>';
+    const q = `query ($search:String,$type:MediaType,$sort:[MediaSort]) { Page(page:1,perPage:20) { media(search:$search,type:$type,sort:$sort) { id title { english romaji } coverImage { large } status averageScore } } }`;
+    const data = await fetchAPI(q, { search: term, type: searchType, sort: ['SEARCH_MATCH'] });
+    renderSearchResults(data.Page.media);
+}
+async function doSortedBrowse() {
+    const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
+    const q = `query ($type:MediaType,$sort:[MediaSort]) { Page(page:1,perPage:24) { media(type:$type,sort:$sort) { id title { english romaji } coverImage { large } status averageScore } } }`;
+    const data = await fetchAPI(q, { type: searchType, sort: [searchSort] });
+    renderSearchResults(data.Page.media);
+}
+function renderSearchResults(media) {
+    const el = document.getElementById('search-results'); el.innerHTML = '';
+    if (!media.length) { el.innerHTML = '<div style="color:var(--text-dim);">no results.</div>'; return; }
+    media.forEach(m => {
+        const title = m.title.english || m.title.romaji;
+        const score = m.averageScore ? (m.averageScore/10).toFixed(1) : '';
+        el.innerHTML += createFlipTile(m.id, searchType, m.coverImage.large, title, title, score, (m.status||'').toLowerCase(), null);
+    });
+}
+function setSearchType(type, el) {
+    searchType = type; document.querySelectorAll('.filter-chip[data-type]').forEach(c => c.classList.remove('active')); el.classList.add('active');
+    const term = document.getElementById('search-input').value.trim();
+    if (term.length >= 2) doSearch(term); else if (searchSort) doSortedBrowse();
+}
+function setSort(sort, el) {
+    searchSort = sort; document.querySelectorAll('.filter-chip[data-sort]').forEach(c => c.classList.remove('active')); el.classList.add('active');
+    doSortedBrowse();
+}
+
+// ==========================================
+// WP MESSAGING INBOX (NOTIFICATIONS)
+// ==========================================
+function switchInboxCategory(cat, el) {
+    document.querySelectorAll('#notif-list-container .pivot-item').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    inboxMode = cat;
+    loadNotifications(cat, false);
+}
+
+async function loadNotifications(mode, append = false) {
+    if (isGuest) return;
+    const el = document.getElementById('notif-list');
+    if (!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; notifPage = 1; }
+    
+    const resetCount = mode === 'unread';
+    const q = `query ($page: Int, $reset: Boolean) { Page(page:$page,perPage:25) { pageInfo { hasNextPage } notifications(resetNotificationCount:$reset) {
+        ... on AiringNotification { type episode createdAt media { id type title { english romaji } coverImage { large } } }
+        ... on FollowingNotification { type createdAt user { name avatar { large } } }
+        ... on ActivityLikeNotification { type createdAt user { name avatar { large } } }
+        ... on ActivityMentionNotification { type createdAt user { name avatar { large } } }
+        ... on ActivityReplyNotification { type createdAt user { name avatar { large } } }
+        ... on RelatedMediaAdditionNotification { type createdAt media { id type title { english romaji } coverImage { large } } }
+    } } }`;
+    
+    try {
+        const data = await fetchAPI(q, { page: notifPage, reset: resetCount });
+        if (!append) el.innerHTML = '';
+        if (!append && !data.Page.notifications.length) { el.innerHTML = '<div style="color:var(--text-dim);">no notifications.</div>'; return; }
+        
+        data.Page.notifications.forEach((n, i) => {
+            let sender = 'anilist system', preview = '', action = '', avatar = 'https://via.placeholder.com/55';
+            const time = timeAgo(n.createdAt);
+            
+            if (n.type === 'AIRING') { 
+                sender = 'new episode'; 
+                avatar = n.media.coverImage.large;
+                const t = n.media.title.english || n.media.title.romaji; 
+                preview = `episode ${n.episode} of ${t.toLowerCase()} aired.`; 
+                action = `onclick="openDetailById(${n.media.id}, '${n.media.type}')"`; 
+            }
+            else if (n.type === 'FOLLOWING') { 
+                sender = n.user?.name.toLowerCase() || 'someone'; 
+                avatar = n.user?.avatar?.large || avatar;
+                preview = `started following you.`; 
+                action = `onclick="openUserDetail('${n.user.name}')"`; 
+            }
+            else if (n.type === 'ACTIVITY_LIKE') { 
+                sender = n.user?.name.toLowerCase() || 'someone'; 
+                avatar = n.user?.avatar?.large || avatar;
+                preview = `liked your activity.`; 
+                action = `onclick="openUserDetail('${n.user.name}')"`; 
+            }
+            else if (n.type === 'ACTIVITY_MENTION' || n.type === 'ACTIVITY_REPLY') { 
+                sender = n.user?.name.toLowerCase() || 'someone'; 
+                avatar = n.user?.avatar?.large || avatar;
+                preview = n.type === 'ACTIVITY_MENTION' ? `mentioned you.` : `replied to your activity.`; 
+                action = `onclick="openUserDetail('${n.user.name}')"`; 
+            }
+            else if (n.type === 'RELATED_MEDIA_ADDITION') { 
+                sender = 'new media added'; 
+                avatar = n.media?.coverImage?.large || avatar;
+                const t = n.media?.title.english||n.media?.title.romaji||'media'; 
+                preview = `related media: ${t.toLowerCase()}`; 
+                action = `onclick="openDetailById(${n.media.id}, '${n.media.type}')"`; 
+            }
+            else { 
+                preview = n.type.replace(/_/g,' ').toLowerCase(); 
+            }
+            
+            el.innerHTML += `
+            <div class="inbox-item" ${action}>
+                <div class="inbox-avatar"><img src="${avatar}" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';"></div>
+                <div class="inbox-content">
+                    <div class="inbox-sender">${sender}</div>
+                    <div class="inbox-preview">${preview}</div>
+                </div>
+                <div class="inbox-time">${time}</div>
+            </div>`;
+        });
+        
+        let btn = document.getElementById('load-more-notif-btn');
+        if (btn) btn.remove();
+        if (data.Page.pageInfo.hasNextPage) {
+            el.innerHTML += `<button class="load-more-btn" id="load-more-notif-btn" onclick="loadMoreNotifications()">load more...</button>`;
+        }
+    } catch(e) { console.error(e); }
+}
+function loadMoreNotifications() { notifPage++; loadNotifications(inboxMode, true); }
+
+// ==========================================
+// OVERVIEW PANELS (User Profile & Anime)
+// ==========================================
+function closeDetail() { 
+    document.getElementById('detail-panel').style.display = 'none';
+    document.getElementById('main-nav').classList.remove('ui-hidden');
+    document.getElementById('top-right-nav').classList.remove('ui-hidden');
+}
+
+async function openUserDetail(name) {
+    document.getElementById('main-nav').classList.add('ui-hidden');
+    document.getElementById('top-right-nav').classList.add('ui-hidden');
+
+    const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+    content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading user...</div>'; panel.style.display = 'block';
+    
+    const q = `query ($name: String) { 
+        User(name: $name) { 
+            id name about(asHtml: false) avatar { large } bannerImage 
+            statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead } } 
+            favourites { 
+                anime(page: 1, perPage: 12) { nodes { id type coverImage { large } } } 
+                manga(page: 1, perPage: 12) { nodes { id type title { english romaji } coverImage { large } } } 
+            }
+        } 
+    }`;
+    
+    try {
+        const data = await fetchAPI(q, { name }); const u = data.User;
+        const score = u.statistics.anime.meanScore ? (u.statistics.anime.meanScore).toFixed(1) : '0';
+        
+        let heatmapDots = '';
+        for(let i=0; i<80; i++) heatmapDots += `<div class="heat-dot ${Math.random() > 0.7 ? 'active' : ''}"></div>`;
+
+        let animeFavs = u.favourites.anime.nodes.map(a => `<img src="${a.coverImage.large}" class="anime-poster" onclick="openDetailById(${a.id},'${a.type}')">`).join('');
+        if (!animeFavs) animeFavs = '<div style="color:var(--text-dim); font-size:14px; grid-column: 1/-1;">no favorite anime found.</div>';
+
+        let mangaFavs = u.favourites.manga.nodes.map(m => `<img src="${m.coverImage.large}" class="anime-poster" onclick="openDetailById(${m.id},'${m.type}')">`).join('');
+        if (!mangaFavs) mangaFavs = '<div style="color:var(--text-dim); font-size:14px; grid-column: 1/-1;">no favorite manga found.</div>';
+
+        const actQ = `query($userId: Int) { Page(page:1, perPage:10) { activities(userId:$userId, type:MEDIA_LIST, sort:ID_DESC) { ... on ListActivity { id status progress createdAt media { id type title { english romaji } coverImage { large } } } } } }`;
+        const actData = await fetchAPI(actQ, { userId: u.id });
+        const acts = actData?.Page?.activities || [];
+        
+        let activitiesHtml = acts.map(a => `
+            <div class="prog-item" style="background:var(--surface); border:2px solid transparent; padding:10px; display:flex; gap:15px; margin-bottom:5px;">
+                <img src="${a.media.coverImage.large}" style="width:40px; height:55px; object-fit:cover; cursor:pointer;" onclick="openDetailById(${a.media.id},'${a.media.type}')">
+                <div>
+                    <div style="font-size:14px; color:var(--text-dim);">${a.status} ${a.progress || ''}</div>
+                    <div style="font-size:16px; color:var(--text); cursor:pointer;" onclick="openDetailById(${a.media.id},'${a.media.type}')">${(a.media.title.english || a.media.title.romaji).toLowerCase()}</div>
+                </div>
+            </div>
+        `).join('');
+        if(!activitiesHtml) activitiesHtml = '<div style="color:var(--text-dim);">no recent activity.</div>';
+
+        content.innerHTML = `
+            <div class="profile-banner-header" style="background-image: url('${u.bannerImage || 'https://via.placeholder.com/1200x300/333/555?text=Banner'}'); position: relative; height: 250px; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 20px; gap: 20px; border-bottom: 4px solid var(--accent); margin-bottom: 40px;">
+                <div style="position: absolute; inset: 0; background: linear-gradient(to top, var(--bg), transparent);"></div>
+                <img src="${u.avatar.large}" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';" style="width:120px; height:120px; border:4px solid var(--bg); position: relative; z-index: 1;" />
+                <div style="position: relative; z-index: 1; padding-bottom: 5px;">
+                    <h1 class="metro-huge-title" id="user-panorama-title" style="color: var(--accent); margin-bottom: 10px; line-height: 0.8; letter-spacing: -2px;">${u.name.toLowerCase()}</h1>
+                    <div class="stats-row" style="margin-top: 20px; margin-bottom: 0; display: flex; gap: 15px;">
+                        <div class="stat-block"><div class="val" style="font-size:32px; color:var(--text);">${u.statistics.anime.count}</div><div class="lbl" style="font-size: 14px; color: var(--text-dim);">total anime</div></div>
+                        <div class="stat-block"><div class="val" style="font-size:32px; color:var(--text);">${(u.statistics.anime.minutesWatched / 1440).toFixed(1)}</div><div class="lbl" style="font-size: 14px; color: var(--text-dim);">days watched</div></div>
+                        <div class="stat-block"><div class="val" style="font-size:32px; color:var(--text);">${score}</div><div class="lbl" style="font-size: 14px; color: var(--text-dim);">mean score</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-layout">
+                <div class="panel">
+                    <h3 style="margin-bottom: 15px; color: var(--accent); font-weight:200;">activity history</h3>
+                    <div class="heatmap" style="margin-bottom: 20px;">${heatmapDots}</div>
+                    ${activitiesHtml}
+                </div>
+
+                <div class="panel">
+                    <div style="border-bottom: 2px solid var(--surface-hover); padding-bottom: 10px; margin-bottom: 15px;">
+                        <h3 style="font-weight:200; color:var(--accent);">favorite anime</h3>
+                    </div>
+                    <div class="anime-grid-mini">${animeFavs}</div>
+                </div>
+
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <div style="border-bottom: 2px solid var(--surface-hover); padding-bottom: 10px; margin-bottom: 15px;">
+                        <h3 style="font-weight:200; color:var(--accent);">favorite manga</h3>
+                    </div>
+                    <div class="anime-grid-mini">${mangaFavs}</div>
+                </div>
+            </div>`;
+    } catch(e) { content.innerHTML = '<div style="color:var(--text-dim);">error loading user.</div>'; }
+}
+
+async function openDetailById(id, type) {
+    document.getElementById('main-nav').classList.add('ui-hidden');
+    document.getElementById('top-right-nav').classList.add('ui-hidden');
+
+    const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+    content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading...</div>'; panel.style.display = 'block';
+    
+    const q = `query ($id:Int) { 
+        Media(id:$id) { 
+            id title { english romaji } coverImage { extraLarge large } bannerImage description(asHtml:false) format status episodes chapters averageScore isAdult genres startDate { year }
+            trailer { id site thumbnail }
+            mediaListEntry { status }
+            relations { edges { relationType(version:2) node { id title { english romaji } type coverImage { large } } } } 
+            characters(sort: [ROLE, RELEVANCE, ID], perPage: 16) { 
+                pageInfo { total }
+                edges { role node { id name { full } image { large } } voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) { id name { full } image { large } } } 
+            }
+            staff(sort: [RELEVANCE, ID], perPage: 16) { 
+                pageInfo { total }
+                edges { role node { id name { full } image { large } } } 
+            }
+            reviews(page: 1, perPage: 10, sort: [RATING_DESC, ID]) { 
+                pageInfo { total }
+                nodes { id summary rating score user { name avatar { large } } } 
+            }
+        } 
+    }`;
+    
+    try {
+        const data = await fetchAPI(q, { id }); const m = data.Media;
+        currentMediaCache = m;
+        const title = m.title.english || m.title.romaji;
+        const year = m.startDate?.year || '';
+        const genresHtml = (m.genres || []).map(g => `<span class="zune-tag">${g.toLowerCase()}</span>`).join('');
+
+        let trailerTileHtml = '';
+        if (m.trailer && m.trailer.site === 'youtube') {
+            const thumb = m.trailer.thumbnail || `https://img.youtube.com/vi/${m.trailer.id}/maxresdefault.jpg`;
+            trailerTileHtml = `
+                <div class="metro-tile large" id="trailer-tile" onclick="playVideo('${m.trailer.id}')">
+                    <div class="tile-bg" id="trailer-bg" style="background-image: url('${thumb}'); position: absolute; top:0; left:0; width:100%; height:100%; background-size: cover; opacity: 0.4;"></div>
+                    <div class="tile-gradient" id="trailer-gradient" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 70%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 1;"></div>
+                    <div class="metro-tile-title" id="trailer-title" style="color: #fff; position: relative; z-index: 2;"><i class="fa-solid fa-play"></i> play trailer</div>
+                    <div class="metro-tile-subtitle" id="trailer-subtitle" style="color: rgba(255,255,255,0.8); position: relative; z-index: 2;">click to play inline</div>
+                </div>
+            `;
+        }
+
+        let entryStatus = m.mediaListEntry?.status || '';
+        const listManagementHtml = !isGuest ? `
+            <div class="list-management-box">
+                <div class="list-management-label">list status</div>
+                <div class="status-grid">
+                    <div class="status-btn ${entryStatus==='CURRENT'?'active':''}" onclick="addToList(${m.id},'${type}','CURRENT')">${type==='ANIME'?'watching':'reading'}</div>
+                    <div class="status-btn ${entryStatus==='PLANNING'?'active':''}" onclick="addToList(${m.id},'${type}','PLANNING')">planning</div>
+                    <div class="status-btn ${entryStatus==='COMPLETED'?'active':''}" onclick="addToList(${m.id},'${type}','COMPLETED')">completed</div>
+                    <div class="status-btn ${entryStatus==='PAUSED'?'active':''}" onclick="addToList(${m.id},'${type}','PAUSED')">paused</div>
+                    <div class="status-btn full ${entryStatus==='DROPPED'?'active':''}" onclick="addToList(${m.id},'${type}','DROPPED')">dropped</div>
+                </div>
+            </div>
+        ` : '';
+
+        content.innerHTML = `
+            ${m.bannerImage ? `<div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background: url('${m.bannerImage}') center/cover; opacity:0.1; filter:blur(20px); z-index:-1;"></div>` : ''}
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 30px;">
+                <div style="flex: 0 0 300px;">
+                    <img src="${m.coverImage.extraLarge}" style="width: 100%; border: 4px solid var(--surface-hover);">
+                    ${listManagementHtml}
+                </div>
+                <div style="flex: 1; min-width: 300px;">
+                    <h1 class="metro-huge-title" style="color: var(--accent); margin-bottom: 10px; white-space: normal; font-size: 5rem; letter-spacing: -2px;">${title.toLowerCase()}</h1>
+                    <div style="font-size: 24px; color: var(--text-dim); margin-bottom: 20px;">
+                        ${year} // ${(m.format || 'tv').toLowerCase()} // ${(m.status || 'releasing').replace(/_/g,' ').toLowerCase()} // eps: ${m.episodes || '?'} // score: ${m.averageScore ? m.averageScore+'%' : 'n/a'}
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+                        ${genresHtml}
+                        ${m.isAdult ? `<span class="zune-tag" style="border-color:var(--accent-red); color:var(--accent-red);">18+</span>` : ''}
+                    </div>
+                    <p style="font-size: 20px; font-weight: 300; line-height: 1.6; color: var(--text-main); margin-bottom: 40px; max-width: 900px;">${m.description || 'no description available.'}</p>
+                    
+                    <h2 style="font-weight:200; color:var(--text); margin-bottom:15px; font-size:36px;">explore</h2>
+                    <div class="metro-hub" id="metro-hub-main">
+                        ${trailerTileHtml}
+                        
+                        <div class="metro-tile" style="background: var(--surface);" onclick="showSubview('characters')">
+                            <div class="metro-tile-title"><i class="fa-solid fa-users"></i> characters</div>
+                            <div class="metro-tile-subtitle">${m.characters?.pageInfo?.total || 0} listed</div>
+                        </div>
+                        
+                        <div class="metro-tile" style="background: var(--surface);" onclick="showSubview('staff')">
+                            <div class="metro-tile-title"><i class="fa-solid fa-pen-nib"></i> staff & cast</div>
+                            <div class="metro-tile-subtitle">${m.staff?.pageInfo?.total || 0} members</div>
+                        </div>
+
+                        <div class="metro-tile wide" style="background: var(--surface);" onclick="showSubview('reviews')">
+                            <div class="metro-tile-title"><i class="fa-solid fa-star"></i> reviews</div>
+                            <div class="metro-tile-subtitle">${m.reviews?.pageInfo?.total || 0} community reviews</div>
+                        </div>
+                    </div>
+                    <div class="metro-subview" id="subview-panel"></div>
+                </div>
+            </div>`;
+    } catch(e) { content.innerHTML = '<div style="color:var(--text-dim);">error loading detail panel.</div>'; console.error(e); }
+}
+
+function showSubview(type) {
+    const main = document.getElementById('metro-hub-main');
+    const sub = document.getElementById('subview-panel');
+    const m = currentMediaCache;
+    if(!main || !sub || !m) return;
+
+    let contentHtml = '';
+    let title = '';
+
+    if (type === 'characters') {
+        title = 'characters';
+        let chars = m.characters.edges.map(c => {
+            const va = c.voiceActors && c.voiceActors[0] ? c.voiceActors[0] : null;
+            return `
+            <div class="char-card">
+                <img src="${c.node.image.large}" class="char-img">
+                <div class="char-info">
+                    <div class="char-name">${c.node.name.full.toLowerCase()}</div>
+                    <div class="char-role">${c.role.toLowerCase()}</div>
+                </div>
+                ${va ? `
+                <div class="char-info" style="text-align:right;">
+                    <div class="char-name">${va.name.full.toLowerCase()}</div>
+                    <div class="char-role">japanese</div>
+                </div>
+                <img src="${va.image.large}" class="char-img">
+                ` : ''}
+            </div>`;
+        }).join('');
+        contentHtml = `<div class="char-grid">${chars || '<div style="color:var(--text-dim);">no characters found.</div>'}</div>`;
+    } 
+    else if (type === 'staff') {
+        title = 'staff & cast';
+        let staff = m.staff.edges.map(s => `
+            <div class="char-card">
+                <img src="${s.node.image.large}" class="char-img">
+                <div class="char-info">
+                    <div class="char-name">${s.node.name.full.toLowerCase()}</div>
+                    <div class="char-role">${s.role.toLowerCase()}</div>
+                </div>
+            </div>`).join('');
+        contentHtml = `<div class="char-grid">${staff || '<div style="color:var(--text-dim);">no staff found.</div>'}</div>`;
+    }
+    else if (type === 'reviews') {
+        title = 'community reviews';
+        let reviews = m.reviews.nodes.map(r => `
+            <div class="review-card" style="background:var(--surface); padding:20px; margin-bottom:15px; border-left:4px solid var(--accent);">
+                <div class="review-header" style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--text-dim);">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${r.user.avatar.large}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';">
+                        <span style="color:var(--text);">${r.user.name.toLowerCase()}</span>
+                    </div>
+                    <div style="font-size:28px; font-weight:200; color:var(--accent);">${r.score}/100</div>
+                </div>
+                <div style="font-size:14px; line-height:1.6; font-weight:300;">${r.summary.toLowerCase()}</div>
+            </div>`).join('');
+        contentHtml = `<div>${reviews || '<div style="color:var(--text-dim);">no reviews found.</div>'}</div>`;
+    }
+
+    sub.innerHTML = `
+        <div class="subview-header">
+            <button class="btn-back" onclick="hideSubview()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="subview-title">${title}</div>
+        </div>
+        ${contentHtml}
+    `;
+
+    main.classList.add('hidden');
+    sub.classList.add('active');
+}
+
+function hideSubview() {
+    const main = document.getElementById('metro-hub-main');
+    const sub = document.getElementById('subview-panel');
+    if(main && sub) {
+        sub.classList.remove('active');
+        main.classList.remove('hidden');
+    }
+}
+
+function playVideo(youtubeId) {
+    const tile = document.getElementById('trailer-tile');
+    if(!tile) return;
+    tile.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute; top:0; left:0; z-index:10;"></iframe>`;
+    tile.style.padding = '0';
+    tile.style.border = 'none';
+}
+
+async function addToList(mediaId, type, status) {
+    const q = `mutation ($mediaId:Int,$status:MediaListStatus) { SaveMediaListEntry(mediaId:$mediaId,status:$status) { id status } }`;
+    try { 
+        await fetchAPI(q, { mediaId, status }); 
+        showToast('saved: ' + status.toLowerCase()); 
+        loadLibrary(type); 
+        
+        document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+        const btnMap = { 'CURRENT': 0, 'PLANNING': 1, 'COMPLETED': 2, 'PAUSED': 3, 'DROPPED': 4 };
+        const idx = btnMap[status];
+        if(idx !== undefined) document.querySelectorAll('.status-btn')[idx].classList.add('active');
+        
+    } catch(e) { showToast('error saving list entry'); console.error(e); }
+}
+
+checkAuth();
+</script>
+</body>
+</html>

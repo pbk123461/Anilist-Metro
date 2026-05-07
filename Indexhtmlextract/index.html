@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AniList Metro</title>
+    <link rel="stylesheet" href="vendor/metro-ui/dist/css/metro-bootstrap.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="m4-cloak">
+
+<div id="login-overlay">
+    <h1 class="metro-huge-title" style="color: var(--accent); margin-bottom: 10px;">anilist</h1>
+    <p style="font-size: 32px; font-weight: 300; color: var(--text-dim); margin-bottom: 50px;">social collection</p>
+    <div style="display: flex; gap: 15px; flex-wrap:wrap;">
+        <button class="metro-btn primary" onclick="login()"><i class="fa-solid fa-right-to-bracket"></i> sign in</button>
+        <button class="metro-btn" onclick="guestMode()"><i class="fa-solid fa-user-secret"></i> guest mode</button>
+    </div>
+</div>
+
+<div id="detail-panel">
+    <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
+    <div id="detail-content" style="height: 100%; position: relative;"></div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Massive parallax hero bg text -->
+<div class="zune-hero-bg" id="dynamic-header">start user library community discover inbox system</div>
+
+<div class="xbox-nav" id="main-nav" style="display: none;">
+    <div class="nav-item active" onclick="scrollToSection(0)">start</div>
+    <div class="nav-item" onclick="scrollToSection(1)">user</div>
+    <div class="nav-item" onclick="scrollToSection(2)">library</div>
+    <div class="nav-item" onclick="scrollToSection(3)">community</div>
+    <div class="nav-item" onclick="scrollToSection(4)">discover</div>
+    <div class="nav-item" onclick="scrollToSection(5)">inbox</div>
+    <div class="nav-item" onclick="scrollToSection(6)">system</div>
+</div>
+
+<div class="top-right-nav" id="top-right-nav">
+    <div class="dropdown">
+        <img id="top-right-avatar" class="dropbtn" src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png" alt="Profile" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';">
+        <div class="dropdown-content">
+            <a href="#" onclick="scrollToSection(1); return false;"><i class="fa-solid fa-user fa-fw"></i> profile</a>
+            <a href="#" onclick="scrollToSection(5); return false;"><i class="fa-solid fa-envelope fa-fw"></i> inbox</a>
+            <a href="#" onclick="scrollToSection(6); return false;"><i class="fa-solid fa-gear fa-fw"></i> settings</a>
+            <a href="#" onclick="logout(); return false;"><i class="fa-solid fa-power-off fa-fw"></i> sign out</a>
+        </div>
+    </div>
+</div>
+
+<div class="nav-arrows" id="main-arrows" style="display: none;">
+    <button class="nav-arrow-btn" onclick="scrollPanorama(-1)"><i class="fa-solid fa-arrow-left"></i></button>
+    <button class="nav-arrow-btn" onclick="scrollPanorama(1)"><i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<div class="panorama-container" id="app-container" style="display: none;">
+
+    <!-- SECTION 0: START -->
+    <section class="header-section">
+        <div class="content-scroll">
+            <div class="start-screen-grid">
+                <div class="metro-tile-start wide profile-tile" style="background-color: var(--surface);" onclick="scrollToSection(1)">
+                    <img id="start-tile-avatar" src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';" alt="Avatar">
+                    <div class="start-title" id="start-tile-user" style="padding: 10px; background: rgba(0,0,0,0.6); width: 100%;">guest</div>
+                </div>
+                <div class="metro-tile-start medium" style="background-color: #60a917;" onclick="scrollToSection(2)">
+                    <i class="fa-solid fa-book-open start-icon"></i>
+                    <span class="start-title">library</span>
+                </div>
+                <div class="metro-tile-start medium" style="background-color: #f39c12;" onclick="scrollToSection(4)">
+                    <i class="fa-solid fa-magnifying-glass start-icon"></i>
+                    <span class="start-title">discover</span>
+                </div>
+                <div class="metro-tile-start medium" style="background-color: #d80073;" onclick="scrollToSection(5)">
+                    <span class="start-title" style="font-size: 4rem; align-self: center; margin: auto; font-weight: 200; line-height: 1;" id="start-tile-notif">0</span>
+                    <span class="start-title">inbox</span>
+                </div>
+                <div class="metro-tile-start wide" style="background-color: #a20025;" onclick="scrollToSection(3)">
+                    <i class="fa-solid fa-users start-icon"></i>
+                    <span class="start-title">community</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 1: USER -->
+    <section class="header-section">
+        <h1 class="metro-huge-title">user</h1>
+        <div class="content-scroll">
+            <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 40px;">
+                <div style="width: 120px; height: 120px; background: var(--surface); overflow: hidden;">
+                    <img id="user-page-avatar" src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';" style="width:100%; height:100%; object-fit: cover;" alt="avatar">
+                </div>
+                <div style="padding-bottom: 5px;">
+                    <h1 class="metro-huge-title" id="user-page-name" style="color: var(--accent); margin-bottom: 10px;">guest</h1>
+                    <div style="color: var(--text-dim); font-size: 1.2rem;" id="user-page-sub">login via anilist</div>
+                </div>
+            </div>
+            <div class="settings-list" style="margin-bottom: 40px;">
+                <div class="wp-setting-item" onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">
+                    <div class="wp-setting-title">anime list</div>
+                    <div class="wp-setting-sub">track watching and completed</div>
+                </div>
+                <div class="wp-setting-item" onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">
+                    <div class="wp-setting-title">manga list</div>
+                    <div class="wp-setting-sub">track reading and completed</div>
+                </div>
+                <div class="wp-setting-item" onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">
+                    <div class="wp-setting-title">overview</div>
+                    <div class="wp-setting-sub">favorites, stats, and history</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: LIBRARY -->
+    <section class="header-section">
+        <h1 class="metro-huge-title">library</h1>
+        <div class="content-scroll">
+            <div class="media-type-switch">
+                <button class="mts-btn active" onclick="switchMediaType('ANIME',this)">anime</button>
+                <button class="mts-btn" onclick="switchMediaType('MANGA',this)">manga</button>
+            </div>
+            <div class="pivot-headers" id="library-pivots">
+                <div class="pivot-item active" data-status="CURRENT">watching</div>
+                <div class="pivot-item" data-status="COMPLETED">completed</div>
+                <div class="pivot-item" data-status="PLANNING">planned</div>
+                <div class="pivot-item" data-status="PAUSED">paused</div>
+                <div class="pivot-item" data-status="DROPPED">dropped</div>
+            </div>
+            <div class="tile-grid" id="library-grid"><div style="color:var(--text-dim);">loading...</div></div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: COMMUNITY -->
+    <section class="header-section">
+        <h1 class="metro-huge-title">community</h1>
+        <div class="content-scroll">
+            <div class="prog-list" id="public-feed"><div style="color:var(--text-dim);">loading...</div></div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: DISCOVER -->
+    <section class="header-section">
+        <h1 class="metro-huge-title">discover</h1>
+        <div class="content-scroll">
+            <input type="text" class="metro-input" id="search-input" placeholder="search anime or manga...">
+            <div class="search-filters">
+                <button class="filter-chip active" data-type="ANIME" onclick="setSearchType('ANIME',this)">anime</button>
+                <button class="filter-chip" data-type="MANGA" onclick="setSearchType('MANGA',this)">manga</button>
+                <button class="filter-chip" data-sort="TRENDING_DESC" onclick="setSort('TRENDING_DESC',this)">trending</button>
+                <button class="filter-chip" data-sort="SCORE_DESC" onclick="setSort('SCORE_DESC',this)">top rated</button>
+                <button class="filter-chip" data-sort="POPULARITY_DESC" onclick="setSort('POPULARITY_DESC',this)">popular</button>
+            </div>
+            <div class="tile-grid" id="search-results" style="margin-bottom: 40px;"></div>
+
+            <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">currently watching</div>
+            <div class="trending-row" id="watching-row"><div style="color:var(--text-dim);">log in to see...</div></div>
+
+            <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">trending now</div>
+            <div class="trending-row" id="trending-row"><div style="color:var(--text-dim);">loading...</div></div>
+
+            <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">community discussions</div>
+            <div class="trending-row">
+                <div class="wide-info-tile">
+                    <div class="wide-info-title"><i class="fa-regular fa-comments"></i> episode discussions</div>
+                    <div class="wide-info-sub">community reactions and reviews</div>
+                </div>
+                <div class="wide-info-tile">
+                    <div class="wide-info-title"><i class="fa-solid fa-book-open"></i> manga reader corner</div>
+                    <div class="wide-info-sub">adaptation differences and theories</div>
+                </div>
+            </div>
+
+            <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">cast & overview</div>
+            <div class="trending-row">
+                <div class="wide-info-tile">
+                    <div class="wide-info-title"><i class="fa-solid fa-microphone"></i> top voice actors</div>
+                    <div class="wide-info-sub">Yuki Kaji, Hiroshi Kamiya, Yui Ishikawa</div>
+                </div>
+                <div class="wide-info-tile">
+                    <div class="wide-info-title"><i class="fa-solid fa-pen-nib"></i> top authors</div>
+                    <div class="wide-info-sub">Hajime Isayama, Eiichiro Oda, Gege Akutami</div>
+                </div>
+                <div class="wide-info-tile" style="min-width: 300px;">
+                    <div class="wide-info-title"><i class="fa-solid fa-tags"></i> tag distribution</div>
+                    <div class="wide-info-sub">action 40% &bull; drama 30% &bull; fantasy 30%</div>
+                    <div class="tag-bar-container">
+                        <div class="tag-bar-segment" style="width: 40%; background: #ce352c;"></div>
+                        <div class="tag-bar-segment" style="width: 30%; background: #1ba1e2;"></div>
+                        <div class="tag-bar-segment" style="width: 30%; background: #60a917;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: INBOX -->
+    <section class="header-section">
+        <h1 class="metro-huge-title" id="notif-page-title">inbox</h1>
+        <div class="content-scroll">
+            <div class="pivot-headers">
+                <div class="pivot-item active" onclick="switchInboxCategory('unread', this)">unread</div>
+                <div class="pivot-item" onclick="switchInboxCategory('past', this)">past</div>
+            </div>
+            <div class="inbox-list" id="notif-list"><div style="color:var(--text-dim);">loading...</div></div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: SYSTEM -->
+    <section class="header-section">
+        <h1 class="metro-huge-title">system</h1>
+        <div class="content-scroll">
+            <div id="settings-main-list" class="settings-list">
+                <div class="wp-setting-item" onclick="openSettingsView('theme')">
+                    <div class="wp-setting-title">theme</div>
+                    <div class="wp-setting-sub" id="st-theme-sub">dark, cobalt</div>
+                </div>
+                <div class="wp-setting-item" onclick="openSettingsView('account')">
+                    <div class="wp-setting-title">account</div>
+                    <div class="wp-setting-sub">anilist integration</div>
+                </div>
+                <div class="wp-setting-item" onclick="openSettingsView('animemanga')">
+                    <div class="wp-setting-title">anime & manga</div>
+                    <div class="wp-setting-sub">title language, adult content</div>
+                </div>
+                <div class="wp-setting-item" onclick="openSettingsView('about')">
+                    <div class="wp-setting-title">about</div>
+                    <div class="wp-setting-sub">anilist metro v5 — amoled zune edition</div>
+                </div>
+            </div>
+
+            <div id="settings-subview-container" style="display: none;">
+                <button class="btn-back-text" onclick="closeSettingsView()"><i class="fa-solid fa-arrow-left"></i> settings</button>
+
+                <div id="settings-tab-theme" class="settings-subview">
+                    <div class="settings-item">
+                        <div class="settings-item-header">background</div>
+                        <select class="metro-select" id="theme-select" onchange="setThemeMode(this.value)" style="margin-bottom: 30px;">
+                            <option value="system">system</option>
+                            <option value="dark">dark</option>
+                            <option value="light">light</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-item-header">accent color</div>
+                        <div class="color-picker" id="theme-colors">
+                            <div class="color-swatch" style="background:#1ba1e2;" data-color="#1ba1e2" data-name="cobalt"></div>
+                            <div class="color-swatch" style="background:#ff0097;" data-color="#ff0097" data-name="magenta"></div>
+                            <div class="color-swatch" style="background:#8cbf26;" data-color="#8cbf26" data-name="lime"></div>
+                            <div class="color-swatch" style="background:#e51400;" data-color="#e51400" data-name="crimson"></div>
+                            <div class="color-swatch" style="background:#00aba9;" data-color="#00aba9" data-name="teal"></div>
+                            <div class="color-swatch" style="background:#a20025;" data-color="#a20025" data-name="ruby"></div>
+                            <div class="color-swatch" style="background:#f0a30a;" data-color="#f0a30a" data-name="amber"></div>
+                            <div class="color-swatch" style="background:#76608a;" data-color="#76608a" data-name="purple"></div>
+                            <div class="color-swatch" style="background:#60a917;" data-color="#60a917" data-name="green"></div>
+                            <div class="color-swatch" style="background:#fa6800;" data-color="#fa6800" data-name="orange"></div>
+                            <input type="color" id="custom-color-picker" class="color-swatch" value="#1ba1e2" title="custom color">
+                        </div>
+                        <!-- Color Wheel (from index.html) -->
+                        <div class="color-wheel-wrap">
+                            <canvas id="color-wheel-canvas" width="200" height="200"></canvas>
+                            <div class="color-wheel-crosshair" id="wheel-crosshair" style="left:100px;top:100px;"></div>
+                        </div>
+                        <div class="color-preview-row">
+                            <div class="color-preview-box" id="color-preview-box" onclick="applyWheelColor()"></div>
+                            <div class="color-hex" id="color-hex-display">#1ba1e2</div>
+                            <div style="font-size:12px;color:var(--text-dim); text-transform:uppercase; letter-spacing:1px;">click square to apply</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settings-tab-account" class="settings-subview">
+                    <div class="settings-item">
+                        <div class="settings-item-header">account status</div>
+                        <p style="color:var(--text-dim); margin-top:10px;">logged in securely via anilist oauth.</p>
+                        <button class="metro-btn primary" style="margin-top:20px;" onclick="logout()"><i class="fa-solid fa-power-off"></i> sign out</button>
+                    </div>
+                </div>
+
+                <div id="settings-tab-animemanga" class="settings-subview">
+                    <div class="settings-item">
+                        <div class="settings-item-header">title language</div>
+                        <select class="metro-select" id="title-select" style="margin-bottom: 30px;">
+                            <option value="romaji">romaji</option>
+                            <option value="english">english</option>
+                            <option value="native">native</option>
+                        </select>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-item-header">adult content</div>
+                        <div class="settings-item-sub">show 18+ media in search and feeds</div>
+                        <label class="switch">
+                            <input type="checkbox" id="adult-toggle">
+                            <span class="check"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item" style="margin-top: 20px;">
+                        <div style="color:var(--accent); font-size: 1.2rem;">advanced settings at <a href="https://anilist.co/settings" target="_blank" style="color:var(--accent);">anilist.co</a></div>
+                    </div>
+                </div>
+
+                <div id="settings-tab-about" class="settings-subview">
+                    <div class="settings-item">
+                        <div class="settings-item-header">anilist metro</div>
+                        <p style="color:var(--text-dim); margin-top:10px; line-height:1.6; font-size:16px;">
+                            version 5.0 — amoled zune edition.<br><br>
+                            redesigned to mimic the classic windows phone 7 and zune hd interfaces while providing social anime tracking.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+    <script src="vendor/metro-ui/dist/js/metro.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

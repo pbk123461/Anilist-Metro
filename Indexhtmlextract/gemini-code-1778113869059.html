@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AniList Metro</title>
+    
+    <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* =========================================
+           CORE VARIABLES: ZUNE / WP7 METRO
+           ========================================= */
+        :root {
+            --accent: #1ba1e2;
+            --bg: #000000;
+            --surface: #111111;
+            --surface-hover: #1a1a1a;
+            --text: #ffffff;
+            --text-dim: rgba(255,255,255,0.4);
+            --hero-bg-text: rgba(255,255,255,0.04);
+            --metro-easing: cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --surface: #eeeeee;
+            --surface-hover: #dddddd;
+            --text: #000000;
+            --text-dim: rgba(0,0,0,0.4);
+            --hero-bg-text: rgba(0,0,0,0.03);
+        }
+
+        /* Strict Metro Resets */
+        * {
+            box-sizing: border-box;
+            border-radius: 0 !important; 
+            box-shadow: none !important;
+            font-family: 'Segoe UI Light', 'Segoe UI Variable Display', 'Segoe UI', Tahoma, sans-serif !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0; padding: 0;
+            width: 100vw; max-width: 100vw;
+            height: 100vh; overflow: hidden;
+            background-color: var(--bg);
+            color: var(--text);
+            font-weight: 300;
+        }
+
+        h1, h2, h3, h4, .nav-item, .btn, .metro-title {
+            text-transform: lowercase; 
+            font-weight: 300; 
+            margin: 0;
+        }
+        
+        a { color: var(--accent); text-decoration: none; }
+
+        /* =========================================
+           ZUNE PARALLAX PANORAMA
+           ========================================= */
+        #dynamic-header {
+            position: fixed; top: 10px; left: 20px;
+            font-size: 160px; font-weight: 100;
+            color: var(--hero-bg-text); z-index: 0;
+            pointer-events: none; white-space: nowrap; letter-spacing: -6px;
+            transition: transform 0.1s linear;
+        }
+
+        .xbox-nav {
+            position: fixed; top: 40px; left: 20px;
+            display: flex; gap: 30px; z-index: 50;
+            transition: transform 0.4s var(--metro-easing);
+            align-items: baseline;
+        }
+
+        .nav-item {
+            font-size: 32px; color: var(--text-dim);
+            cursor: pointer; transition: color 0.2s ease;
+        }
+        .nav-item.active { font-size: 56px; font-weight: 200; color: var(--text); letter-spacing: -1px; }
+
+        .panorama-container {
+            display: flex; width: 100vw; height: 100vh;
+            overflow-x: auto; overflow-y: hidden;
+            scroll-snap-type: x mandatory; scrollbar-width: none;
+            padding-top: 140px; position: relative; z-index: 10;
+        }
+        .panorama-container::-webkit-scrollbar { display: none; }
+
+        .section {
+            min-width: 100vw; width: 100vw; height: 100%;
+            scroll-snap-align: start; padding: 0 20px 20px 20px;
+            overflow-y: auto; overflow-x: hidden;
+        }
+
+        /* =========================================
+           TILES & GRIDS
+           ========================================= */
+        .metro-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px; padding-bottom: 50px;
+        }
+
+        /* 3D Flipping Media Tile */
+        .tile {
+            position: relative; background-color: var(--surface);
+            aspect-ratio: 1; overflow: hidden; cursor: pointer; perspective: 1000px;
+        }
+        .tile-inner {
+            width: 100%; height: 100%; position: absolute;
+            transition: transform 0.8s var(--metro-easing); transform-style: preserve-3d;
+        }
+        .tile:hover .tile-inner { transform: rotateY(180deg); }
+        .tile-front, .tile-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; }
+        .tile-front { background-size: cover; background-position: center; }
+        .tile-front::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+        }
+        .tile-back {
+            background-color: var(--accent); transform: rotateY(180deg);
+            padding: 10px; display: flex; flex-direction: column; justify-content: flex-start;
+        }
+        .tile-title {
+            position: absolute; bottom: 10px; left: 10px; right: 10px;
+            color: #fff; font-size: 14px; z-index: 2;
+            text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-weight: 400;
+        }
+
+        /* Solid WP7 Navigation Tile */
+        .nav-tile {
+            background-color: var(--accent); color: #fff; aspect-ratio: 1;
+            padding: 15px; position: relative; cursor: pointer;
+            transition: transform 0.1s; overflow: hidden;
+        }
+        .nav-tile:active { transform: scale(0.95); }
+        .nav-tile i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; opacity: 0.8; }
+        .nav-tile-wide { grid-column: span 2; aspect-ratio: 2/1; }
+        .nav-tile-title { position: absolute; bottom: 10px; left: 10px; font-size: 1.2rem; font-weight: 400; }
+
+        /* =========================================
+           FORMS, INPUTS & BUTTONS
+           ========================================= */
+        .metro-input, .metro-select, .metro-textarea {
+            width: 100%; background: var(--surface); border: 2px solid transparent;
+            color: var(--text); padding: 15px; font-size: 18px; margin-bottom: 15px;
+            transition: border-color 0.2s; outline: none;
+        }
+        .metro-input:focus, .metro-select:focus, .metro-textarea:focus { border-color: var(--accent); background: var(--bg); }
+
+        .metro-btn {
+            background: var(--surface); color: var(--text); border: 2px solid transparent;
+            padding: 12px 24px; font-size: 18px; cursor: pointer; display: inline-flex; gap: 10px; align-items: center;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .metro-btn:hover { border-color: var(--text-dim); }
+        .metro-btn:active { background: var(--surface-hover); transform: scale(0.98); }
+        .metro-btn.accent { background: var(--accent); color: #fff; }
+
+        /* =========================================
+           SUBVIEWS (Details, Editor)
+           ========================================= */
+        .metro-subview {
+            position: fixed; top: 0; left: 100vw; width: 100vw; height: 100vh;
+            background: var(--bg); z-index: 100; transition: left 0.4s var(--metro-easing);
+            overflow-y: auto; overflow-x: hidden; padding: 20px;
+        }
+        .metro-subview.active { left: 0; }
+        
+        .subview-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; padding-top: 10px; }
+        .back-btn { background: none; border: none; color: var(--text); font-size: 32px; cursor: pointer; padding: 0; transition: color 0.2s; }
+        .back-btn:hover { color: var(--accent); }
+
+        .banner-header {
+            height: 250px; background-size: cover; background-position: center;
+            margin: -20px -20px 20px -20px; position: relative; display: flex; align-items: flex-end; padding: 20px;
+        }
+        .banner-header::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 10%, transparent); }
+        .banner-title { position: relative; z-index: 2; font-size: 3rem; font-weight: 200; line-height: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.8); color: #fff; }
+
+        /* =========================================
+           ACTIVITY FEED
+           ========================================= */
+        .activity-card { background: var(--surface); padding: 15px; margin-bottom: 10px; }
+        .activity-header { display: flex; gap: 15px; align-items: center; margin-bottom: 10px; }
+        .activity-avatar { width: 40px; height: 40px; background-size: cover; }
+        .activity-content { font-size: 16px; line-height: 1.4; color: var(--text); }
+        .activity-content img { max-width: 100%; margin-top: 10px; }
+        .activity-actions { display: flex; gap: 20px; margin-top: 10px; color: var(--text-dim); }
+        .action-btn { cursor: pointer; transition: color 0.2s; }
+        .action-btn.liked { color: #e51400; }
+
+        /* Settings List */
+        .settings-item { cursor: pointer; padding: 12px 0; transition: background 0.1s; }
+        .settings-item:active { background: var(--surface-hover); }
+        .settings-title { font-size: 2rem; font-weight: 300; line-height: 1; color: var(--text); }
+        .settings-sub { font-size: 1rem; color: var(--accent); margin-top: 4px; }
+
+        .toast {
+            position: fixed; top: 20px; right: 20px; background: var(--accent); color: #fff;
+            padding: 15px 25px; z-index: 9999; transform: translateX(150%);
+            transition: transform 0.4s var(--metro-easing); font-size: 18px;
+        }
+        .toast.show { transform: translateX(0); }
+    </style>
+</head>
+<body>
+
+    <div id="dynamic-header">start</div>
+
+    <div class="xbox-nav" id="top-nav">
+        <div class="nav-item active" onclick="scrollToSection(0)">start</div>
+        <div class="nav-item" onclick="scrollToSection(1)">user</div>
+        <div class="nav-item" onclick="scrollToSection(2)">library</div>
+        <div class="nav-item" onclick="scrollToSection(3)">community</div>
+        <div class="nav-item" onclick="scrollToSection(4)">discover</div>
+        <div class="nav-item" onclick="scrollToSection(5)">system</div>
+    </div>
+
+    <div class="panorama-container" id="metro-hub-main">
+        
+        <div class="section" id="sec-start">
+            <div class="metro-grid">
+                <div class="nav-tile nav-tile-wide" style="background: var(--surface);" onclick="scrollToSection(1)">
+                    <img id="start-avatar" src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; opacity:0.5;">
+                    <div class="nav-tile-title" id="start-username" style="z-index: 2; font-size: 1.8rem; font-weight: 200;">guest</div>
+                </div>
+                
+                <div class="nav-tile" style="background: #a4c400;" onclick="scrollToSection(2)">
+                    <i class="fa-solid fa-book-open"></i>
+                    <div class="nav-tile-title">library</div>
+                </div>
+                <div class="nav-tile" style="background: #e51400;" onclick="scrollToSection(4)">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <div class="nav-tile-title">search</div>
+                </div>
+                
+                <div class="nav-tile nav-tile-wide" style="background: #f0a30a;">
+                    <i class="fa-solid fa-calendar-day" style="left: 25%; font-size: 4rem; opacity: 0.3;"></i>
+                    <div style="position:absolute; top:50%; right:20px; transform:translateY(-50%); font-size: 4rem; font-weight:200;" id="start-airing-count">--</div>
+                    <div class="nav-tile-title">airing today</div>
+                </div>
+
+                <div class="nav-tile" style="background: #aa00ff;" onclick="scrollToSection(5)">
+                    <i class="fa-solid fa-gear"></i>
+                    <div class="nav-tile-title">settings</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="sec-user">
+            <h1 style="font-size: 4rem; font-weight: 100; color: var(--accent); margin-bottom: 5px; line-height: 0.8;" id="profile-name">guest</h1>
+            <div style="color: var(--text-dim); margin-bottom: 30px;">overview & statistics</div>
+            <div id="profile-stats" style="font-size: 1.2rem; line-height: 1.6;">
+                login in the system tab to sync your anilist data.
+            </div>
+        </div>
+
+        <div class="section" id="sec-library">
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <button class="metro-btn accent" onclick="loadLibrary('ANIME')">anime</button>
+                <button class="metro-btn" onclick="loadLibrary('MANGA')">manga</button>
+            </div>
+            <div class="metro-grid" id="library-grid"><div style="color: var(--text-dim);">loading...</div></div>
+        </div>
+
+        <div class="section" id="sec-community">
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <button class="metro-btn accent" onclick="loadFeed(true)">following</button>
+                <button class="metro-btn" onclick="loadFeed(false)">global</button>
+            </div>
+            <div id="feed-container" style="max-width: 800px;"></div>
+        </div>
+
+        <div class="section" id="sec-discover">
+            <input type="text" class="metro-input" placeholder="search anime..." onchange="searchMedia(this.value)">
+            <h2 style="margin: 20px 0; color: var(--accent);">trending now</h2>
+            <div class="metro-grid" id="trending-grid"></div>
+        </div>
+
+        <div class="section" id="sec-system">
+            <div style="max-width: 600px;">
+                
+                <div class="settings-item" onclick="document.getElementById('theme-select').focus()">
+                    <div class="settings-title">background</div>
+                    <select class="metro-select" id="theme-select" onchange="setTheme(this.value)" style="margin-top: 5px;">
+                        <option value="system">system default</option>
+                        <option value="dark" selected>amoled dark</option>
+                        <option value="light">light</option>
+                    </select>
+                </div>
+
+                <div class="settings-item">
+                    <div class="settings-title">accent color</div>
+                    <div class="settings-sub" id="accent-label">current: cyan</div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                        <div style="width: 50px; height: 50px; background: #1ba1e2; cursor: pointer;" onclick="setAccent('#1ba1e2', 'cyan')"></div>
+                        <div style="width: 50px; height: 50px; background: #a4c400; cursor: pointer;" onclick="setAccent('#a4c400', 'lime')"></div>
+                        <div style="width: 50px; height: 50px; background: #e51400; cursor: pointer;" onclick="setAccent('#e51400', 'red')"></div>
+                        <div style="width: 50px; height: 50px; background: #f0a30a; cursor: pointer;" onclick="setAccent('#f0a30a', 'amber')"></div>
+                        <div style="width: 50px; height: 50px; background: #aa00ff; cursor: pointer;" onclick="setAccent('#aa00ff', 'purple')"></div>
+                        <div style="width: 50px; height: 50px; background: #60a917; cursor: pointer;" onclick="setAccent('#60a917', 'green')"></div>
+                        <div style="width: 50px; height: 50px; background: #d80073; cursor: pointer;" onclick="setAccent('#d80073', 'magenta')"></div>
+                    </div>
+                </div>
+
+                <div class="settings-item" style="margin-top: 20px;">
+                    <div class="settings-title">anilist account</div>
+                    <div class="settings-sub" id="account-status">not logged in</div>
+                    <button class="metro-btn accent" style="margin-top: 10px;" onclick="authenticate()"><i class="fa-solid fa-right-to-bracket"></i> sync account</button>
+                    <button class="metro-btn" style="margin-top: 10px;" onclick="logout()"><i class="fa-solid fa-power-off"></i> sign out</button>
+                </div>
+
+                <div class="settings-item" style="margin-top: 20px;">
+                    <div class="settings-title">about</div>
+                    <div class="settings-sub">anilist metro v6.0 amoled edition.</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div id="detail-subview" class="metro-subview">
+        <div class="banner-header" id="detail-banner">
+            <div class="subview-header" style="position: absolute; top: 0; left: 20px; z-index: 10;">
+                <button class="back-btn" onclick="closeSubview('detail-subview')"><i class="fa-solid fa-arrow-left"></i></button>
+            </div>
+            <div class="banner-title" id="detail-title">details</div>
+        </div>
+        
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px;">
+            <img id="detail-cover" src="" style="width: 180px; height: 260px; object-fit: cover; border: 4px solid var(--surface);">
+            <div style="flex: 1; min-width: 300px;">
+                <div id="detail-meta" style="font-size: 1.2rem; color: var(--accent); margin-bottom: 10px;"></div>
+                <p id="detail-desc" style="font-size: 16px; color: var(--text-dim); line-height: 1.5;"></p>
+                
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="metro-btn accent" onclick="openEditorFromDetail()"><i class="fa-solid fa-pen"></i> edit tracking</button>
+                    <button class="metro-btn" onclick="openSubList('characters')"><i class="fa-solid fa-users"></i> characters</button>
+                </div>
+                
+                <div id="detail-links" style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
+            </div>
+        </div>
+
+        <h3 style="color: var(--accent); margin-bottom: 10px;">franchise relations</h3>
+        <div class="metro-grid" id="detail-relations"></div>
+    </div>
+
+    <div id="list-subview" class="metro-subview">
+        <div class="subview-header">
+            <button class="back-btn" onclick="closeSubview('list-subview')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h1 id="list-title">data</h1>
+        </div>
+        <div class="metro-grid" id="list-grid"></div>
+    </div>
+
+    <div id="editor-subview" class="metro-subview">
+        <div class="subview-header">
+            <button class="back-btn" onclick="closeSubview('editor-subview')"><i class="fa-solid fa-arrow-left"></i></button>
+            <h1>track media</h1>
+        </div>
+        
+        <div style="max-width: 600px;">
+            <h3 id="editor-title" style="margin-bottom: 20px; color: var(--accent); font-size: 2rem; font-weight: 200;">--</h3>
+            
+            <label>status</label>
+            <select class="metro-select" id="editor-status">
+                <option value="CURRENT">watching / reading</option>
+                <option value="COMPLETED">completed</option>
+                <option value="PAUSED">paused</option>
+                <option value="DROPPED">dropped</option>
+                <option value="PLANNING">planning</option>
+            </select>
+
+            <label>score (0-100)</label>
+            <input type="number" class="metro-input" id="editor-score" min="0" max="100">
+
+            <label>progress (episodes/chapters)</label>
+            <input type="number" class="metro-input" id="editor-progress" min="0">
+
+            <label>private notes</label>
+            <textarea class="metro-textarea" id="editor-notes" rows="4"></textarea>
+
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button class="metro-btn accent" onclick="saveListEntry()">save entry</button>
+                <button class="metro-btn" onclick="closeSubview('editor-subview')">cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">notification</div>
+
+    <script>
+        // --- 1. STATE & CONFIG ---
+        const CLIENT_ID = 'YOUR_ANILIST_CLIENT_ID'; 
+        let accessToken = localStorage.getItem('anilist_token');
+        let currentUser = null;
+        let currentDetailMediaId = null;
+        let currentMediaCache = null; // Holds characters/staff
+        
+        // --- 2. THE PANORAMA TAB DRIFT FIX (IntersectionObserver) ---
+        const container = document.getElementById('metro-hub-main');
+        const navItems = document.querySelectorAll('.nav-item');
+        const topNav = document.getElementById('top-nav');
+        const bgHero = document.getElementById('dynamic-header');
+        let activeNavIndex = 0;
+
+        function scrollToSection(index) {
+            document.querySelectorAll('.section')[index].scrollIntoView({ behavior: 'smooth', inline: 'start' });
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                    const idx = Array.from(document.querySelectorAll('.section')).indexOf(entry.target);
+                    if (activeNavIndex !== idx) {
+                        activeNavIndex = idx;
+                        navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
+                        if (navItems[idx]) {
+                            const offset = navItems[idx].offsetLeft;
+                            topNav.style.transform = `translateX(-${offset}px)`;
+                            bgHero.innerText = navItems[idx].innerText;
+                        }
+                        
+                        // Lazy load logic based on tab focus
+                        if (idx === 2 && document.getElementById('library-grid').innerHTML.includes('loading')) loadLibrary('ANIME');
+                        if (idx === 3 && document.getElementById('feed-container').innerHTML === '') loadFeed(true);
+                        if (idx === 4 && document.getElementById('trending-grid').innerHTML === '') loadTrending();
+                    }
+                }
+            });
+        }, { root: container, threshold: 0.5 });
+        
+        document.querySelectorAll('.section').forEach(sec => observer.observe(sec));
+
+        container.addEventListener('scroll', () => {
+            const scrollRatio = container.scrollLeft / container.clientWidth;
+            bgHero.style.transform = `translateX(${-scrollRatio * 15}vw)`;
+        });
+
+        // --- 3. UI UTILS & MARKDOWN PARSER ---
+        function openSubview(id) { document.getElementById(id).classList.add('active'); }
+        function closeSubview(id) { document.getElementById(id).classList.remove('active'); }
+        function showToast(msg) {
+            const t = document.getElementById('toast'); t.innerText = msg;
+            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function setTheme(t) {
+            document.documentElement.setAttribute('data-theme', t === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t);
+            localStorage.setItem('theme_mode', t);
+        }
+        function setAccent(hex, name) { 
+            document.documentElement.style.setProperty('--accent', hex); 
+            localStorage.setItem('metro_theme', hex);
+            document.getElementById('accent-label').innerText = `current: ${name}`;
+            showToast(`accent changed to ${name}`);
+        }
+
+        function parseMarkdown(text) {
+            if(!text) return '';
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/img\((.*?)\)/g, '<br><img src="$1" style="max-width:100%; border:2px solid var(--surface-hover);"><br>')
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+                .replace(/~!(.*?)!~/g, '<span style="background:var(--surface-hover); color:transparent; cursor:pointer;" onclick="this.style.color=\'var(--text)\'">spoiler hidden</span>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // --- 4. API & AUTH LAYER ---
+        async function fetchAPI(query, variables = {}) {
+            const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, variables }) };
+            if (accessToken) opts.headers['Authorization'] = 'Bearer ' + accessToken;
+            try {
+                const res = await fetch('https://graphql.anilist.co', opts);
+                const json = await res.json();
+                if (res.ok) return json.data;
+                throw new Error(json.errors ? json.errors[0].message : 'API Error');
+            } catch (err) { showToast(err.message); return null; }
+        }
+
+        function authenticate() { window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`; }
+        function logout() { localStorage.removeItem('anilist_token'); location.reload(); }
+
+        async function initApp() {
+            // Restore Settings
+            const savedTheme = localStorage.getItem('theme_mode') || 'dark';
+            document.getElementById('theme-select').value = savedTheme;
+            setTheme(savedTheme);
+            const savedAccent = localStorage.getItem('metro_theme');
+            if(savedAccent) setAccent(savedAccent, 'custom');
+
+            // Token Grab
+            const hash = window.location.hash;
+            if (hash && hash.includes('access_token')) {
+                accessToken = hash.match(/access_token=([^&]*)/)[1];
+                localStorage.setItem('anilist_token', accessToken);
+                window.history.replaceState("", document.title, window.location.pathname);
+                showToast("account synced");
+            }
+
+            if (accessToken) {
+                const data = await fetchAPI(`query { Viewer { id name avatar { large } statistics { anime { count } manga { count } } } }`);
+                if (data && data.Viewer) {
+                    currentUser = data.Viewer;
+                    document.getElementById('start-username').innerText = currentUser.name;
+                    document.getElementById('start-avatar').src = currentUser.avatar.large;
+                    document.getElementById('profile-name').innerText = currentUser.name;
+                    document.getElementById('profile-stats').innerHTML = `
+                        <div style="font-size: 2rem;">anime entries: <span style="color:var(--accent)">${currentUser.statistics.anime.count}</span></div>
+                        <div style="font-size: 2rem;">manga entries: <span style="color:var(--accent)">${currentUser.statistics.manga.count}</span></div>
+                    `;
+                    document.getElementById('account-status').innerText = `logged in as ${currentUser.name}`;
+                }
+            }
+            loadSchedule(); // Real-time Airing
+        }
+
+        // --- 5. DATA LOADERS (Library, Feed, Trending, Schedule) ---
+        async function loadLibrary(type) {
+            if(!currentUser) return document.getElementById('library-grid').innerHTML = "<p>login required</p>";
+            const data = await fetchAPI(`query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type, status: CURRENT) { lists { entries { media { id title { romaji } coverImage { large } } } } } }`, { userId: currentUser.id, type });
+            
+            if(data && data.MediaListCollection.lists.length > 0) {
+                document.getElementById('library-grid').innerHTML = data.MediaListCollection.lists[0].entries.map(e => `
+                    <div class="tile" onclick="openDetail(${e.media.id})">
+                        <div class="tile-inner">
+                            <div class="tile-front" style="background-image: url('${e.media.coverImage.large}')"></div>
+                            <div class="tile-back"><span style="font-size:12px;">watching</span></div>
+                        </div>
+                        <div class="tile-title">${e.media.title.romaji}</div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('library-grid').innerHTML = "<p>list is empty</p>";
+            }
+        }
+
+        async function loadFeed(isFollowing) {
+            document.getElementById('feed-container').innerHTML = "loading...";
+            const data = await fetchAPI(`query($isFollowing: Boolean) { Page(page: 1, perPage: 20) { activities(isFollowing: $isFollowing, sort: ID_DESC) { ... on ListActivity { id type status progress isLiked likeCount media { title { romaji } } user { name avatar { large } } } ... on TextActivity { id text isLiked likeCount user { name avatar { large } } } } } }`, { isFollowing });
+            
+            if(data) document.getElementById('feed-container').innerHTML = data.Page.activities.map(act => `
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <img class="activity-avatar" src="${act.user.avatar.large}">
+                        <strong style="font-size: 1.2rem;">${act.user.name}</strong>
+                    </div>
+                    <div class="activity-content">${act.type === 'TEXT' ? parseMarkdown(act.text) : `<span style="color:var(--accent)">${act.status}</span> ${act.progress||''} of ${act.media.title.romaji}`}</div>
+                    <div class="activity-actions">
+                        <span class="action-btn ${act.isLiked ? 'liked' : ''}" onclick="toggleLike(${act.id}, this)"><i class="fa-${act.isLiked ? 'solid' : 'regular'} fa-heart"></i> ${act.likeCount}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function toggleLike(id, el) {
+            if(!accessToken) return showToast("login required");
+            const data = await fetchAPI(`mutation($id: Int) { ToggleLikeV2(id: $id, type: ACTIVITY) { ... on ListActivity { isLiked likeCount } ... on TextActivity { isLiked likeCount } } }`, { id });
+            if(data) {
+                el.classList.toggle('liked', data.ToggleLikeV2.isLiked);
+                el.innerHTML = `<i class="fa-${data.ToggleLikeV2.isLiked ? 'solid' : 'regular'} fa-heart"></i> ${data.ToggleLikeV2.likeCount}`;
+            }
+        }
+
+        async function loadTrending() {
+            const data = await fetchAPI(`query { Page(page: 1, perPage: 15) { media(sort: TRENDING_DESC, type: ANIME) { id title { romaji } coverImage { large } } } }`);
+            if(data) document.getElementById('trending-grid').innerHTML = data.Page.media.map(m => `
+                <div class="tile" onclick="openDetail(${m.id})">
+                    <div class="tile-inner">
+                        <div class="tile-front" style="background-image: url('${m.coverImage.large}')"></div>
+                        <div class="tile-back"><span style="font-size:12px;">trending</span></div>
+                    </div>
+                    <div class="tile-title">${m.title.romaji}</div>
+                </div>
+            `).join('');
+        }
+
+        async function searchMedia(query) {
+            if(query.length < 3) return loadTrending();
+            const data = await fetchAPI(`query($search: String) { Page(page: 1, perPage: 15) { media(search: $search, type: ANIME, sort: SEARCH_MATCH) { id title { romaji } coverImage { large } } } }`, { search: query });
+            if(data) document.getElementById('trending-grid').innerHTML = data.Page.media.map(m => `
+                <div class="tile" onclick="openDetail(${m.id})">
+                    <div class="tile-front" style="background-image: url('${m.coverImage.large}')"></div>
+                    <div class="tile-title">${m.title.romaji}</div>
+                </div>
+            `).join('');
+        }
+
+        async function loadSchedule() {
+            const start = Math.floor(new Date().setHours(0,0,0,0) / 1000);
+            const end = Math.floor(new Date().setHours(23,59,59,999) / 1000);
+            const data = await fetchAPI(`query ($start: Int, $end: Int) { Page(page: 1) { airingSchedules(airingAt_greater: $start, airingAt_lesser: $end) { id } } }`, { start, end });
+            if(data) document.getElementById('start-airing-count').innerText = data.Page.airingSchedules.length;
+        }
+
+        // --- 6. DEEP METADATA (Details & Characters) ---
+        async function openDetail(id) {
+            currentDetailMediaId = id;
+            const data = await fetchAPI(`
+                query ($id: Int) {
+                    Media(id: $id) {
+                        id title { romaji } description(asHtml: false) coverImage { large } bannerImage format status averageScore episodes
+                        externalLinks { site url color }
+                        relations { edges { relationType node { id title { romaji } coverImage { large } } } }
+                        characters(sort: [ROLE, RELEVANCE], page: 1, perPage: 15) { edges { role node { id name { full } image { large } } } }
+                    }
+                }
+            `, { id });
+            
+            if(!data) return;
+            const m = data.Media;
+            currentMediaCache = m; // Save for sub-lists
+
+            document.getElementById('detail-title').innerText = m.title.romaji;
+            document.getElementById('detail-banner').style.backgroundImage = `url('${m.bannerImage || m.coverImage.large}')`;
+            document.getElementById('detail-cover').src = m.coverImage.large;
+            document.getElementById('detail-desc').innerHTML = parseMarkdown(m.description);
+            document.getElementById('detail-meta').innerHTML = `${m.format} &bull; ${m.status} &bull; ${m.episodes || '?'} eps &bull; ${m.averageScore || 0}%`;
+
+            // Streaming Links
+            document.getElementById('detail-links').innerHTML = m.externalLinks.map(l => 
+                `<a href="${l.url}" target="_blank" class="metro-btn" style="border: 2px solid ${l.color||'var(--accent)'}; color:${l.color||'inherit'}; padding: 8px 16px; font-size:14px;">${l.site}</a>`
+            ).join('');
+
+            // Franchise Relations
+            document.getElementById('detail-relations').innerHTML = m.relations.edges.map(e => `
+                <div class="tile" onclick="openDetail(${e.node.id})">
+                    <div class="tile-inner">
+                        <div class="tile-front" style="background-image: url('${e.node.coverImage.large}')"></div>
+                        <div class="tile-back"><span style="font-size:12px;">${e.relationType.replace('_',' ')}</span></div>
+                    </div>
+                    <div class="tile-title">${e.node.title.romaji}</div>
+                </div>
+            `).join('');
+
+            openSubview('detail-subview');
+        }
+
+        function openSubList(type) {
+            if(!currentMediaCache) return;
+            document.getElementById('list-title').innerText = type;
+            
+            if(type === 'characters') {
+                document.getElementById('list-grid').innerHTML = currentMediaCache.characters.edges.map(c => `
+                    <div class="tile" style="background: var(--surface);">
+                        <div class="tile-front" style="background-image: url('${c.node.image.large}')"></div>
+                        <div class="tile-title" style="text-shadow: 1px 1px 3px #000;">${c.node.name.full}<br><span style="font-size:10px; color:var(--accent);">${c.role}</span></div>
+                    </div>
+                `).join('');
+            }
+            openSubview('list-subview');
+        }
+
+        // --- 7. ADVANCED TRACKING (Editor) ---
+        async function openEditorFromDetail() {
+            if(!accessToken) return showToast("login required");
+            const data = await fetchAPI(`query($mediaId: Int) { MediaList(mediaId: $mediaId) { id status score progress notes media { title { romaji } } } }`, { mediaId: currentDetailMediaId });
+            
+            if(data && data.MediaList) {
+                const entry = data.MediaList;
+                document.getElementById('editor-title').innerText = entry.media.title.romaji;
+                document.getElementById('editor-status').value = entry.status;
+                document.getElementById('editor-score').value = entry.score;
+                document.getElementById('editor-progress').value = entry.progress || 0;
+                document.getElementById('editor-notes').value = entry.notes || "";
+            } else {
+                document.getElementById('editor-title').innerText = currentMediaCache ? currentMediaCache.title.romaji : "new tracking entry";
+                document.getElementById('editor-status').value = "CURRENT";
+                document.getElementById('editor-score').value = 0;
+                document.getElementById('editor-progress').value = 0;
+                document.getElementById('editor-notes').value = "";
+            }
+            openSubview('editor-subview');
+        }
+
+        async function saveListEntry() {
+            const status = document.getElementById('editor-status').value;
+            const scoreRaw = parseFloat(document.getElementById('editor-score').value) || 0;
+            const progress = parseInt(document.getElementById('editor-progress').value) || 0;
+            const notes = document.getElementById('editor-notes').value;
+
+            const res = await fetchAPI(`mutation ($mediaId: Int, $status: MediaListStatus, $scoreRaw: Int, $progress: Int, $notes: String) { SaveMediaListEntry(mediaId: $mediaId, status: $status, scoreRaw: $scoreRaw, progress: $progress, notes: $notes) { id } }`, 
+            { mediaId: currentDetailMediaId, status, scoreRaw, progress, notes });
+            
+            if(res) {
+                showToast("entry saved");
+                closeSubview('editor-subview');
+                if(activeNavIndex === 2) loadLibrary('ANIME');
+            }
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>

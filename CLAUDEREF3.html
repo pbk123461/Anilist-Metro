@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AniList</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; background: #000; }
+
+body {
+  font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  color: #fff;
+  display: flex;
+}
+
+/* ─── SIDEBAR — Fluent acrylic on pure black ─── */
+aside {
+  width: 220px;
+  min-width: 220px;
+  background: rgba(18,18,18,0.88);
+  backdrop-filter: blur(40px) saturate(140%);
+  -webkit-backdrop-filter: blur(40px) saturate(140%);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-top {
+  padding: 28px 20px 20px;
+}
+/* Big Metro-style app name */
+.app-title {
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: -0.5px;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.app-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 400;
+}
+
+nav { flex: 1; padding: 8px 0 0; }
+
+/* Metro: nav labels are big, lowercase, light weight */
+.nav-section {
+  font-size: 13px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.35);
+  padding: 14px 20px 4px;
+  letter-spacing: 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 20px;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.1s, color 0.1s;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.nav-item.active {
+  color: #fff;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px;
+  background: #1ba1e2;
+}
+.nav-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1ba1e2;
+}
+
+.user-area {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.user-area:hover { background: rgba(255,255,255,0.04); }
+.avatar {
+  width: 34px; height: 34px;
+  background: #1ba1e2;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600;
+  flex-shrink: 0;
+}
+.user-name { font-size: 13px; font-weight: 600; }
+.user-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+/* ─── MAIN ─── */
+main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; background: #000; }
+
+/* ─── TOP BAR — Fluent acrylic ─── */
+.topbar {
+  height: 44px;
+  min-height: 44px;
+  background: rgba(12,12,12,0.92);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 14px;
+}
+.topbar-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.4);
+}
+.searchbox {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 3px;
+  padding: 0 10px;
+  height: 30px;
+  flex: 0 0 240px;
+  transition: background 0.1s, border-color 0.15s, box-shadow 0.15s;
+}
+.searchbox:focus-within {
+  background: rgba(255,255,255,0.08);
+  border-color: #1ba1e2;
+  box-shadow: 0 0 0 1px #1ba1e2;
+}
+.searchbox input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 12px; font-family: inherit; color: #fff;
+}
+.searchbox input::placeholder { color: rgba(255,255,255,0.35); }
+.topbar-right { margin-left: auto; display: flex; gap: 2px; }
+.topbtn {
+  width: 30px; height: 30px;
+  border: none; background: transparent; color: rgba(255,255,255,0.55);
+  cursor: pointer; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.1s, color 0.1s;
+}
+.topbtn:hover { background: rgba(255,255,255,0.07); color: #fff; }
+
+/* ─── METRO PIVOT — the panorama tab control ─── */
+.pivot {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  padding: 16px 24px 0;
+  background: #000;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.pivot-tab {
+  font-size: 24px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.28);
+  padding: 0 24px 12px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+  user-select: none;
+  white-space: nowrap;
+}
+.pivot-tab:hover { color: rgba(255,255,255,0.6); }
+.pivot-tab.active {
+  color: #fff;
+  font-weight: 300;
+}
+.pivot-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: calc(100% - 24px);
+  height: 2px;
+  background: #1ba1e2;
+}
+
+/* ─── SCROLL ─── */
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 24px 32px;
+}
+.scroll::-webkit-scrollbar { width: 4px; }
+.scroll::-webkit-scrollbar-track { background: transparent; }
+.scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+
+/* ─── METRO SECTION HEADER ─── */
+/* Like "people" / "recent" from the reference */
+.metro-heading {
+  font-size: 42px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 2px;
+  /* Metro: deliberately let it breathe, huge */
+}
+.metro-subheading {
+  font-size: 13px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 18px;
+  letter-spacing: 0;
+}
+
+/* ─── STATS — Metro tiles, solid colors, zero radius ─── */
+.stats-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 32px;
+}
+.stat-tile {
+  flex: 1;
+  padding: 14px 12px;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+  transition: filter 0.12s;
+}
+.stat-tile:hover { filter: brightness(1.1); }
+.stat-number {
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1;
+  color: #fff;
+}
+.stat-label {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+  text-transform: lowercase;
+}
+
+/* ─── TILE GRID — true Metro live tile layout ─── */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: 160px;
+  gap: 6px;
+  margin-bottom: 32px;
+}
+.tile {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: filter 0.12s;
+}
+.tile:hover { filter: brightness(1.08); }
+.tile:active { filter: brightness(0.88); }
+.tile.w2 { grid-column: span 2; }
+.tile.w3 { grid-column: span 3; }
+.tile.h2 { grid-row: span 2; }
+
+/* Fluent reveal effect */
+.tile-glow {
+  position: absolute; inset: 0; pointer-events: none; z-index: 4;
+  background: radial-gradient(circle 110px at var(--rx,50%) var(--ry,50%), rgba(255,255,255,0.09) 0%, transparent 70%);
+  opacity: 0; transition: opacity 0.18s;
+}
+.tile:hover .tile-glow { opacity: 1; }
+
+/* Solid color bg — exactly like Metro reference */
+.c-blue   { background: #1ba1e2; }
+.c-navy   { background: #0050ef; }
+.c-teal   { background: #00aba9; }
+.c-purple { background: #6a00ff; }
+.c-red    { background: #e51400; }
+.c-green  { background: #339933; }
+.c-amber  { background: #d68910; }
+.c-steel  { background: #2d2d2d; }
+.c-dark   { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.09); }
+.c-mango  { background: #ca5010; }
+.c-indigo { background: #4b0082; }
+
+/* Cover image (sits below text, tinted by tile color) */
+.tile-img {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center top;
+  mix-blend-mode: luminosity;
+  opacity: 0.25;
+}
+/* Solid cover colors as image stand-ins */
+.img-aot  { background-color: #0a1520; }
+.img-ds   { background-color: #200808; }
+.img-jjk  { background-color: #100820; }
+.img-vs   { background-color: #081408; }
+.img-csm  { background-color: #201008; }
+.img-fri  { background-color: #080820; }
+.img-op   { background-color: #201408; }
+.img-sl   { background-color: #081020; }
+
+.tile-body {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 8px 10px;
+  z-index: 3;
+  background: linear-gradient(transparent, rgba(0,0,0,0.5));
+}
+.tile.h2 .tile-body { padding: 14px 14px; }
+
+.tile-badge {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(0,0,0,0.4);
+  color: rgba(255,255,255,0.85);
+  padding: 1px 5px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+.tile-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 3px;
+}
+.tile.h2 .tile-name { font-size: 16px; margin-bottom: 4px; }
+.tile-info {
+  font-size: 10px;
+  color: rgba(255,255,255,0.65);
+  display: flex; align-items: center; gap: 6px;
+}
+.score { color: #FFB900; font-weight: 600; }
+
+/* Score chip top-right */
+.chip {
+  position: absolute;
+  top: 7px; right: 7px;
+  background: rgba(0,0,0,0.55);
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFB900;
+  padding: 2px 5px;
+  z-index: 5;
+}
+
+/* ─── PROGRESS LIST — Fluent list items ─── */
+.prog-list { display: flex; flex-direction: column; gap: 1px; }
+.prog-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #111;
+  border-left: 3px solid var(--bar, #1ba1e2);
+  cursor: pointer;
+  transition: background 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+.prog-item::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle 120px at var(--rx,-100px) var(--ry,-100px), rgba(255,255,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.prog-item:hover { background: #181818; }
+.prog-thumb {
+  width: 36px; height: 50px;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+}
+.prog-info { flex: 1; min-width: 0; }
+.prog-title {
+  font-size: 13px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.prog-detail { font-size: 11px; color: rgba(255,255,255,0.38); margin-bottom: 5px; }
+.prog-track { height: 2px; background: rgba(255,255,255,0.08); }
+.prog-fill { height: 100%; background: var(--bar, #1ba1e2); }
+.prog-ep { font-size: 11px; color: rgba(255,255,255,0.38); white-space: nowrap; padding: 0 4px; }
+.prog-score { font-size: 13px; font-weight: 600; color: #FFB900; min-width: 30px; text-align: right; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="sidebar-top">
+    <div class="app-title">anilist</div>
+    <div class="app-sub">your anime library</div>
+  </div>
+
+  <nav>
+    <div class="nav-section">library</div>
+    <div class="nav-item active">
+      watching
+      <span class="nav-count">24</span>
+    </div>
+    <div class="nav-item">completed</div>
+    <div class="nav-item">plan to watch</div>
+    <div class="nav-item">on hold</div>
+    <div class="nav-item">dropped</div>
+
+    <div class="nav-section">discover</div>
+    <div class="nav-item">trending</div>
+    <div class="nav-item">seasonal</div>
+    <div class="nav-item">browse</div>
+
+    <div class="nav-section">social</div>
+    <div class="nav-item">activity</div>
+  </nav>
+
+  <div class="user-area">
+    <div class="avatar">AK</div>
+    <div>
+      <div class="user-name">Akira_Kun</div>
+      <div class="user-sub">level 42</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <span class="topbar-label">anilist</span>
+    <div class="searchbox">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="rgba(255,255,255,0.45)"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h-.001l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85a1.007 1.007 0 00-.115-.1zM12 6.5a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"/></svg>
+      <input type="text" placeholder="search anime, manga...">
+    </div>
+    <div class="topbar-right">
+      <button class="topbtn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 16a2 2 0 002-2H6a2 2 0 002 2zm.995-14.901a1 1 0 10-1.99 0A5.002 5.002 0 003 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/></svg>
+      </button>
+      <button class="topbtn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.754a3.246 3.246 0 100 6.492 3.246 3.246 0 000-6.492zM5.754 8a2.246 2.246 0 114.492 0 2.246 2.246 0 01-4.492 0z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 01-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 01-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 01.52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 011.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 011.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 01.52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 01-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 01-1.255-.52l-.094-.319z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- METRO PIVOT -->
+  <div class="pivot">
+    <div class="pivot-tab active">all</div>
+    <div class="pivot-tab">airing</div>
+    <div class="pivot-tab">finished</div>
+    <div class="pivot-tab">movies</div>
+  </div>
+
+  <div class="scroll">
+
+    <!-- Metro-style huge section heading -->
+    <div class="metro-heading">watching</div>
+    <div class="metro-subheading">24 series in progress</div>
+
+    <!-- STATS — Metro solid tiles -->
+    <div class="stats-row" style="margin-bottom:32px">
+      <div class="stat-tile c-blue">
+        <div class="stat-number">24</div>
+        <div class="stat-label">watching</div>
+      </div>
+      <div class="stat-tile c-green">
+        <div class="stat-number">187</div>
+        <div class="stat-label">completed</div>
+      </div>
+      <div class="stat-tile c-purple">
+        <div class="stat-number">43</div>
+        <div class="stat-label">plan to watch</div>
+      </div>
+      <div class="stat-tile c-amber">
+        <div class="stat-number">7.8</div>
+        <div class="stat-label">mean score</div>
+      </div>
+      <div class="stat-tile c-steel">
+        <div class="stat-number">52d</div>
+        <div class="stat-label">days watched</div>
+      </div>
+    </div>
+
+    <!-- SECTION -->
+    <div class="metro-heading" style="font-size:28px;margin-bottom:2px">featured</div>
+    <div class="metro-subheading">trending in your library</div>
+
+    <!-- TILE GRID -->
+    <div class="tile-grid">
+
+      <!-- Hero: AoT -->
+      <div class="tile c-blue w2 h2" id="t1">
+        <div class="tile-img img-aot"></div>
+        <div class="tile-glow"></div>
+        <div class="chip">★ 9.0</div>
+        <div class="tile-body">
+          <div class="tile-badge">watching · ep 16/28</div>
+          <div class="tile-name" style="font-size:18px">Attack on Titan<br>Final Season</div>
+          <div class="tile-info"><span class="score">★ 9.0</span><span>Action · Drama</span></div>
+        </div>
+      </div>
+
+      <!-- Demon Slayer -->
+      <div class="tile c-red h2" id="t2">
+        <div class="tile-img img-ds"></div>
+        <div class="tile-glow"></div>
+        <div class="chip">★ 8.6</div>
+        <div class="tile-body">
+          <div class="tile-badge">watching · ep 8/11</div>
+          <div class="tile-name">Demon Slayer:<br>Swordsmith Village</div>
+          <div class="tile-info"><span class="score">★ 8.6</span></div>
+        </div>
+      </div>
+
+      <!-- Frieren -->
+      <div class="tile c-navy" id="t3">
+        <div class="tile-img img-fri"></div>
+        <div class="tile-glow"></div>
+        <div class="tile-body">
+          <div class="tile-badge">watching</div>
+          <div class="tile-name">Frieren: Beyond Journey's End</div>
+          <div class="tile-info"><span class="score">★ 9.1</span><span>ep 20</span></div>
+        </div>
+      </div>
+
+      <!-- JJK -->
+      <div class="tile c-steel" id="t4">
+        <div class="tile-img img-jjk"></div>
+        <div class="tile-glow"></div>
+        <div class="tile-body">
+          <div class="tile-badge">airing</div>
+          <div class="tile-name">Jujutsu Kaisen S2</div>
+          <div class="tile-info"><span class="score">★ 8.8</span><span>ep 23/24</span></div>
+        </div>
+      </div>
+
+      <!-- Vinland Saga -->
+      <div class="tile c-green w2" id="t5">
+        <div class="tile-img img-vs"></div>
+        <div class="tile-glow"></div>
+        <div class="chip">★ 8.9</div>
+        <div class="tile-body">
+          <div class="tile-badge">completed</div>
+          <div class="tile-name">Vinland Saga Season 2</div>
+          <div class="tile-info"><span class="score">★ 8.9</span><span>24 / 24 · Historical</span></div>
+        </div>
+      </div>
+
+      <!-- Chainsaw Man -->
+      <div class="tile c-mango" id="t6">
+        <div class="tile-img img-csm"></div>
+        <div class="tile-glow"></div>
+        <div class="tile-body">
+          <div class="tile-badge">completed</div>
+          <div class="tile-name">Chainsaw Man</div>
+          <div class="tile-info"><span class="score">★ 8.7</span><span>12/12</span></div>
+        </div>
+      </div>
+
+      <!-- Solo Leveling -->
+      <div class="tile c-teal" id="t7">
+        <div class="tile-img img-sl"></div>
+        <div class="tile-glow"></div>
+        <div class="tile-body">
+          <div class="tile-badge">plan to watch</div>
+          <div class="tile-name">Solo Leveling S2</div>
+          <div class="tile-info"><span>0 / 13</span></div>
+        </div>
+      </div>
+
+      <!-- One Piece -->
+      <div class="tile c-dark" id="t8">
+        <div class="tile-img img-op"></div>
+        <div class="tile-glow"></div>
+        <div class="tile-body">
+          <div class="tile-badge">watching</div>
+          <div class="tile-name">One Piece (Egghead)</div>
+          <div class="tile-info"><span class="score">★ 9.0</span><span>ep 1100+</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Continue watching -->
+    <div class="metro-heading" style="font-size:28px;margin-bottom:2px">continue</div>
+    <div class="metro-subheading" style="margin-bottom:14px">pick up where you left off</div>
+
+    <div class="prog-list">
+      <div class="prog-item" style="--bar:#1ba1e2">
+        <div class="prog-thumb img-aot"></div>
+        <div class="prog-info">
+          <div class="prog-title">Attack on Titan: The Final Season Part 3</div>
+          <div class="prog-detail">episode 16 of 28 · updated 2 hours ago</div>
+          <div class="prog-track"><div class="prog-fill" style="width:57%"></div></div>
+        </div>
+        <div class="prog-ep">16/28</div>
+        <div class="prog-score">9.0</div>
+      </div>
+      <div class="prog-item" style="--bar:#6a00ff">
+        <div class="prog-thumb img-jjk"></div>
+        <div class="prog-info">
+          <div class="prog-title">Jujutsu Kaisen Season 2</div>
+          <div class="prog-detail">episode 23 of 24 · new episode available</div>
+          <div class="prog-track"><div class="prog-fill" style="width:96%"></div></div>
+        </div>
+        <div class="prog-ep">23/24</div>
+        <div class="prog-score">8.8</div>
+      </div>
+      <div class="prog-item" style="--bar:#0050ef">
+        <div class="prog-thumb img-fri"></div>
+        <div class="prog-info">
+          <div class="prog-title">Frieren: Beyond Journey's End</div>
+          <div class="prog-detail">episode 20 of 25 · airing every friday</div>
+          <div class="prog-track"><div class="prog-fill" style="width:80%"></div></div>
+        </div>
+        <div class="prog-ep">20/25</div>
+        <div class="prog-score">9.1</div>
+      </div>
+      <div class="prog-item" style="--bar:#e51400">
+        <div class="prog-thumb img-ds"></div>
+        <div class="prog-info">
+          <div class="prog-title">Demon Slayer: Swordsmith Village Arc</div>
+          <div class="prog-detail">episode 8 of 11 · 3 episodes remaining</div>
+          <div class="prog-track"><div class="prog-fill" style="width:73%"></div></div>
+        </div>
+        <div class="prog-ep">8/11</div>
+        <div class="prog-score">8.6</div>
+      </div>
+      <div class="prog-item" style="--bar:#339933">
+        <div class="prog-thumb img-op"></div>
+        <div class="prog-info">
+          <div class="prog-title">One Piece — Egghead Arc</div>
+          <div class="prog-detail">episode 1100+ · ongoing weekly</div>
+          <div class="prog-track"><div class="prog-fill" style="width:22%"></div></div>
+        </div>
+        <div class="prog-ep">1100+</div>
+        <div class="prog-score">9.0</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// Fluent reveal on tiles
+document.querySelectorAll('.tile').forEach(tile => {
+  tile.addEventListener('mousemove', e => {
+    const r = tile.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%';
+    const y = ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%';
+    const g = tile.querySelector('.tile-glow');
+    if (g) { g.style.setProperty('--rx', x); g.style.setProperty('--ry', y); }
+  });
+});
+
+// Fluent reveal on list items
+document.querySelectorAll('.prog-item').forEach(item => {
+  item.addEventListener('mousemove', e => {
+    const r = item.getBoundingClientRect();
+    item.style.setProperty('--rx', (e.clientX - r.left) + 'px');
+    item.style.setProperty('--ry', (e.clientY - r.top) + 'px');
+  });
+});
+
+// Pivot
+document.querySelectorAll('.pivot-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.pivot-tab').forEach(p => p.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+
+// Nav
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
+// Entrance animation
+document.querySelectorAll('.tile, .stat-tile').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(10px)';
+  el.style.transition = `opacity 0.25s ${i*0.04}s, transform 0.25s ${i*0.04}s, filter 0.12s`;
+  setTimeout(() => { el.style.opacity = '1'; el.style.transform = ''; }, 40 + i * 40);
+});
+</script>
+</body>
+</html>
