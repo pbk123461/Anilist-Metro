@@ -1,0 +1,27 @@
+1: Goal: Fix and Polish AniList Metro App
+2: 
+3: Constraints:
+4: - Metro UI: zero rounded corners, zero shadows, AMOLED colors, lowercase text
+5: - Single-file Vanilla HTML/CSS/JS
+6: - Reference files: gemini-code-*.html and CLAUDEREF3.html for layout structure
+7: 
+8: COMPLETED TASKS (as of 2026-05-06):
+9: 1. ✅ Fix Auth: login() and guestMode() correctly hide overlay and show app-container
+10: 2. ✅ Airing Section: Selected day panel placed on right side of calendar
+11: 3. ✅ Airing Section: Implemented vertical timeline view on right side of airing list
+12: 4. ✅ Discover Section: Trending set as default tab
+13: 5. ✅ Discover Section: Added 'More' buttons to filters with zoom-out animation
+14: 6. ✅ Discover Section: Made 'Episode Discussions' and 'Manga Reader Corner' functional
+15: 7. ✅ Layout & UI: Implemented Metro UI zoom-out animations for all list/grid transitions
+16: 8. ✅ Layout & UI: Fixed User and Media Overviews (no truncations - white-space: normal)
+17: 9. ✅ Layout & UI: Fixed 'SFW Trending' slideshow on login overlay
+18: 10. ✅ Settings: Ensured no white boxes in subviews (background: var(--bg))
+19: 11. ✅ Settings: Kept color wheel, ensured custom color picker fixed size (40x40px)
+20: 12. ✅ System: Fixed wallpaper import logic (size validation before FileReader)
+21: 13. ✅ System: Throttled arrow key navigation (300ms)
+22: 14. ✅ System: Refined rate limit handling in fetchAPI (token expiry detection)
+23: 
+24: ALL TASKS COMPLETED - SEE restoresesh.txt FOR SESSION STATE
+25: 
+
+(End of file - total 25 lines)

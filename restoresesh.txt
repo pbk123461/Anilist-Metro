@@ -1,0 +1,110 @@
+================================================================================
+RESTORE SESSION FILE: AniList Metro Web App
+================================================================================
+Generated: 2026-05-06
+Project Path: /Users/BrijeshKrishnan/BRIJESH KRISHNAN/projectgobrr/index.html
+
+================================================================================
+GLOBAL STATE VARIABLES (JAVASCRIPT)
+================================================================================
+- accessToken: AniList OAuth token (from localStorage 'anilist_token')
+- currentUserId: Logged-in user's AniList ID (null if guest)
+- allListsData: Cache of library data (anime/manga) = { ANIME: {}, MANGA: {} }
+- currentMediaType: 'ANIME' | 'MANGA'
+- currentLibStatus: 'CURRENT' (default library status filter)
+- searchType: 'ANIME' | 'MANGA' (discover search type)
+- searchSort: null | string (e.g., 'TRENDING_DESC', 'SCORE_DESC')
+- isGuest: Boolean flag for guest mode
+- feedMode: 'feed' | 'forums' | 'trending' | 'following' (community)
+- inboxMode: 'unread' | 'past'
+- currentMediaCache: Active detail panel media object
+- libraryItemsPerPage: 50
+- showAdultContent: Boolean (from localStorage 'show_adult')
+- showSpoilers: Boolean (from localStorage 'show_spoilers')
+- wallpaperDataUrl: string (from localStorage 'metro_wallpaper')
+- wallpaperName: string (from localStorage 'metro_wallpaper_name')
+- currentLibraryPage: 1
+- activityPage: 1
+- notifPage: 1
+- communityPage: 1
+- wheelPickedColor: string (from localStorage 'metro_theme')
+- airingView: 'today' | 'week'
+- airingSelectedDate: Date object
+- navigationHistoryAiringSelectedDate: Current airing calendar date
+- activeNavIndex: -1 (current panorama section index)
+- lastArrowPress: 0 (timestamp for throttle)
+
+================================================================================
+LOCALSTORAGE KEYS (MUST BE PRESERVED)
+================================================================================
+- anilist_token: OAuth access token
+- metro_theme: Accent color hex (e.g., '#1ba1e2')
+- metro_theme_name: Theme name (e.g., 'cobalt')
+- theme_mode: 'system' | 'dark' | 'light'
+- metro_wallpaper: DataURL string of wallpaper image
+- metro_wallpaper_name: Wallpaper filename
+- show_adult: 'true' | 'false'
+- show_spoilers: 'true' | 'false'
+- title_language: 'romaji' | 'english' | 'native' (if added)
+
+================================================================================
+SECTION INDEXING (ZERO-INDEXED)
+================================================================================
+0: start
+1: user (main-nav-user)
+2: library
+3: community
+4: discover
+5: airing
+6: inbox
+7: system
+
+Navigation: .nav-item onclick="scrollToSection(N)"
+Panorama: .header-section elements, 85vw width each
+
+================================================================================
+API CONFIGURATION
+================================================================================
+- CLIENT_ID: 40698
+- API Endpoint: https://graphql.anilist.co
+- Auth URL: https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token
+- Rate Limit: 90 requests/minute (handled with retry logic and 300ms throttle)
+
+================================================================================
+CRITICAL UI RULES (METRO DESIGN BIBLE)
+================================================================================
+1. ZERO rounded corners: border-radius: 0 !important
+2. ZERO shadows: box-shadow: none !important
+3. AMOLED colors: --bg: #000000, --surface: #111111
+4. LOWERCASE text: text-transform: lowercase
+5. Font: 'Segoe UI Light', ... font-weight: 300
+6. Easing: cubic-bezier(0.1, 0.9, 0.2, 1)
+7. Single file: index.html (HTML + CSS + JS inline)
+8. No build process: Vanilla HTML/CSS/JS only
+
+================================================================================
+COMPLETED FEATURES (as of 2026-05-06)
+================================================================================
+- [x] Fix Auth: login() and guestMode() correctly hide overlay and show app
+- [x] Airing Section: selected day panel on right side of calendar
+- [x] Airing Section: vertical timeline view on right side of airing list
+- [x] Discover Section: Trending as default tab
+- [x] Discover Section: 'More' buttons with zoom-out animation
+- [x] Discover Section: 'Episode Discussions' and 'Manga Reader Corner' functional
+- [x] Layout & UI: Metro UI zoom-out animations for grid transitions
+- [x] Layout & UI: Fixed user/media overview truncations (white-space: normal)
+- [x] Layout & UI: Fixed login overlay SFW Trending slideshow
+- [x] Settings: No white boxes in subviews (background: var(--bg))
+- [x] Settings: Custom color picker fixed size
+- [x] System: Fixed wallpaper import logic (size check before FileReader)
+- [x] System: Throttled arrow key navigation (300ms)
+- [x] System: Refined rate limit handling in fetchAPI (token expiry detection)
+
+================================================================================
+PENDING TASKS
+================================================================================
+(All tasks from todo.txt have been completed as of this restore point)
+
+================================================================================
+END OF RESTORE SESSION FILE
+================================================================================
