@@ -2413,6 +2413,7 @@
 
             .content-scroll {
                 padding-right: 0;
+                padding-bottom: 120px;
             }
 
             .top-right-nav {
@@ -2561,6 +2562,18 @@
 </head>
 
 <body class="m4-cloak">
+    <div id="video-subview" class="metro-subview">
+        <div class="subview-header">
+            <button class="btn-back" onclick="closeVideoSubview()"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2 class="metro-title" style="margin:0; font-weight:300;">trailer</h2>
+        </div>
+        <div style="width:100%; height:calc(100vh - 120px); background: #000; display:flex; align-items:center; justify-content:center; padding: 20px;">
+            <div style="width:100%; max-width: 1200px; aspect-ratio: 16/9; box-shadow: 0 0 50px rgba(0,0,0,0.8); position:relative;">
+                <iframe id="video-iframe" src="" frameborder="0" allowfullscreen style="width:100%; height:100%;"></iframe>
+            </div>
+        </div>
+    </div>
+
 
     <div id="login-overlay">
         <div style="margin-bottom: 40px;">
@@ -2800,6 +2813,8 @@
                             onclick="setSearchType('ANIME',this)">anime</button>
                         <button class="filter-chip" data-type="MANGA"
                             onclick="setSearchType('MANGA',this)">manga</button>
+                        <button class="filter-chip" data-type="USER"
+                            onclick="setSearchType('USER',this)">user</button>
                     </div>
                     <div class="search-filters" id="advanced-filters">
                         <select class="metro-select" id="filter-season" onchange="applySearchFilters()">
@@ -2938,14 +2953,14 @@
                     <div class="pivot-item active" onclick="switchAiringView('today', this)">today</div>
                     <div class="pivot-item" onclick="switchAiringView('week', this)">this week</div>
                 </div>
-                <div class="airing-list-wrapper">
-                    <div class="prog-list airing-tile-grid" id="airing-list">
-                        <div style="color:var(--text-dim);">loading...</div>
-                    </div>
-                    <div class="airing-timeline" id="airing-timeline">
+                <div class="airing-list-wrapper" style="display:flex; flex-direction:column; gap:20px;">
+                    <div class="airing-timeline" id="airing-timeline" style="width:100%;">
                         <div class="airing-timeline-title"
                             style="font-size:1.2rem; font-weight:300; color:var(--accent); margin-bottom:15px; text-transform:lowercase;">
                             timeline</div>
+                    </div>
+                    <div class="prog-list airing-tile-grid" id="airing-list">
+                        <div style="color:var(--text-dim);">loading...</div>
                     </div>
                 </div>
 
@@ -3008,7 +3023,7 @@
                                 <option value="light">light</option>
                             </select>
                         </div>
-                        
+
                         <div class="settings-item">
                             <div class="settings-item-header">ui sound effects</div>
                             <div class="settings-item-sub">xbox 360 dashboard sounds for navigation</div>
@@ -3727,7 +3742,7 @@
             if (!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading discussions...</div>'; }
 
             // Load anime discussions
-            const q = `query { Page(page:1,perPage:15) { media(sort:TRENDING_DESC,type:ANIME,status:RELEASING) { id title { english romaji } description averageScore } } }`;
+            const q = `query { Page(page:1,perPage:15) { media(sort:TRENDING_DESC,type:ANIME,status:RELEASING) { id title { english romaji } coverImage { large } description averageScore isAdult } } }`;
             try {
                 const data = await fetchAPI(q);
                 if (!append) el.innerHTML = '';
@@ -4201,14 +4216,17 @@
             if (!entries.length && !append) { el.innerHTML = '<div style="color:var(--text-dim);">no entries found.</div>'; return; }
             const chunk = entries.slice((currentLibraryPage - 1) * libraryItemsPerPage, currentLibraryPage * libraryItemsPerPage);
             const existingBtn = document.getElementById('load-more-lib-btn'); if (existingBtn) existingBtn.remove();
-            chunk.forEach(entry => {
-                if (!entry || !entry.media) return;
-                const title = entry.media.title?.english || entry.media.title?.romaji || 'unknown';
-                const total = currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters;
-                const progressStr = `progress: ${entry.progress || 0} / ${total || '?'}`;
-                const badge = status === 'CURRENT' ? (entry.progress + (total ? '/' + total : '')) : '';
-                el.innerHTML += createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
-            });
+                chunk.forEach(entry => {
+                    if (!entry || !entry.media) return;
+                    const title = entry.media.title?.english || entry.media.title?.romaji || 'unknown';
+                    const total = (currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters) || '?';
+                    const progressStr = `progress: ${entry.progress || 0} / ${total}`;
+                    let badge = '';
+                    if (status === 'COMPLETED') badge = total !== '?' ? `${total}/${total}` : 'done';
+                    else if (status === 'CURRENT') badge = entry.progress + (total !== '?' ? '/' + total : '');
+                    
+                    el.innerHTML += createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
+                });
             if (entries.length > currentLibraryPage * libraryItemsPerPage) {
                 el.innerHTML += `<button class="load-more-btn" id="load-more-lib-btn" onclick="loadMoreLibrary()" style="grid-column: 1 / -1;">load more...</button>`;
             }
@@ -4251,6 +4269,23 @@
         async function doSearch(term) {
             const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">searching...</div>';
             el.classList.add('zoom-in');
+
+            if (searchType === 'USER') {
+                const q = `query ($search: String) { Page(page:1,perPage:24) { users(search: $search) { id name avatar { large } } } }`;
+                try {
+                    const data = await fetchAPI(q, { search: term });
+                    el.innerHTML = '';
+                    data.Page.users.forEach(u => {
+                        el.innerHTML += `
+                    <div class="metro-tile" style="background:var(--surface);" onclick="openUserDetail('${u.name}')">
+                        <div class="tile-bg" style="background-image: url('${u.avatar.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;"></div>
+                        <div class="metro-tile-title" style="position:relative; z-index:2;">${u.name.toLowerCase()}</div>
+                    </div>`;
+                    });
+                } catch (e) { showToast('error searching users'); }
+                setTimeout(() => el.classList.remove('zoom-in'), 300);
+                return;
+            }
 
             const season = document.getElementById('filter-season').value;
             const year = document.getElementById('filter-year').value;
@@ -4395,7 +4430,7 @@
             container.innerHTML = '<div style="color:var(--text-dim);">loading discussions...</div>';
 
             // Load Episode Discussions
-            const q = `query { Page(page:1,perPage:10) { media(sort:TRENDING_DESC,type:ANIME,status:RELEASING) { id title { english romaji } description averageScore } } }`;
+            const q = `query { Page(page:1,perPage:10) { media(sort:TRENDING_DESC,type:ANIME,status:RELEASING) { id title { english romaji } coverImage { large } description averageScore isAdult } } }`;
             try {
                 const data = await fetchAPI(q);
                 container.innerHTML = `
@@ -4563,11 +4598,18 @@
 
                 content.innerHTML = `
             <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
-            <div style="position:relative; height:250px; background: url('${u.bannerImage || ''}') center/cover; display:flex; align-items:flex-end; padding:20px; gap:20px; border-bottom: 4px solid var(--accent); margin-bottom:40px; margin-top:50px;">
+            <div style="position:relative; min-height:250px; background: url('${u.bannerImage || ''}') center/cover; display:flex; align-items:flex-end; padding:20px; gap:20px; border-bottom: 4px solid var(--accent); margin-bottom:40px; margin-top:50px;">
                 <div style="position:absolute; inset:0; background:linear-gradient(to top, var(--bg), transparent);"></div>
                 <img src="${u.avatar.large}" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';" style="width:120px; height:120px; border:4px solid var(--bg); position:relative; z-index:1;" />
-                <div style="position:relative; z-index:1; padding-bottom:5px;">
-                    <div style="font-size: 4rem; font-weight:100; color:var(--accent); margin-bottom:10px; line-height:0.8; letter-spacing:-2px;">${u.name.toLowerCase()}</div>
+                <div style="position:relative; z-index:1; padding-bottom:5px; flex:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+                        <div style="font-size: 4rem; font-weight:100; color:var(--accent); line-height:0.8; letter-spacing:-2px;">${u.name.toLowerCase()}</div>
+                        <div style="display:flex; gap:10px;">
+                            ${!isGuest && u.id !== currentUserId ? `<button class="metro-btn ${u.isFollowing ? '' : 'primary'}" id="follow-btn" onclick="toggleFollow(${u.id})">${u.isFollowing ? 'unfollow' : 'follow'}</button>` : ''}
+                            <button class="metro-btn" onclick="openUserLibrary(${u.id}, 'ANIME')">anime list</button>
+                            <button class="metro-btn" onclick="openUserLibrary(${u.id}, 'MANGA')">manga list</button>
+                        </div>
+                    </div>
                     <div style="display:flex; gap:15px; margin-top:20px; flex-wrap:wrap;">
                         <div><div style="font-size:32px; font-weight:300;">${animeStats.count}</div><div style="font-size:14px; color:var(--text-dim);">anime</div></div>
                         <div><div style="font-size:32px; font-weight:300;">${(animeStats.minutesWatched / 1440).toFixed(1)}</div><div style="font-size:14px; color:var(--text-dim);">days</div></div>
@@ -4579,44 +4621,159 @@
                 </div>
             </div>
             <div class="grid-layout">
-                <div class="panel">
+                <div class="panel" style="grid-column: 1 / -1;">
                     <h3 style="margin-bottom:15px; color:var(--accent); font-weight:200;">activity history</h3>
-                    <div id="user-activity-list"></div>
-                </div>
-                <div class="panel">
-                    <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">followers</h3>
-                    <div id="user-followers-list"></div>
-                </div>
-                <div class="panel">
-                    <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">following</h3>
-                    <div id="user-following-list"></div>
+                    <div id="user-activity-list" class="prog-list"></div>
                 </div>
                 <div class="panel">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite anime</h3>
-                    <div id="user-anime-favs"></div>
+                    <div id="user-anime-favs" class="tile-grid mini"></div>
                 </div>
-                <div class="panel" style="grid-column: 1 / -1;">
+                <div class="panel">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite manga</h3>
-                    <div id="user-manga-favs"></div>
+                    <div id="user-manga-favs" class="tile-grid mini"></div>
                 </div>
-                <div class="panel" style="grid-column: 1 / -1;">
+                <div class="panel">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite characters</h3>
-                    <div id="user-char-favs"></div>
+                    <div id="user-char-favs" class="tile-grid mini"></div>
+                </div>
+                <div class="panel">
+                    <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite staff</h3>
+                    <div id="user-staff-favs" class="tile-grid mini"></div>
+                </div>
+                <div class="panel">
+                    <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite studios</h3>
+                    <div id="user-studio-favs" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+                </div>
+                <div class="panel">
+                    <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">followers</h3>
+                    <div id="user-followers-list" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+                </div>
+                <div class="panel">
+                    <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">following</h3>
+                    <div id="user-following-list" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
                 </div>
                 ${u.about ? `
                 <div class="panel" style="grid-column: 1 / -1;">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">about</h3>
-                    <p style="font-size:16px; font-weight:300; line-height:1.6; color:var(--text-main);">${u.about.toLowerCase()}</p>
+                    <div style="font-size:16px; font-weight:300; line-height:1.6; color:var(--text-main);">${u.about}</div>
                 </div>` : ''}
             </div>`;
 
                 loadUserProfileActivities(u.id);
                 loadUserFollowers(u.id);
                 loadUserFollowing(u.id);
-                loadUserAnimeFavs(u.id);
-                loadUserMangaFavs(u.id);
-                loadUserCharFavs(u.id);
-            } catch (e) { content.innerHTML = '<div style="color:var(--text-dim);">error loading user. try again later.</div>'; console.error(e); }
+                renderUserFavorites(u.favourites);
+            } catch (e) { content.innerHTML = '<div style="color:var(--text-dim);">error loading user.</div>'; console.error(e); }
+        }
+
+        async function toggleFollow(userId) {
+            const q = `mutation ($id: Int) { ToggleFollow(userId: $id) { id isFollowing } }`;
+            try {
+                const data = await fetchAPI(q, { id: userId });
+                const btn = document.getElementById('follow-btn');
+                if (btn) {
+                    const isFollowing = data.ToggleFollow.isFollowing;
+                    btn.innerText = isFollowing ? 'unfollow' : 'follow';
+                    btn.classList.toggle('primary', !isFollowing);
+                }
+                showToast(data.ToggleFollow.isFollowing ? 'followed' : 'unfollowed');
+            } catch (e) { showToast('error toggling follow'); }
+        }
+
+        async function openUserLibrary(userId, type) {
+            document.getElementById('main-nav').classList.add('ui-hidden');
+            document.getElementById('top-right-nav').classList.add('ui-hidden');
+            const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading user list...</div>'; panel.style.display = 'block';
+
+            const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name entries { score(format:POINT_10) progress media { id title { english romaji } coverImage { large } episodes chapters status } } } } }`;
+            try {
+                const data = await fetchAPI(q, { userId, type });
+                content.innerHTML = `
+            <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
+            <h1 class="metro-huge-title" style="margin-top:50px; color:var(--accent);">${type.toLowerCase()} list</h1>
+            <div id="user-lib-grid-container" style="margin-top:40px;"></div>`;
+                const container = document.getElementById('user-lib-grid-container');
+                data.MediaListCollection.lists.forEach(l => {
+                    container.innerHTML += `<h2 style="font-weight:200; color:var(--accent); margin: 30px 0 15px; border-bottom:1px solid var(--surface-hover); padding-bottom:10px;">${l.name.toLowerCase()}</h2>
+                <div class="tile-grid">${l.entries.map(e => {
+                        const title = e.media.title.english || e.media.title.romaji;
+                        const total = type === 'ANIME' ? e.media.episodes : e.media.chapters;
+                        const badge = e.status === 'COMPLETED' ? (total ? `${total}/${total}` : 'done') : `${e.progress}${total ? '/' + total : ''}`;
+                        return createFlipTile(e.media.id, type, e.media.coverImage.large, title, title, e.score, badge, `progress: ${e.progress}/${total || '?'}`);
+                    }).join('')}</div>`;
+                });
+            } catch (e) { showToast('error loading user list'); }
+        }
+
+        function renderUserFavorites(favs) {
+            if (!favs) return;
+            const animeEl = document.getElementById('user-anime-favs');
+            const mangaEl = document.getElementById('user-manga-favs');
+            const charEl = document.getElementById('user-char-favs');
+            const staffEl = document.getElementById('user-staff-favs');
+            const studioEl = document.getElementById('user-studio-favs');
+
+            if (favs.anime?.nodes?.length) {
+                favs.anime.nodes.forEach(m => {
+                    const title = m.title.english || m.title.romaji;
+                    animeEl.innerHTML += createFlipTile(m.id, 'ANIME', m.coverImage.large, title, title, '', '', null);
+                });
+            } else if (animeEl) animeEl.parentElement.style.display = 'none';
+
+            if (favs.manga?.nodes?.length) {
+                favs.manga.nodes.forEach(m => {
+                    const title = m.title.english || m.title.romaji;
+                    mangaEl.innerHTML += createFlipTile(m.id, 'MANGA', m.coverImage.large, title, title, '', '', null);
+                });
+            } else if (mangaEl) mangaEl.parentElement.style.display = 'none';
+
+            if (favs.characters?.nodes?.length) {
+                favs.characters.nodes.forEach(c => {
+                    charEl.innerHTML += `<div class="metro-tile" onclick="openCharacterDetail(${c.id})">
+                <div class="tile-bg" style="background-image: url('${c.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.4;"></div>
+                <div class="metro-tile-title">${c.name.full.toLowerCase()}</div>
+            </div>`;
+                });
+            } else if (charEl) charEl.parentElement.style.display = 'none';
+
+            if (favs.staff?.nodes?.length) {
+                favs.staff.nodes.forEach(s => {
+                    staffEl.innerHTML += `<div class="metro-tile" onclick="openStaffDetail(${s.id})">
+                <div class="tile-bg" style="background-image: url('${s.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.4;"></div>
+                <div class="metro-tile-title">${s.name.full.toLowerCase()}</div>
+            </div>`;
+                });
+            } else if (staffEl) staffEl.parentElement.style.display = 'none';
+
+            if (favs.studios?.nodes?.length) {
+                favs.studios.nodes.forEach(s => {
+                    studioEl.innerHTML += `<span class="filter-chip">${s.name.toLowerCase()}</span>`;
+                });
+            } else if (studioEl) studioEl.parentElement.style.display = 'none';
+        }
+
+        async function loadUserFollowers(userId) {
+            const el = document.getElementById('user-followers-list');
+            if (!el) return;
+            const q = `query($userId: Int) { Page(page:1, perPage:20) { followers(userId:$userId) { id name avatar { large } } } }`;
+            try {
+                const data = await fetchAPI(q, { userId });
+                el.innerHTML = data.Page.followers.map(f => `<span class="filter-chip" onclick="openUserDetail('${f.name}')">${f.name.toLowerCase()}</span>`).join('');
+                if (!data.Page.followers.length) el.parentElement.style.display = 'none';
+            } catch (e) {}
+        }
+
+        async function loadUserFollowing(userId) {
+            const el = document.getElementById('user-following-list');
+            if (!el) return;
+            const q = `query($userId: Int) { Page(page:1, perPage:20) { following(userId:$userId) { id name avatar { large } } } }`;
+            try {
+                const data = await fetchAPI(q, { userId });
+                el.innerHTML = data.Page.following.map(f => `<span class="filter-chip" onclick="openUserDetail('${f.name}')">${f.name.toLowerCase()}</span>`).join('');
+                if (!data.Page.following.length) el.parentElement.style.display = 'none';
+            } catch (e) {}
         }
 
         let userActivityPage = 1;
@@ -4905,7 +5062,7 @@
                 const title = m.title.english || m.title.romaji || 'Unknown';
                 const total = type === 'ANIME' ? m.episodes : m.chapters;
                 const year = m.startDate?.year || '';
-                const genresHtml = (m.genres || []).map(g => `<span class="zune-tag">${g.toLowerCase()}</span>`).join('');
+                const genresHtml = (m.genres || []).map(g => `<span class="zune-tag" style="cursor:pointer;" onclick="openGenreOverview('${g}', '${type}')">${g.toLowerCase()}</span>`).join('');
                 let trailerTileHtml = '';
                 if (m.trailer && m.trailer.site === 'youtube') {
                     const thumb = m.trailer.thumbnail || `https://img.youtube.com/vi/${m.trailer.id}/maxresdefault.jpg`;
@@ -5310,10 +5467,28 @@
         }
 
         function playVideo(youtubeId) {
-            const tile = document.getElementById('trailer-tile');
-            if (!tile) return;
-            tile.innerHTML = `<div class="youtube-iframe-wrapper"><iframe src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-            tile.style.padding = '0'; tile.style.border = 'none';
+            openVideoSubview(`https://www.youtube.com/embed/${youtubeId}?autoplay=1`);
+        }
+
+        async function openGenreOverview(genre, type) {
+            document.getElementById('main-nav').classList.add('ui-hidden');
+            document.getElementById('top-right-nav').classList.add('ui-hidden');
+            const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading genre...</div>'; panel.style.display = 'block';
+
+            const q = `query ($genre: String, $type: MediaType) { Page(page:1,perPage:20) { media(genre: $genre, type: $type, sort: TRENDING_DESC) { id title { english romaji } coverImage { large } averageScore isAdult status } } }`;
+            try {
+                const data = await fetchAPI(q, { genre, type });
+                content.innerHTML = `
+            <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
+            <h1 class="metro-huge-title" style="margin-top:50px; color:var(--accent);">${genre.toLowerCase()}</h1>
+            <div class="tile-grid" id="genre-grid" style="margin-top:40px;"></div>`;
+                const grid = document.getElementById('genre-grid');
+                data.Page.media.forEach(m => {
+                    const title = m.title.english || m.title.romaji;
+                    grid.innerHTML += createFlipTile(m.id, type, m.coverImage.large, title, title, m.averageScore ? (m.averageScore / 10).toFixed(1) : '', (m.status || '').toLowerCase(), null, m.isAdult);
+                });
+            } catch (e) { showToast('error loading genre'); console.error(e); }
         }
 
         async function addToList(mediaId, type, status) {
@@ -5429,6 +5604,11 @@
         }
 
         checkAuth();
+        if (!isGuest) {
+            communityMode = 'following';
+            const followingTab = document.querySelector('#community-pivots .pivot-item[data-mode="following"]');
+            if (followingTab) switchCommunityMode('following', followingTab);
+        }
 
         // Dropdown toggle functions
         function toggleDropdown(e) {
@@ -5455,6 +5635,8 @@
         // ==========================================
         const Sfx = {
             enabled: localStorage.getItem('metro_sfx') !== 'false',
+            lastPlay: {},
+            lastHoverTarget: null,
             sounds: {
                 select: new Audio('xbox360 metro soundeffects/Select.wav'),
                 back: new Audio('xbox360 metro soundeffects/Back.wav'),
@@ -5463,32 +5645,65 @@
             },
             play(type) {
                 if (!this.enabled) return;
+                const now = Date.now();
+                if (this.lastPlay[type] && now - this.lastPlay[type] < (type === 'hover' ? 100 : 50)) return;
+                this.lastPlay[type] = now;
+
                 try {
                     const audio = this.sounds[type].cloneNode();
                     audio.volume = type === 'hover' ? 0.2 : (type === 'pan' ? 0.4 : 0.6);
+                    audio.preservesPitch = false;
+                    audio.playbackRate = 0.9 + Math.random() * 0.2;
                     audio.play().catch(e => {});
-                } catch(e) {}
+                } catch (e) {}
             },
             toggle(enabled) {
                 this.enabled = enabled;
                 localStorage.setItem('metro_sfx', enabled ? 'true' : 'false');
                 showToast(enabled ? 'ui sounds enabled' : 'ui sounds disabled');
-                if(enabled) this.play('select');
+                if (enabled) this.play('select');
             }
         };
+
+        function openVideoSubview(url) {
+            const sub = document.getElementById('video-subview');
+            const iframe = document.getElementById('video-iframe');
+            iframe.src = url;
+            sub.classList.add('active');
+            Sfx.play('select');
+        }
+
+        function closeVideoSubview() {
+            const sub = document.getElementById('video-subview');
+            const iframe = document.getElementById('video-iframe');
+            sub.classList.remove('active');
+            iframe.src = '';
+            Sfx.play('back');
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             // Bind SFX Events
             document.body.addEventListener('click', e => {
-                if (e.target.closest('.btn-back, .btn-back-text')) Sfx.play('back');
-                else if (e.target.closest('.metro-btn, .metro-tile, .nav-item, .pivot-item, .filter-chip, .color-swatch, .inbox-item, .switch, .status-btn, .dropbtn')) Sfx.play('select');
-            });
-            document.body.addEventListener('mouseenter', e => {
-                if (e.target && e.target.closest && e.target.closest('.metro-btn, .metro-tile, .nav-item, .pivot-item, .color-swatch, .status-btn, .dropbtn')) {
-                    Sfx.play('hover');
+                const target = e.target.closest('.btn-back, .btn-back-text, .detail-close, .metro-btn, .metro-tile, .nav-item, .pivot-item, .filter-chip, .color-swatch, .inbox-item, .switch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn');
+                if (!target) return;
+                
+                if (target.matches('.btn-back, .btn-back-text, .detail-close')) {
+                    Sfx.play('back');
+                } else {
+                    Sfx.play('select');
                 }
-            }, true);
+            });
             
+            document.body.addEventListener('mouseover', e => {
+                const target = e.target.closest('.metro-btn, .metro-tile, .nav-item, .pivot-item, .color-swatch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .filter-chip');
+                if (target && target !== Sfx.lastHoverTarget) {
+                    Sfx.play('hover');
+                    Sfx.lastHoverTarget = target;
+                } else if (!target) {
+                    Sfx.lastHoverTarget = null;
+                }
+            });
+
             // SFX Toggle Init
             const sfxToggle = document.getElementById('sfx-toggle');
             if (sfxToggle) {
