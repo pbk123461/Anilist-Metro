@@ -11,6 +11,19 @@
         /* =========================================
            CORE VARIABLES (AMOLED + data-theme)
            ========================================= */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --surface: #f2f2f2;
+            --surface-hover: #e6e6e6;
+            --input-bg: #eeeeee;
+            --text: #000000;
+            --text-main: #000000;
+            --text-muted: rgba(0, 0, 0, 0.6);
+            --text-dim: rgba(0, 0, 0, 0.45);
+            --hero-bg-text: rgba(0, 0, 0, 0.05);
+            --wallpaper-overlay: rgba(255, 255, 255, 0.85);
+        }
+
         :root {
             --accent: #1ba1e2;
             --bg: #000000;
@@ -26,18 +39,7 @@
             --accent-green: #60a917;
             --accent-red: #ce352c;
             --accent-yellow: #e3a21a;
-        }
-
-        [data-theme="light"] {
-            --bg: #ffffff;
-            --surface: #f0f0f0;
-            --surface-hover: #e4e4e4;
-            --input-bg: #e0e0e0;
-            --text: #000000;
-            --text-main: #000000;
-            --text-muted: rgba(0, 0, 0, 0.5);
-            --text-dim: rgba(0, 0, 0, 0.6);
-            --hero-bg-text: rgba(0, 0, 0, 0.05);
+            --wallpaper-overlay: rgba(0, 0, 0, 0.65);
         }
 
         *,
@@ -1158,7 +1160,7 @@
 
         .status-btn.active {
             background: var(--accent);
-            color: white;
+            color: #fff;
         }
 
         .status-btn.full {
@@ -1179,9 +1181,9 @@
             grid-auto-rows: 150px;
             gap: 10px;
             transition: transform 0.3s var(--metro-easing);
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: var(--surface-hover);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             padding: 20px;
         }
 
@@ -1237,15 +1239,21 @@
         }
 
         .btn-back-text {
-            background: transparent;
+            background: var(--bg);
             color: var(--text-dim);
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            padding: 0;
+            padding: 10px 0;
             margin-bottom: 20px;
             transition: color 0.2s;
             font-family: inherit;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: block;
+            width: 100%;
+            text-align: left;
         }
 
         .btn-back-text:hover {
@@ -3036,30 +3044,8 @@
 
                         <div class="settings-item">
                             <div class="settings-item-header">accent color</div>
-                            <div class="color-picker" id="theme-colors">
-                                <div class="color-swatch" style="background:#1ba1e2;" data-color="#1ba1e2"
-                                    data-name="cobalt"></div>
-                                <div class="color-swatch" style="background:#ff0097;" data-color="#ff0097"
-                                    data-name="magenta"></div>
-                                <div class="color-swatch" style="background:#8cbf26;" data-color="#8cbf26"
-                                    data-name="lime"></div>
-                                <div class="color-swatch" style="background:#e51400;" data-color="#e51400"
-                                    data-name="crimson"></div>
-                                <div class="color-swatch" style="background:#00aba9;" data-color="#00aba9"
-                                    data-name="teal"></div>
-                                <div class="color-swatch" style="background:#a20025;" data-color="#a20025"
-                                    data-name="ruby"></div>
-                                <div class="color-swatch" style="background:#f0a30a;" data-color="#f0a30a"
-                                    data-name="amber"></div>
-                                <div class="color-swatch" style="background:#76608a;" data-color="#76608a"
-                                    data-name="purple"></div>
-                                <div class="color-swatch" style="background:#60a917;" data-color="#60a917"
-                                    data-name="green"></div>
-                                <div class="color-swatch" style="background:#fa6800;" data-color="#fa6800"
-                                    data-name="orange"></div>
-                                <input type="color" id="custom-color-picker" class="color-swatch" value="#1ba1e2"
-                                    title="custom color"
-                                    style="width:40px; height:40px; padding:0; border:2px solid var(--surface-hover);">
+                            <div class="color-picker" id="theme-colors" style="display:none">
+                                <!-- Hidden but kept for logic compatibility if needed -->
                             </div>
                             <!-- Color Wheel (from index.html) -->
                             <div class="color-wheel-wrap">
@@ -3325,12 +3311,8 @@
             document.documentElement.style.setProperty('--accent', color);
             localStorage.setItem('metro_theme', color);
             wheelPickedColor = color;
-            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-            const exact = document.querySelector(`.color-swatch[data-color="${color}"]`);
-            if (exact) exact.classList.add('active');
             const cb = document.getElementById('color-preview-box'); if (cb) cb.style.background = color;
             const cd = document.getElementById('color-hex-display'); if (cd) cd.innerText = color;
-            const cp = document.getElementById('custom-color-picker'); if (cp) cp.value = color;
             updateThemeSubtitle();
             showToast('accent updated');
         }
@@ -3361,7 +3343,8 @@
 
         function applyWallpaper() {
             if (wallpaperDataUrl) {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('${wallpaperDataUrl}')`;
+                const overlayColor = getComputedStyle(document.documentElement).getPropertyValue('--wallpaper-overlay').trim() || 'rgba(0,0,0,0.6)';
+                document.body.style.backgroundImage = `linear-gradient(${overlayColor}, ${overlayColor}), url('${wallpaperDataUrl}')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center center';
                 document.body.style.backgroundRepeat = 'no-repeat';
@@ -4204,7 +4187,7 @@
                         }
                     });
                 }
-                if (mediaType === 'ANIME') renderLibrary('CURRENT');
+                renderLibrary('CURRENT');
             } catch (e) { console.error('error loading library:', e); }
         }
 
@@ -5637,36 +5620,59 @@
         // ==========================================
         const Sfx = {
             enabled: localStorage.getItem('metro_sfx') !== 'false',
+            ctx: null,
+            buffers: {},
             lastPlay: {},
-            lastHoverTarget: null,
             sounds: {
                 select: 'xbox360 metro soundeffects/Select.wav',
                 back: 'xbox360 metro soundeffects/Back.wav',
                 hover: 'xbox360 metro soundeffects/SelectA.wav',
                 pan: 'xbox360 metro soundeffects/PageRight.wav'
             },
-            play(type) {
+            async init() {
+                if (this.ctx) {
+                    if (this.ctx.state === 'suspended') await this.ctx.resume();
+                    return;
+                }
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    for (const [key, url] of Object.entries(this.sounds)) {
+                        const resp = await fetch(url);
+                        const arrayBuffer = await resp.arrayBuffer();
+                        this.buffers[key] = await this.ctx.decodeAudioData(arrayBuffer);
+                    }
+                } catch (e) {
+                    console.warn('AudioContext failed to initialize:', e);
+                }
+            },
+            async play(type) {
                 if (!this.enabled) return;
                 const now = Date.now();
-                if (this.lastPlay[type] && now - this.lastPlay[type] < (type === 'hover' ? 100 : 50)) return;
+                if (this.lastPlay[type] && now - this.lastPlay[type] < (type === 'hover' ? 80 : 50)) return;
                 this.lastPlay[type] = now;
 
+                if (!this.ctx) await this.init();
+                if (!this.ctx || !this.buffers[type]) return;
+                if (this.ctx.state === 'suspended') await this.ctx.resume();
+
                 try {
-                    const audio = new Audio(this.sounds[type]);
-                    audio.volume = type === 'hover' ? 0.2 : (type === 'pan' ? 0.4 : 0.6);
+                    const source = this.ctx.createBufferSource();
+                    source.buffer = this.buffers[type];
                     
-                    // User requested pitch change only for "tab moving" (pan) and "cling" (hover/select)
-                    // No pitch change for "closing" (back)
+                    const gain = this.ctx.createGain();
+                    // Extremely soft volumes as requested
+                    const volumes = { hover: 0.04, pan: 0.08, select: 0.12, back: 0.12 };
+                    gain.gain.value = volumes[type] || 0.1;
+                    
                     if (type === 'pan' || type === 'hover' || type === 'select') {
-                        audio.preservesPitch = false;
-                        audio.playbackRate = 0.95 + Math.random() * 0.1;
+                        source.playbackRate.value = 0.96 + Math.random() * 0.08;
                     }
                     
-                    audio.play().catch(e => {
-                        console.warn(`Sfx ${type} failed:`, e);
-                    });
+                    source.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    source.start(0);
                 } catch (e) {
-                    console.error(`Sfx ${type} error:`, e);
+                    console.warn(`Sfx ${type} play failed:`, e);
                 }
             },
             toggle(enabled) {
