@@ -1284,6 +1284,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (adultToggle) {
         adultToggle.checked = showAdultContent;
         adultToggle.addEventListener('change', e => setAdultContent(e.target.checked));
+    }
     
     const spoilerToggle = document.getElementById('spoiler-toggle');
     if (spoilerToggle) {
@@ -1293,7 +1294,6 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem('show_spoilers', showSpoilers ? 'true' : 'false');
             showToast(showSpoilers ? 'spoilers shown' : 'spoilers hidden');
         });
-    }
     }
 
     loadWallpaper();
@@ -1531,9 +1531,10 @@ async function loadTrendingFeed(append = false) {
         
         data.Page.media.forEach((m, i) => {
             const title = m.title.english || m.title.romaji;
+            const blurClass = (m.isAdult && !showAdultContent) ? 'blur-adult' : '';
             el.innerHTML += `
             <div class="prog-item" onclick="openDetailById(${m.id}, 'ANIME')">
-                <img src="${m.coverImage.large}" class="prog-thumb" style="width:42px;height:56px;">
+                <img src="${m.coverImage.large}" class="prog-thumb ${blurClass}" style="width:42px;height:56px;" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''}/>
                 <div class="prog-info">
                     <div class="prog-user">#${i+1} ${title.toLowerCase()}</div>
                     <div class="prog-status">score: ${m.averageScore || 'n/a'} &bull; popularity: #${m.popularity || '?'}</div>
@@ -1660,11 +1661,12 @@ async function loadTrending() {
             const desc = (m.description || 'no description.').replace(/<[^>]+>/g,'').substring(0, 100) + '...';
             const score = m.averageScore ? `${m.averageScore}%` : 'n/a';
             const cover = m.coverImage ? (m.coverImage.large || '') : '';
+            const blurClass = (m.isAdult && !showAdultContent) ? 'blur-adult' : '';
             tRow.innerHTML += `
             <div class="trending-tile tile flip-tile" onclick="openDetailById(${m.id},'ANIME')">
                 <div class="flip-tile-inner">
                     <div class="flip-tile-front">
-                        <img src="${cover}" loading="lazy"/>
+                        <img src="${cover}" loading="lazy" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''}/>
                         <div class="trending-rank">#${i+1}</div>
                         <div class="tile-label">${title.toLowerCase()}</div>
                     </div>
@@ -2048,24 +2050,23 @@ async function openUserDetail(identifier) {
     let q, vars;
     if (identifier.includes('anilist.co/user/')) {
         const slug = identifier.split('/user/')[1].split('/')[0];
-        q = `query ($username: String) { User(username: $username) { id name about(asHtml: false) avatar { large } bannerImage statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } } followers(page: 1, perPage: 10) { nodes { id name avatar { large } } } following(page: 1, perPage: 10) { nodes { id name avatar { large } } } favourites { anime(page: 1, perPage: 12) { nodes { id type coverImage { large } } } manga(page: 1, perPage: 12) { nodes { id type title { english romaji } coverImage { large } } } characters(page: 1, perPage: 12) { nodes { id name { full } image { large } } } } } }`;
-        vars = { username: slug };
+        vars = { name: slug };
     } else {
-        q = `query ($name: String) {
-            User(name: $name) {
-                id name about(asHtml: false) avatar { large } bannerImage
-                statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } }
-                followers(page: 1, perPage: 10) { nodes { id name avatar { large } } }
-                following(page: 1, perPage: 10) { nodes { id name avatar { large } } }
-                favourites {
-                    anime(page: 1, perPage: 12) { nodes { id type coverImage { large } } }
-                    manga(page: 1, perPage: 12) { nodes { id type title { english romaji } coverImage { large } } }
-                    characters(page: 1, perPage: 12) { nodes { id name { full } image { large } } }
-                }
-            }
-        }`;
         vars = { name: identifier };
     }
+    q = `query ($name: String) {
+        User(name: $name) {
+            id name about(asHtml: false) avatar { large } bannerImage
+            statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } }
+            followers(page: 1, perPage: 10) { nodes { id name avatar { large } } }
+            following(page: 1, perPage: 10) { nodes { id name avatar { large } } }
+            favourites {
+                anime(page: 1, perPage: 12) { nodes { id type coverImage { large } } }
+                manga(page: 1, perPage: 12) { nodes { id type title { english romaji } coverImage { large } } }
+                characters(page: 1, perPage: 12) { nodes { id name { full } image { large } } }
+            }
+        }
+    }`;
 
     try {
         const data = await fetchAPI(q, vars);
@@ -2301,13 +2302,6 @@ async function openDetailById(id, type) {
         content.innerHTML = `
             ${m.bannerImage ? `<div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:url('${m.bannerImage}') center/cover; opacity:0.08; filter:blur(20px); z-index:-1;"></div>` : ''}
             <div style="display:flex; flex-wrap:wrap; gap:30px; margin-top:50px;">
-        `;
-        // ... (rest of rendering)
-    } catch(e) { 
-        content.innerHTML = '<div style="color:var(--text-dim);">error loading media.</div>';
-        console.error(e); 
-    }
-}
                 <div style="flex: 0 0 300px;">
                     <img src="${m.coverImage.extraLarge}" style="width:100%; border:4px solid var(--surface-hover);">
                     ${listManagementHtml}
@@ -2347,7 +2341,10 @@ async function openDetailById(id, type) {
                     <div class="metro-subview" id="subview-panel"></div>
                 </div>
             </div>`;
-    } catch(e) { content.innerHTML = '<div style="color:var(--text-dim);">error loading detail panel.</div>'; console.error(e); }
+    } catch(e) { 
+        content.innerHTML = '<div style="color:var(--text-dim);">error loading media.</div>';
+        console.error(e); 
+    }
 }
 
 // ==========================================
