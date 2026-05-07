@@ -3008,6 +3008,16 @@
                                 <option value="light">light</option>
                             </select>
                         </div>
+                        
+                        <div class="settings-item">
+                            <div class="settings-item-header">ui sound effects</div>
+                            <div class="settings-item-sub">xbox 360 dashboard sounds for navigation</div>
+                            <label class="switch">
+                                <input type="checkbox" id="sfx-toggle">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">toggle sounds</span>
+                        </div>
 
                         <div class="settings-item">
                             <div class="settings-item-header">accent color</div>
@@ -3268,6 +3278,7 @@
 
             const idx = Math.round(scrollRatio);
             if (activeNavIndex !== idx) {
+                if (activeNavIndex !== -1 && typeof Sfx !== 'undefined') Sfx.play('pan');
                 activeNavIndex = idx;
                 navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
                 if (navItems[idx]) {
@@ -5435,6 +5446,54 @@
             const dropdown = document.getElementById('profile-dropdown');
             if (dropdown && !dropdown.contains(e.target)) {
                 dropdown.classList.remove('open');
+            }
+        });
+    </script>
+    <script>
+        // ==========================================
+        // UI SOUND EFFECTS
+        // ==========================================
+        const Sfx = {
+            enabled: localStorage.getItem('metro_sfx') !== 'false',
+            sounds: {
+                select: new Audio('xbox360 metro soundeffects/Select.wav'),
+                back: new Audio('xbox360 metro soundeffects/Back.wav'),
+                hover: new Audio('xbox360 metro soundeffects/SelectA.wav'),
+                pan: new Audio('xbox360 metro soundeffects/PageRight.wav')
+            },
+            play(type) {
+                if (!this.enabled) return;
+                try {
+                    const audio = this.sounds[type].cloneNode();
+                    audio.volume = type === 'hover' ? 0.2 : (type === 'pan' ? 0.4 : 0.6);
+                    audio.play().catch(e => {});
+                } catch(e) {}
+            },
+            toggle(enabled) {
+                this.enabled = enabled;
+                localStorage.setItem('metro_sfx', enabled ? 'true' : 'false');
+                showToast(enabled ? 'ui sounds enabled' : 'ui sounds disabled');
+                if(enabled) this.play('select');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Bind SFX Events
+            document.body.addEventListener('click', e => {
+                if (e.target.closest('.btn-back, .btn-back-text')) Sfx.play('back');
+                else if (e.target.closest('.metro-btn, .metro-tile, .nav-item, .pivot-item, .filter-chip, .color-swatch, .inbox-item, .switch, .status-btn, .dropbtn')) Sfx.play('select');
+            });
+            document.body.addEventListener('mouseenter', e => {
+                if (e.target && e.target.closest && e.target.closest('.metro-btn, .metro-tile, .nav-item, .pivot-item, .color-swatch, .status-btn, .dropbtn')) {
+                    Sfx.play('hover');
+                }
+            }, true);
+            
+            // SFX Toggle Init
+            const sfxToggle = document.getElementById('sfx-toggle');
+            if (sfxToggle) {
+                sfxToggle.checked = Sfx.enabled;
+                sfxToggle.addEventListener('change', e => Sfx.toggle(e.target.checked));
             }
         });
     </script>
