@@ -1,4 +1,4 @@
-#ANILIST METRO
+**ANILIST METRO**
 
 A anilist client made with Metro UI, (yes this is entirely vibecoded, and my first vibecoded project)
 
