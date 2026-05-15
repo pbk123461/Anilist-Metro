@@ -70,6 +70,11 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
+        button, input, select, textarea {
+            text-transform: lowercase;
+            font-family: inherit;
+        }
+
         a {
             color: var(--accent);
             text-decoration: none;
@@ -191,8 +196,8 @@
             pointer-events: none;
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.1) 75%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.1) 75%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.35) 55%, rgba(0, 0, 0, 0.1) 75%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.35) 55%, rgba(0, 0, 0, 0.1) 75%, transparent 100%);
             transition: opacity 0.4s var(--metro-easing);
         }
 
@@ -227,6 +232,7 @@
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 16px rgba(0, 0, 0, 0.2);
             border-color: transparent !important;
         }
+
         .liquid-glass-enabled .metro-tile:hover {
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 24px rgba(0, 0, 0, 0.3);
             border-color: rgba(255, 255, 255, 0.2) !important;
@@ -2618,9 +2624,12 @@
             <button class="btn-back" onclick="closeVideoSubview()"><i class="fa-solid fa-arrow-left"></i></button>
             <h2 class="metro-title" style="margin:0; font-weight:300;">trailer</h2>
         </div>
-        <div style="width:100%; height:calc(100vh - 120px); background: #000; display:flex; align-items:center; justify-content:center; padding: 20px;">
-            <div style="width:100%; max-width: 1200px; aspect-ratio: 16/9; box-shadow: 0 0 50px rgba(0,0,0,0.8); position:relative;">
-                <iframe id="video-iframe" src="" frameborder="0" allowfullscreen style="width:100%; height:100%;"></iframe>
+        <div
+            style="width:100%; height:calc(100vh - 120px); background: #000; display:flex; align-items:center; justify-content:center; padding: 20px;">
+            <div
+                style="width:100%; max-width: 1200px; aspect-ratio: 16/9; box-shadow: 0 0 50px rgba(0,0,0,0.8); position:relative;">
+                <iframe id="video-iframe" src="" frameborder="0" allowfullscreen
+                    style="width:100%; height:100%;"></iframe>
             </div>
         </div>
     </div>
@@ -2865,8 +2874,7 @@
                             onclick="setSearchType('ANIME',this)">anime</button>
                         <button class="filter-chip" data-type="MANGA"
                             onclick="setSearchType('MANGA',this)">manga</button>
-                        <button class="filter-chip" data-type="USER"
-                            onclick="setSearchType('USER',this)">user</button>
+                        <button class="filter-chip" data-type="USER" onclick="setSearchType('USER',this)">user</button>
                     </div>
                     <div class="search-filters" id="advanced-filters">
                         <select class="metro-select" id="filter-season" onchange="applySearchFilters()">
@@ -3105,8 +3113,11 @@
                         </div>
 
                         <div class="settings-item">
-                            <div class="settings-item-header">liquid glass <span style="font-size:10px; background:var(--accent-red); color:#fff; padding:2px 6px; vertical-align:middle; margin-left:8px;">experimental</span></div>
-                            <div class="settings-item-sub">apply heavy blur and transparency to all tiles and panels</div>
+                            <div class="settings-item-header">liquid glass <span
+                                    style="font-size:10px; background:var(--accent-red); color:#fff; padding:2px 6px; vertical-align:middle; margin-left:8px;">experimental</span>
+                            </div>
+                            <div class="settings-item-sub">apply heavy blur and transparency to all tiles and panels
+                            </div>
                             <label class="switch">
                                 <input type="checkbox" id="liquid-glass-toggle">
                                 <span class="toggle-track"></span>
@@ -3376,7 +3387,8 @@
         }
         function setThemeMode(mode) { localStorage.setItem('theme_mode', mode); applyThemeMode(mode); updateThemeSubtitle(); }
         window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
-            if (localStorage.getItem('theme_mode') === 'system') applyThemeMode('system');
+            const currentMode = localStorage.getItem('theme_mode') || 'system';
+            if (currentMode === 'system') applyThemeMode('system');
         });
 
         function setAccentColor(color) {
@@ -4267,19 +4279,19 @@
             if (!entries.length && !append) { el.innerHTML = '<div style="color:var(--text-dim);">no entries found.</div>'; return; }
             const chunk = entries.slice((currentLibraryPage - 1) * libraryItemsPerPage, currentLibraryPage * libraryItemsPerPage);
             const existingBtn = document.getElementById('load-more-lib-btn'); if (existingBtn) existingBtn.remove();
-                chunk.forEach(entry => {
-                    if (!entry || !entry.media) return;
-                    const title = entry.media.title?.english || entry.media.title?.romaji || 'unknown';
-                    const total = (currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters) || '?';
-                    const rawProgress = entry.progress || 0;
-                    const displayProgress = (status === 'COMPLETED' && rawProgress === 0 && total !== '?') ? total : rawProgress;
-                    const progressStr = `progress: ${displayProgress} / ${total}`;
-                    let badge = '';
-                    if (status === 'COMPLETED') badge = total !== '?' ? `${total}/${total}` : 'done';
-                    else if (status === 'CURRENT') badge = displayProgress + (total !== '?' ? '/' + total : '');
-                    
-                    el.innerHTML += createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
-                });
+            chunk.forEach(entry => {
+                if (!entry || !entry.media) return;
+                const title = entry.media.title?.english || entry.media.title?.romaji || 'unknown';
+                const total = (currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters) || '?';
+                const rawProgress = entry.progress || 0;
+                const displayProgress = (status === 'COMPLETED' && rawProgress === 0 && total !== '?') ? total : rawProgress;
+                const progressStr = `progress: ${displayProgress} / ${total}`;
+                let badge = '';
+                if (status === 'COMPLETED') badge = total !== '?' ? `${total}/${total}` : 'done';
+                else if (status === 'CURRENT') badge = displayProgress + (total !== '?' ? '/' + total : '');
+
+                el.innerHTML += createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
+            });
             if (entries.length > currentLibraryPage * libraryItemsPerPage) {
                 el.innerHTML += `<button class="load-more-btn" id="load-more-lib-btn" onclick="loadMoreLibrary()" style="grid-column: 1 / -1;">load more...</button>`;
             }
@@ -4816,7 +4828,7 @@
                 const data = await fetchAPI(q, { userId });
                 el.innerHTML = data.Page.followers.map(f => `<span class="filter-chip" onclick="openUserDetail('${f.name}')">${f.name.toLowerCase()}</span>`).join('');
                 if (!data.Page.followers.length) el.parentElement.style.display = 'none';
-            } catch (e) {}
+            } catch (e) { }
         }
 
         async function loadUserFollowing(userId) {
@@ -4827,7 +4839,7 @@
                 const data = await fetchAPI(q, { userId });
                 el.innerHTML = data.Page.following.map(f => `<span class="filter-chip" onclick="openUserDetail('${f.name}')">${f.name.toLowerCase()}</span>`).join('');
                 if (!data.Page.following.length) el.parentElement.style.display = 'none';
-            } catch (e) {}
+            } catch (e) { }
         }
 
         let userActivityPage = 1;
@@ -5763,16 +5775,16 @@
                 try {
                     const source = this.ctx.createBufferSource();
                     source.buffer = this.buffers[type];
-                    
+
                     const gain = this.ctx.createGain();
                     // Extremely soft volumes as requested
                     const volumes = { hover: 0.04, pan: 0.08, select: 0.12, back: 0.12 };
                     gain.gain.value = volumes[type] || 0.1;
-                    
+
                     if (type === 'pan' || type === 'hover' || type === 'select') {
                         source.playbackRate.value = 0.96 + Math.random() * 0.08;
                     }
-                    
+
                     source.connect(gain);
                     gain.connect(this.ctx.destination);
                     source.start(0);
@@ -5810,14 +5822,14 @@
             document.body.addEventListener('click', e => {
                 const target = e.target.closest('button, .btn-back, .btn-back-text, .detail-close, .metro-btn, .metro-tile, .nav-item, .pivot-item, .filter-chip, .color-swatch, .inbox-item, .switch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .wide-info-tile');
                 if (!target) return;
-                
+
                 if (target.matches('.btn-back, .btn-back-text, .detail-close')) {
                     Sfx.play('back');
                 } else {
                     Sfx.play('select');
                 }
             }, true);
-            
+
             document.body.addEventListener('mouseover', e => {
                 const target = e.target.closest('button, .metro-btn, .metro-tile, .nav-item, .pivot-item, .color-swatch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .filter-chip, .wide-info-tile');
                 if (target && target !== Sfx.lastHoverTarget) {
