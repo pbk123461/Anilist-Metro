@@ -180,13 +180,32 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 220px;
+            height: 240px;
             z-index: 50;
             pointer-events: none;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, black 35%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.2) 80%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 0%, black 35%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.2) 80%, transparent 100%);
+            transition: opacity 0.4s var(--metro-easing), backdrop-filter 0.4s var(--metro-easing);
+        }
+
+        .top-blur-layer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .top-blur-layer.blur-disabled {
+            opacity: 0;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
 
         .xbox-nav {
@@ -2614,6 +2633,7 @@
     <div id="toast"></div>
 
     <!-- Massive parallax hero bg text -->
+    <div class="top-blur-layer" id="top-blur-layer"></div>
     <div class="zune-hero-bg" id="dynamic-header">start user library community discover inbox system</div>
 
     <div class="xbox-nav" id="main-nav" style="display: none;">
@@ -3040,6 +3060,24 @@
                                 <span class="toggle-track"></span>
                             </label>
                             <span class="toggle-label">toggle sounds</span>
+                            <div style="margin-top: 15px;">
+                                <div class="settings-item-sub" style="margin-bottom: 8px;">sound pack</div>
+                                <select class="metro-select" id="sfx-pack-select" style="max-width: 280px;">
+                                    <option value="classic">classic (xbox 360)</option>
+                                    <option value="soft">soft</option>
+                                    <option value="minimal">minimal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-item-header">top blur effect</div>
+                            <div class="settings-item-sub">zune-style frosted glass blur on navigation bar</div>
+                            <label class="switch">
+                                <input type="checkbox" id="blur-toggle">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">toggle blur</span>
                         </div>
 
                         <div class="settings-item">
@@ -4169,22 +4207,17 @@
         async function loadLibrary(mediaType) {
             if (isGuest) return;
             try {
-                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { entries { score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
+                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status entries { score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
                 const data = await fetchAPI(q, { userId: currentUserId, type: mediaType });
                 allListsData[mediaType] = {};
                 if (data && data.MediaListCollection && data.MediaListCollection.lists) {
                     const validLists = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED'];
                     data.MediaListCollection.lists.forEach(l => {
-                        const listName = l.name.toUpperCase();
-                        if (validLists.includes(listName)) {
-                            allListsData[mediaType][listName] = l.entries;
-                        } else {
-                            allListsData[mediaType][listName] = l.entries;
-                            const filterContainer = document.getElementById('lib-filter-container');
-                            if (filterContainer && !filterContainer.innerHTML.includes(`'${listName}'`)) {
-                                filterContainer.innerHTML += `<button class="filter-chip" onclick="setLibFilter('${listName}')" id="filter-${listName.toLowerCase()}">${listName.toLowerCase()}</button>`;
-                            }
-                        }
+                        const listStatus = l.status ? l.status.toUpperCase() : null;
+                        const listName = l.name ? l.name.toUpperCase() : null;
+                        const key = (listStatus && validLists.includes(listStatus)) ? listStatus : listName;
+                        if (!key) return;
+                        allListsData[mediaType][key] = l.entries;
                     });
                 }
                 renderLibrary('CURRENT');
@@ -5618,17 +5651,34 @@
         // ==========================================
         // UI SOUND EFFECTS
         // ==========================================
+        const SFX_PACKS = {
+            classic: {
+                select: 'xbox360 metro soundeffects/Select.wav',
+                back: 'xbox360 metro soundeffects/Back.wav',
+                hover: 'xbox360 metro soundeffects/SelectB.wav',
+                pan: 'xbox360 metro soundeffects/PageRight.wav'
+            },
+            soft: {
+                select: 'xbox360 metro soundeffects/SelectB.wav',
+                back: 'xbox360 metro soundeffects/Back2.wav',
+                hover: 'xbox360 metro soundeffects/Unknown1.wav',
+                pan: 'xbox360 metro soundeffects/PageLeft.wav'
+            },
+            minimal: {
+                select: 'xbox360 metro soundeffects/Bing.wav',
+                back: 'xbox360 metro soundeffects/Back2.wav',
+                hover: 'xbox360 metro soundeffects/Unknown2.wav',
+                pan: 'xbox360 metro soundeffects/Unknown3.wav'
+            }
+        };
+
         const Sfx = {
             enabled: localStorage.getItem('metro_sfx') !== 'false',
+            currentPack: localStorage.getItem('metro_sfx_pack') || 'classic',
             ctx: null,
             buffers: {},
             lastPlay: {},
-            sounds: {
-                select: 'xbox360 metro soundeffects/Select.wav',
-                back: 'xbox360 metro soundeffects/Back.wav',
-                hover: 'xbox360 metro soundeffects/SelectA.wav',
-                pan: 'xbox360 metro soundeffects/PageRight.wav'
-            },
+            get sounds() { return SFX_PACKS[this.currentPack] || SFX_PACKS.classic; },
             async init() {
                 if (this.ctx) {
                     if (this.ctx.state === 'suspended') await this.ctx.resume();
@@ -5636,14 +5686,33 @@
                 }
                 try {
                     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    for (const [key, url] of Object.entries(this.sounds)) {
-                        const resp = await fetch(url);
-                        const arrayBuffer = await resp.arrayBuffer();
-                        this.buffers[key] = await this.ctx.decodeAudioData(arrayBuffer);
-                    }
+                    await this._loadBuffers();
                 } catch (e) {
                     console.warn('AudioContext failed to initialize:', e);
                 }
+            },
+            async _loadBuffers() {
+                if (!this.ctx) return;
+                this.buffers = {};
+                for (const [key, url] of Object.entries(this.sounds)) {
+                    try {
+                        const resp = await fetch(url);
+                        const arrayBuffer = await resp.arrayBuffer();
+                        this.buffers[key] = await this.ctx.decodeAudioData(arrayBuffer);
+                    } catch (e) {
+                        console.warn(`Failed to load sound ${key} (${url}):`, e);
+                    }
+                }
+            },
+            async switchPack(packName) {
+                if (!SFX_PACKS[packName]) return;
+                this.currentPack = packName;
+                localStorage.setItem('metro_sfx_pack', packName);
+                if (this.ctx) {
+                    await this._loadBuffers();
+                }
+                showToast('sound pack: ' + packName);
+                this.play('select');
             },
             async play(type) {
                 if (!this.enabled) return;
@@ -5728,6 +5797,28 @@
             if (sfxToggle) {
                 sfxToggle.checked = Sfx.enabled;
                 sfxToggle.addEventListener('change', e => Sfx.toggle(e.target.checked));
+            }
+
+            // SFX Pack Selector Init
+            const packSelect = document.getElementById('sfx-pack-select');
+            if (packSelect) {
+                packSelect.value = Sfx.currentPack;
+                packSelect.addEventListener('change', e => Sfx.switchPack(e.target.value));
+            }
+
+            // Blur Toggle Init
+            const blurLayer = document.getElementById('top-blur-layer');
+            const blurToggle = document.getElementById('blur-toggle');
+            const blurEnabled = localStorage.getItem('metro_blur') !== 'false';
+            if (blurLayer && !blurEnabled) blurLayer.classList.add('blur-disabled');
+            if (blurToggle) {
+                blurToggle.checked = blurEnabled;
+                blurToggle.addEventListener('change', e => {
+                    const on = e.target.checked;
+                    localStorage.setItem('metro_blur', on ? 'true' : 'false');
+                    if (blurLayer) blurLayer.classList.toggle('blur-disabled', !on);
+                    showToast(on ? 'blur effect enabled' : 'blur effect disabled');
+                });
             }
         });
     </script>
