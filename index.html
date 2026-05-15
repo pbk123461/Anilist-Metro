@@ -4237,10 +4237,12 @@
                     if (!entry || !entry.media) return;
                     const title = entry.media.title?.english || entry.media.title?.romaji || 'unknown';
                     const total = (currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters) || '?';
-                    const progressStr = `progress: ${entry.progress || 0} / ${total}`;
+                    const rawProgress = entry.progress || 0;
+                    const displayProgress = (status === 'COMPLETED' && rawProgress === 0 && total !== '?') ? total : rawProgress;
+                    const progressStr = `progress: ${displayProgress} / ${total}`;
                     let badge = '';
                     if (status === 'COMPLETED') badge = total !== '?' ? `${total}/${total}` : 'done';
-                    else if (status === 'CURRENT') badge = entry.progress + (total !== '?' ? '/' + total : '');
+                    else if (status === 'CURRENT') badge = displayProgress + (total !== '?' ? '/' + total : '');
                     
                     el.innerHTML += createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
                 });
