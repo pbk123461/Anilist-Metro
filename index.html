@@ -11,6 +11,29 @@
         /* =========================================
            CORE VARIABLES (AMOLED + data-theme)
            ========================================= */
+        :root {
+            --accent: #1ba1e2;
+            --metro-easing: cubic-bezier(0.1, 0.9, 0.2, 1);
+            --accent-green: #60a917;
+            --accent-red: #ce352c;
+            --accent-yellow: #e3a21a;
+        }
+
+        :root,
+        [data-theme="dark"] {
+            --bg: #000000;
+            --surface: #111111;
+            --surface-hover: #1a1a1a;
+            --input-bg: #111111;
+            --text: #ffffff;
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --text-dim: rgba(255, 255, 255, 0.4);
+            --hero-bg-text: rgba(255, 255, 255, 0.055);
+            --wallpaper-overlay: rgba(0, 0, 0, 0.65);
+            --liquid-glass-bg: rgba(17, 17, 17, 0.35);
+        }
+
         [data-theme="light"] {
             --bg: #ffffff;
             --surface: #f2f2f2;
@@ -22,24 +45,7 @@
             --text-dim: rgba(0, 0, 0, 0.45);
             --hero-bg-text: rgba(0, 0, 0, 0.05);
             --wallpaper-overlay: rgba(255, 255, 255, 0.85);
-        }
-
-        :root {
-            --accent: #1ba1e2;
-            --bg: #000000;
-            --surface: #111111;
-            --surface-hover: #1a1a1a;
-            --input-bg: #111111;
-            --text: #ffffff;
-            --text-main: #ffffff;
-            --text-muted: rgba(255, 255, 255, 0.5);
-            --text-dim: rgba(255, 255, 255, 0.4);
-            --hero-bg-text: rgba(255, 255, 255, 0.055);
-            --metro-easing: cubic-bezier(0.1, 0.9, 0.2, 1);
-            --accent-green: #60a917;
-            --accent-red: #ce352c;
-            --accent-yellow: #e3a21a;
-            --wallpaper-overlay: rgba(0, 0, 0, 0.65);
+            --liquid-glass-bg: rgba(242, 242, 242, 0.35);
         }
 
         *,
@@ -208,6 +214,24 @@
             -webkit-backdrop-filter: none;
         }
 
+        /* Liquid Glass (Experimental) */
+        .liquid-glass-enabled .metro-tile,
+        .liquid-glass-enabled .panel,
+        .liquid-glass-enabled .metro-subview,
+        .liquid-glass-enabled .airing-calendar-panel,
+        .liquid-glass-enabled .airing-timeline,
+        .liquid-glass-enabled .char-card {
+            background: var(--liquid-glass-bg) !important;
+            backdrop-filter: blur(24px) saturate(1.4);
+            -webkit-backdrop-filter: blur(24px) saturate(1.4);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 16px rgba(0, 0, 0, 0.2);
+            border-color: transparent !important;
+        }
+        .liquid-glass-enabled .metro-tile:hover {
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 24px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2) !important;
+        }
+
         .xbox-nav {
             position: fixed;
             top: 130px;
@@ -296,7 +320,7 @@
         .quick-search-input {
             background: transparent;
             border: none;
-            color: #fff;
+            color: var(--text-main);
             font-size: 14px;
             font-family: inherit;
             outline: none;
@@ -1513,7 +1537,7 @@
 
         .airing-calendar .day-cell.today {
             border: 2px solid var(--accent);
-            color: #fff;
+            color: var(--text-main);
         }
 
         .airing-calendar .day-cell.weekday {
@@ -1547,7 +1571,7 @@
         }
 
         .airing-meta-badge {
-            background: rgba(0, 0, 0, 0.2);
+            background: var(--surface-hover);
             padding: 6px 10px;
             font-size: 0.85rem;
             margin-bottom: 4px;
@@ -1560,8 +1584,8 @@
         }
 
         .airing-nav .metro-btn {
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
+            background: var(--surface-hover);
+            color: var(--text-main);
             border: none;
             flex: 1;
             padding: 8px 12px;
@@ -3078,6 +3102,16 @@
                                 <span class="toggle-track"></span>
                             </label>
                             <span class="toggle-label">toggle blur</span>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-item-header">liquid glass <span style="font-size:10px; background:var(--accent-red); color:#fff; padding:2px 6px; vertical-align:middle; margin-left:8px;">experimental</span></div>
+                            <div class="settings-item-sub">apply heavy blur and transparency to all tiles and panels</div>
+                            <label class="switch">
+                                <input type="checkbox" id="liquid-glass-toggle">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">toggle liquid glass</span>
                         </div>
 
                         <div class="settings-item">
@@ -5820,6 +5854,20 @@
                     localStorage.setItem('metro_blur', on ? 'true' : 'false');
                     if (blurLayer) blurLayer.classList.toggle('blur-disabled', !on);
                     showToast(on ? 'blur effect enabled' : 'blur effect disabled');
+                });
+            }
+
+            // Liquid Glass Toggle Init
+            const lgToggle = document.getElementById('liquid-glass-toggle');
+            const lgEnabled = localStorage.getItem('metro_liquid_glass') === 'true';
+            if (lgEnabled) document.body.classList.add('liquid-glass-enabled');
+            if (lgToggle) {
+                lgToggle.checked = lgEnabled;
+                lgToggle.addEventListener('change', e => {
+                    const on = e.target.checked;
+                    localStorage.setItem('metro_liquid_glass', on ? 'true' : 'false');
+                    document.body.classList.toggle('liquid-glass-enabled', on);
+                    showToast(on ? 'liquid glass enabled' : 'liquid glass disabled');
                 });
             }
         });
