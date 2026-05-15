@@ -221,6 +221,9 @@
 
         /* Liquid Glass (Experimental) */
         .liquid-glass-enabled .metro-tile,
+        .liquid-glass-enabled .metro-tile-start,
+        .liquid-glass-enabled .inbox-item,
+        .liquid-glass-enabled .prog-list > div,
         .liquid-glass-enabled .panel,
         .liquid-glass-enabled .metro-subview,
         .liquid-glass-enabled .airing-calendar-panel,
@@ -233,7 +236,8 @@
             border-color: transparent !important;
         }
 
-        .liquid-glass-enabled .metro-tile:hover {
+        .liquid-glass-enabled .metro-tile:hover,
+        .liquid-glass-enabled .metro-tile-start:hover {
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 24px rgba(0, 0, 0, 0.3);
             border-color: rgba(255, 255, 255, 0.2) !important;
         }
@@ -2722,7 +2726,7 @@
                             onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';"
                             alt="Avatar">
                         <div class="start-title" id="start-tile-user"
-                            style="padding: 10px; background: rgba(0,0,0,0.6); width: 100%;">guest</div>
+                            style="padding: 10px; background: var(--wallpaper-overlay); width: 100%;">guest</div>
                     </div>
                     <div class="metro-tile-start medium" style="background-color: #60a917;"
                         onclick="scrollToSection(2)">
@@ -4647,8 +4651,15 @@
             }
             q = `query ($name: String) {
         User(name: $name) {
-            id name about(asHtml: false) avatar { large } bannerImage
+            id name about(asHtml: true) avatar { large } bannerImage
             statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } }
+            favourites {
+                anime(page: 1, perPage: 10) { nodes { id title { english romaji } coverImage { large } } }
+                manga(page: 1, perPage: 10) { nodes { id title { english romaji } coverImage { large } } }
+                characters(page: 1, perPage: 10) { nodes { id name { full } image { large } } }
+                staff(page: 1, perPage: 10) { nodes { id name { full } image { large } } }
+                studios(page: 1, perPage: 10) { nodes { id name } }
+            }
         }
     }`;
 
