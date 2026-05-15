@@ -12,19 +12,22 @@ AniList Metro is a single-file web application that provides a high-performance,
 - **Impact**: Eliminated audio crackling and performance stutters during rapid navigation.
 - **Volume**: Calibrated to "Soft" levels (4% to 12% gain) to avoid headphone fatigue.
 - **Features**: Real-time pitch randomization on navigation triggers (pan, select, hover) for a more organic feel.
+- **Sound Packs**: Added a selector in Settings to switch between 'classic' (Xbox 360), 'soft', and 'minimal' sound packs.
 - **Source**: SFX assets are located in `xbox360 metro soundeffects/`.
 
 ### 2. Theme & Wallpaper Engine
 - **Wallpaper Overlay**: Implemented a dynamic `--wallpaper-overlay` variable. 
     - **Dark Mode**: Soft black overlay (`65%`).
     - **Light Mode**: Soft white overlay (`85%`), ensuring text readability against any user-uploaded image.
-- **Theme Variables**: All UI components (tiles, buttons, panels) now strictly follow CSS variables (`--bg`, `--surface`, `--text-main`) to ensure perfect compatibility between Dark and Light modes.
+- **Theme Variables**: All UI components (tiles, buttons, panels) now strictly follow CSS variables (`--bg`, `--surface`, `--text-main`) to ensure perfect compatibility between Dark and Light modes. CSS specificity was corrected (variables split between `:root` and `[data-theme="light/dark"]`).
+- **Zune Top Blur Layer**: Added a frosted glass gradient blur layer (`.top-blur-layer`) behind the top navigation, mimicking the Zune HD interface, complete with a settings toggle.
 
 ### 3. UI Refinements
 - **Settings**: The back button in settings subviews is now `position: sticky`, ensuring it remains visible while scrolling through long color wheel or info panels.
 - **Accent Selection**: Cleaned up the color selection UI. Removed redundant swatches and browser pickers in favor of the custom Color Wheel and Preview Square.
-- **Library Tab**: Fixed rendering logic to ensure both Anime and Manga lists populate correctly upon initial load and during toggle.
-
+- **Library Tab**: Fixed a critical GraphQL query bug where list groups were missing `name` and `status` fields, crashing the library renderer.
+- **Library Progress**: Fixed completed anime showing '0' episodes by automatically substituting the total episodes count when progress is missing.
+- **Hero Background**: Restored the missing 'airing' label in the parallax background text.
 ## Technical Architecture
 - **Language**: Vanilla HTML5, CSS3, and ES6+ JavaScript.
 - **Styling**: Vanilla CSS with a global variable system for accent colors and themes.
