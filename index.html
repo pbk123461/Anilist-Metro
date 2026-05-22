@@ -17,6 +17,7 @@
             --accent-green: #60a917;
             --accent-red: #ce352c;
             --accent-yellow: #e3a21a;
+            --glass-line: rgba(255, 255, 255, 0.16);
         }
 
         :root,
@@ -31,7 +32,9 @@
             --text-dim: rgba(255, 255, 255, 0.4);
             --hero-bg-text: rgba(255, 255, 255, 0.055);
             --wallpaper-overlay: rgba(0, 0, 0, 0.65);
-            --liquid-glass-bg: rgba(17, 17, 17, 0.35);
+            --liquid-glass-bg: rgba(17, 17, 17, 0.42);
+            --liquid-glass-hover: rgba(26, 26, 26, 0.58);
+            --glass-line: rgba(255, 255, 255, 0.16);
         }
 
         [data-theme="light"] {
@@ -45,7 +48,9 @@
             --text-dim: rgba(0, 0, 0, 0.45);
             --hero-bg-text: rgba(0, 0, 0, 0.05);
             --wallpaper-overlay: rgba(255, 255, 255, 0.85);
-            --liquid-glass-bg: rgba(242, 242, 242, 0.35);
+            --liquid-glass-bg: rgba(255, 255, 255, 0.48);
+            --liquid-glass-hover: rgba(255, 255, 255, 0.68);
+            --glass-line: rgba(0, 0, 0, 0.12);
         }
 
         *,
@@ -222,24 +227,43 @@
         /* Liquid Glass (Experimental) */
         .liquid-glass-enabled .metro-tile,
         .liquid-glass-enabled .metro-tile-start,
+        .liquid-glass-enabled .tile .flip-tile-front,
+        .liquid-glass-enabled .tile .flip-tile-back,
+        .liquid-glass-enabled .prog-item,
         .liquid-glass-enabled .inbox-item,
-        .liquid-glass-enabled .prog-list > div,
+        .liquid-glass-enabled .wide-info-tile,
+        .liquid-glass-enabled .wp-setting-item,
+        .liquid-glass-enabled .settings-item,
         .liquid-glass-enabled .panel,
         .liquid-glass-enabled .metro-subview,
+        .liquid-glass-enabled .editor-overlay,
         .liquid-glass-enabled .airing-calendar-panel,
+        .liquid-glass-enabled .airing-date-panel,
         .liquid-glass-enabled .airing-timeline,
-        .liquid-glass-enabled .char-card {
+        .liquid-glass-enabled .airing-tile,
+        .liquid-glass-enabled .char-card,
+        .liquid-glass-enabled .metro-btn,
+        .liquid-glass-enabled .filter-chip,
+        .liquid-glass-enabled .mts-btn,
+        .liquid-glass-enabled select.metro-select,
+        .liquid-glass-enabled .metro-input,
+        .liquid-glass-enabled .toggle-track,
+        .liquid-glass-enabled .wallpaper-preview {
             background: var(--liquid-glass-bg) !important;
             backdrop-filter: blur(24px) saturate(1.4);
             -webkit-backdrop-filter: blur(24px) saturate(1.4);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 16px rgba(0, 0, 0, 0.2);
-            border-color: transparent !important;
+            border-color: var(--glass-line) !important;
         }
 
         .liquid-glass-enabled .metro-tile:hover,
-        .liquid-glass-enabled .metro-tile-start:hover {
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 24px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.2) !important;
+        .liquid-glass-enabled .metro-tile-start:hover,
+        .liquid-glass-enabled .prog-item:hover,
+        .liquid-glass-enabled .wp-setting-item:hover,
+        .liquid-glass-enabled .airing-tile:hover,
+        .liquid-glass-enabled .filter-chip:hover,
+        .liquid-glass-enabled .mts-btn:hover {
+            background: var(--liquid-glass-hover) !important;
+            border-color: var(--accent) !important;
         }
 
         .xbox-nav {
@@ -1604,7 +1628,7 @@
 
         .airing-list-wrapper {
             display: grid;
-            grid-template-columns: 1fr 280px;
+            grid-template-columns: minmax(0, 1fr) 300px;
             gap: 20px;
             align-items: start;
         }
@@ -1692,7 +1716,7 @@
         /* Airing List as Tiles */
         .airing-tile-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 15px;
         }
 
@@ -1701,7 +1725,7 @@
             position: relative;
             cursor: pointer;
             transition: transform 0.1s var(--metro-easing);
-            aspect-ratio: 1/1;
+            aspect-ratio: 4/3;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -2558,6 +2582,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .airing-list-wrapper {
+                grid-template-columns: 1fr;
+            }
+
             .airing-date-panel {
                 order: -1;
             }
@@ -3013,18 +3041,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="pivot-headers">
+                <div class="pivot-headers" id="airing-pivots">
                     <div class="pivot-item active" onclick="switchAiringView('today', this)">today</div>
                     <div class="pivot-item" onclick="switchAiringView('week', this)">this week</div>
                 </div>
-                <div class="airing-list-wrapper" style="display:flex; flex-direction:column; gap:20px;">
+                <div class="airing-list-wrapper">
+                    <div class="prog-list airing-tile-grid" id="airing-list">
+                        <div style="color:var(--text-dim);">loading...</div>
+                    </div>
                     <div class="airing-timeline" id="airing-timeline" style="width:100%;">
                         <div class="airing-timeline-title"
                             style="font-size:1.2rem; font-weight:300; color:var(--accent); margin-bottom:15px; text-transform:lowercase;">
                             timeline</div>
-                    </div>
-                    <div class="prog-list airing-tile-grid" id="airing-list">
-                        <div style="color:var(--text-dim);">loading...</div>
                     </div>
                 </div>
 
@@ -3244,6 +3272,7 @@
         let accessToken = localStorage.getItem('anilist_token');
         let currentUserId = null;
         let allListsData = { ANIME: {}, MANGA: {} };
+        let libraryLoaded = { ANIME: false, MANGA: false };
         let currentMediaType = 'ANIME';
         let currentLibStatus = 'CURRENT';
         let searchType = 'ANIME';
@@ -3386,6 +3415,8 @@
             } else {
                 document.documentElement.setAttribute('data-theme', mode);
             }
+            document.documentElement.style.removeProperty('--surface');
+            applyWallpaper();
             const select = document.getElementById('theme-select');
             if (select) select.value = mode;
         }
@@ -3430,6 +3461,7 @@
         }
 
         function applyWallpaper() {
+            document.documentElement.style.removeProperty('--surface');
             if (wallpaperDataUrl) {
                 const overlayColor = getComputedStyle(document.documentElement).getPropertyValue('--wallpaper-overlay').trim() || 'rgba(0,0,0,0.6)';
                 document.body.style.backgroundImage = `linear-gradient(${overlayColor}, ${overlayColor}), url('${wallpaperDataUrl}')`;
@@ -3438,11 +3470,9 @@
                 document.body.style.backgroundRepeat = 'no-repeat';
                 document.body.style.backgroundAttachment = 'fixed';
                 document.body.classList.add('has-wallpaper');
-                document.documentElement.style.setProperty('--surface', 'rgba(255,255,255,0.05)');
             } else {
                 document.body.style.backgroundImage = 'none';
                 document.body.classList.remove('has-wallpaper');
-                document.documentElement.style.setProperty('--surface', '#1f1f1f');
             }
         }
 
@@ -4090,7 +4120,7 @@
         let airingView = 'today';
         let airingSelectedDate = new Date();
         function switchAiringView(view, el) {
-            document.querySelectorAll('.pivot-item').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('#airing-pivots .pivot-item').forEach(p => p.classList.remove('active'));
             el.classList.add('active');
             airingView = view;
             loadAiringSchedule(view, false);
@@ -4260,6 +4290,7 @@
                 const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status entries { score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
                 const data = await fetchAPI(q, { userId: currentUserId, type: mediaType });
                 allListsData[mediaType] = {};
+                libraryLoaded[mediaType] = true;
                 if (data && data.MediaListCollection && data.MediaListCollection.lists) {
                     const validLists = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED'];
                     data.MediaListCollection.lists.forEach(l => {
@@ -4270,7 +4301,7 @@
                         allListsData[mediaType][key] = l.entries;
                     });
                 }
-                renderLibrary('CURRENT');
+                if (mediaType === currentMediaType) renderLibrary(currentLibStatus);
             } catch (e) { console.error('error loading library:', e); }
         }
 
@@ -4307,10 +4338,15 @@
             currentLibStatus = 'CURRENT';
             currentLibraryPage = 1;
             document.querySelectorAll('.mts-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active');
             document.querySelectorAll('#library-pivots .pivot-item').forEach((p, i) => p.classList.toggle('active', i === 0));
-            if (allListsData[currentMediaType]) renderLibrary('CURRENT');
-            else loadLibrary(currentMediaType);
+            if (libraryLoaded[currentMediaType]) {
+                renderLibrary('CURRENT');
+            } else {
+                const el = document.getElementById('library-grid');
+                if (el) el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
+                loadLibrary(currentMediaType);
+            }
         }
         document.querySelectorAll('#library-pivots .pivot-item').forEach(item => {
             item.addEventListener('click', e => {
