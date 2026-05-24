@@ -993,6 +993,39 @@
             border-color: var(--accent);
         }
 
+        /* Timeline (GitHub-like) for user activity */
+        #user-activity-list {
+            display: block;
+            max-width: 1000px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 14px;
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            align-items: flex-start;
+        }
+
+        .timeline-marker {
+            width: 10px;
+            min-width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-top: 8px;
+            box-shadow: 0 0 0 4px rgba(27,161,226,0.06);
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-header { color: var(--text-dim); font-size: 13px; margin-bottom:6px; }
+        .timeline-title { color: var(--text); font-size: 16px; font-weight:300; cursor:pointer; }
+        .timeline-body { color: var(--text-main); margin-top:8px; font-size:14px; }
+        .timeline-actions { margin-top:10px; display:flex; gap:8px; }
+
         .prog-thumb,
         .prog-avatar {
             width: 50px;
@@ -5309,6 +5342,7 @@
                 </div>` : ''}
             </div>`;
 
+                userActivityPage = 1;
                 loadUserProfileActivities(u.id);
                 loadUserFollowers(u.id);
                 loadUserFollowing(u.id);
@@ -5451,36 +5485,45 @@
                     if (!a || !a.media) return;
                     const title = a.media.title?.english || a.media.title?.romaji || 'unknown';
                     const likeCount = a.likeCount || 0;
-                    const repliesHtml = (a.replies || []).slice(0, 3).map(r => `
+                    const time = timeAgo(a.createdAt);
+                    const repliesHtml = (a.replies || []).slice(0, 3).map(r => {
+                        const ru = r.user || {};
+                        const rname = (ru.name || 'someone').toLowerCase();
+                        const rav = ru.avatar?.large || 'https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';
+                        return `
                 <div style="margin-top:8px; padding:8px; background:var(--bg); display:flex; gap:10px;">
-                    <img src="${r.user.avatar?.large || ''}" style="width:24px; height:24px; object-fit:cover;" onclick="event.stopPropagation(); openUserDetail('${r.user.name}')">
+                    <img src="${rav}" style="width:24px; height:24px; object-fit:cover;" onclick="event.stopPropagation(); openUserDetail('${ru.name || ''}')">
                     <div style="flex:1;">
-                        <div style="font-size:12px; color:var(--accent); cursor:pointer;" onclick="event.stopPropagation(); openUserDetail('${r.user.name}')">${r.user.name.toLowerCase()}</div>
+                        <div style="font-size:12px; color:var(--accent); cursor:pointer;" onclick="event.stopPropagation(); openUserDetail('${ru.name || ''}')">${rname}</div>
                         <div style="font-size:13px; color:var(--text-main);">${(r.text || '').toLowerCase()}</div>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+                    }).join('');
                     const moreReplies = (a.replies || []).length > 3 ? `<div style="font-size:12px; color:var(--accent); cursor:pointer; margin-top:8px;">view all ${(a.replies || []).length} replies</div>` : '';
 
                     el.innerHTML += `
-                <div class="prog-item" style="margin-bottom:5px; flex-direction:column; align-items:stretch; gap:8px;">
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <img src="${a.media.coverImage?.large || ''}" style="width:40px; height:55px; object-fit:cover; cursor:pointer;" onclick="openDetailById(${a.media.id},'${a.media.type}')">
-                        <div style="flex:1;">
-                            <div style="font-size:14px; color:var(--text-dim);">${a.status || ''} ${a.progress || ''}</div>
-                            <div style="font-size:16px; color:var(--text); cursor:pointer;" onclick="openDetailById(${a.media.id},'${a.media.type}')">${title.toLowerCase()}</div>
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">${time}</div>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <img src="${a.media.coverImage?.large || ''}" style="width:48px; height:64px; object-fit:cover; cursor:pointer;" onclick="openDetailById(${a.media.id},'${a.media.type}')">
+                            <div style="flex:1;">
+                                <div class="timeline-title" onclick="openDetailById(${a.media.id},'${a.media.type}')">${title.toLowerCase()}</div>
+                                <div style="font-size:13px; color:var(--text-dim);">${a.status || ''} ${a.progress || ''}</div>
+                            </div>
                         </div>
-                    </div>
-                    ${repliesHtml}
-                    ${moreReplies}
-                    <div style="display:flex; gap:10px; margin-top:8px;">
-                        <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleLikeActivity(${a.id}, this)"><i class="fa-${likeCount > 0 ? 'solid' : 'regular'} fa-heart"></i> ${likeCount}</button>
-                        <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleReplyBoxUser(${a.id})"><i class="fa-solid fa-reply"></i> reply</button>
-                    </div>
-                    <div class="reply-box" id="reply-box-user-${a.id}">
-                        <textarea class="metro-input reply-input" placeholder="reply..."></textarea>
-                        <div style="display:flex; gap:8px; justify-content:flex-end;">
-                            <button class="metro-btn small" onclick="event.stopPropagation(); submitReplyUser(${a.id})"><i class="fa-solid fa-reply"></i> send</button>
+                        ${repliesHtml}
+                        ${moreReplies}
+                        <div class="timeline-actions">
+                            <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleLikeActivity(${a.id}, this)"><i class="fa-${likeCount > 0 ? 'solid' : 'regular'} fa-heart"></i> ${likeCount}</button>
+                            <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleReplyBoxUser(${a.id})"><i class="fa-solid fa-reply"></i> reply</button>
+                        </div>
+                        <div class="reply-box" id="reply-box-user-${a.id}">
+                            <textarea class="metro-input reply-input" placeholder="reply..."></textarea>
+                            <div style="display:flex; gap:8px; justify-content:flex-end;">
+                                <button class="metro-btn small" onclick="event.stopPropagation(); submitReplyUser(${a.id})"><i class="fa-solid fa-reply"></i> send</button>
+                            </div>
                         </div>
                     </div>
                 </div>
