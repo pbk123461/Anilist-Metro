@@ -80,6 +80,25 @@
             font-family: inherit;
         }
 
+        .dropdown-banner {
+            width: 320px;
+            height: 84px;
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            align-items: flex-end;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .dropdown-banner-inner {
+            width: 100%;
+            padding: 8px 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: linear-gradient(to top, rgba(0,0,0,0.45), transparent);
+        }
+
         a {
             color: var(--accent);
             text-decoration: none;
@@ -596,6 +615,7 @@
             border: 2px solid var(--surface-hover);
             color: var(--text-main);
             padding: 12px;
+            display: block;
             width: 100%;
             text-align: center;
             font-family: inherit;
@@ -2952,12 +2972,18 @@
                 onclick="toggleDropdown(event)"
                 onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';">
             <div class="dropdown-content">
-                <a href="#" onclick="scrollToSection(1); closeDropdown(); return false;"><i
-                        class="fa-solid fa-user fa-fw"></i> profile</a>
-                <a href="#" onclick="scrollToSection(6); closeDropdown(); return false;"><i
-                        class="fa-solid fa-envelope fa-fw"></i> inbox</a>
-                <a href="#" onclick="scrollToSection(7); closeDropdown(); return false;"><i
-                        class="fa-solid fa-gear fa-fw"></i> settings</a>
+                <div class="dropdown-banner" id="dropdown-banner" style="background: linear-gradient(to bottom, transparent, var(--bg));">
+                    <div class="dropdown-banner-inner">
+                        <img id="dropdown-avatar" src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png" alt="avatar" style="width:48px;height:48px;object-fit:cover;border:2px solid rgba(255,255,255,0.06);" onerror="this.onerror=null;this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png'">
+                        <div style="display:flex;flex-direction:column;">
+                            <div id="dropdown-username" style="color:var(--text-main); font-weight:400;">guest</div>
+                            <div id="dropdown-sub" style="color:var(--text-dim); font-size:12px;">0 anime // 0 manga</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" onclick="scrollToSection(1); closeDropdown(); return false;"><i class="fa-solid fa-user fa-fw"></i> profile</a>
+                <a href="#" onclick="scrollToSection(6); closeDropdown(); return false;"><i class="fa-solid fa-envelope fa-fw"></i> inbox</a>
+                <a href="#" onclick="scrollToSection(7); closeDropdown(); return false;"><i class="fa-solid fa-gear fa-fw"></i> settings</a>
                 <a href="#" onclick="logout(); return false;"><i class="fa-solid fa-power-off fa-fw"></i> sign out</a>
             </div>
         </div>
@@ -3497,19 +3523,6 @@
                         </div>
 
                         <div class="settings-item">
-                            <div class="settings-item-header">liquid glass <span
-                                    style="font-size:10px; background:var(--accent-red); color:#fff; padding:2px 6px; vertical-align:middle; margin-left:8px;">experimental</span>
-                            </div>
-                            <div class="settings-item-sub">apply heavy blur and transparency to all tiles and panels
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="liquid-glass-toggle">
-                                <span class="toggle-track"></span>
-                            </label>
-                            <span class="toggle-label">toggle liquid glass</span>
-                        </div>
-
-                        <div class="settings-item">
                             <div class="settings-item-header">accent color</div>
                             <div class="color-picker" id="theme-colors" style="display:none">
                                 <!-- Hidden but kept for logic compatibility if needed -->
@@ -3616,8 +3629,6 @@
     </div>
 
     <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
-    <script id="html2canvas-script" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
-        defer onload="this.dataset.loaded='true'" onerror="this.dataset.failed='true'"></script>
 
     <script>
         // ==========================================
@@ -3832,196 +3843,6 @@
             }
         }
 
-        const LIQUID_GL_SURFACE_SELECTOR = [
-            '.metro-tile',
-            '.metro-tile-start',
-            '.flip-tile-front',
-            '.flip-tile-back',
-            '.prog-item',
-            '.inbox-item',
-            '.wide-info-tile',
-            '.wp-setting-item',
-            '.settings-item',
-            '.panel',
-            '.metro-subview',
-            '.editor-overlay',
-            '.airing-calendar-panel',
-            '.airing-date-panel',
-            '.airing-timeline',
-            '.airing-tile',
-            '.char-card',
-            '.wallpaper-preview'
-        ].join(',');
-        let liquidGlassObserver = null;
-        let liquidGlassRefreshTimer = null;
-
-        function getLiquidGlassPane(host) {
-            return Array.from(host.children || []).find(child => child.classList && child.classList.contains('liquidGL-pane'));
-        }
-
-        function prepareLiquidGlassTargets() {
-            return Array.from(document.querySelectorAll(LIQUID_GL_SURFACE_SELECTOR))
-                .filter(el => el && !el.closest('[data-liquid-ignore]') && !el.classList.contains('liquidGL-pane'))
-                .map(host => {
-                    host.classList.add('liquidGL-host');
-                    let pane = getLiquidGlassPane(host);
-                    if (!pane) {
-                        pane = document.createElement('span');
-                        pane.className = 'liquidGL-pane liquidGL liquidGL-pending';
-                        pane.setAttribute('aria-hidden', 'true');
-                        host.insertBefore(pane, host.firstChild);
-                    } else if (!pane.dataset.liquidReady) {
-                        pane.classList.add('liquidGL', 'liquidGL-pending');
-                    }
-                    return pane;
-                })
-                .filter(pane => !pane.dataset.liquidReady);
-        }
-
-        function setLiquidGlassCanvasVisible(visible) {
-            const renderer = window.__liquidGLRenderer__;
-            if (renderer && renderer.canvas) {
-                renderer.canvas.style.display = visible ? 'block' : 'none';
-                if (visible && typeof renderer.captureSnapshot === 'function') {
-                    renderer.captureSnapshot();
-                }
-            }
-        }
-
-        function loadScriptOnce(id, src, globalName) {
-            if (typeof window[globalName] === 'function') return Promise.resolve(true);
-            return new Promise((resolve, reject) => {
-                let script = document.getElementById(id);
-                const timeout = setTimeout(() => reject(new Error(`${id} timed out`)), 8000);
-                const done = () => {
-                    clearTimeout(timeout);
-                    if (typeof window[globalName] === 'function') resolve(true);
-                    else reject(new Error(`${id} loaded without ${globalName}`));
-                };
-                const failed = () => {
-                    clearTimeout(timeout);
-                    reject(new Error(`${id} failed to load`));
-                };
-
-                if (!script) {
-                    script = document.createElement('script');
-                    script.id = id;
-                    script.src = src;
-                    script.defer = true;
-                    document.body.appendChild(script);
-                }
-
-                if (script.dataset.loaded === 'true') {
-                    done();
-                    return;
-                }
-                if (script.dataset.failed === 'true') {
-                    failed();
-                    return;
-                }
-
-                script.addEventListener('load', () => {
-                    script.dataset.loaded = 'true';
-                    done();
-                }, { once: true });
-                script.addEventListener('error', () => {
-                    script.dataset.failed = 'true';
-                    failed();
-                }, { once: true });
-            });
-        }
-
-        async function ensureLiquidGLLibraries() {
-            if (typeof window.html2canvas === 'function' && typeof window.liquidGL === 'function') return true;
-            try {
-                await loadScriptOnce('html2canvas-script', 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvas');
-                await loadScriptOnce('liquidgl-script', 'https://cdn.jsdelivr.net/gh/naughtyduk/liquidGL@main/scripts/liquidGL.js', 'liquidGL');
-                return typeof window.html2canvas === 'function' && typeof window.liquidGL === 'function';
-            } catch (e) {
-                console.warn('liquidGL dependencies unavailable; using css fallback', e);
-                return false;
-            }
-        }
-
-        function startLiquidGlassObserver() {
-            if (liquidGlassObserver || !('MutationObserver' in window)) return;
-            liquidGlassObserver = new MutationObserver(() => queueLiquidGlassRefresh());
-            liquidGlassObserver.observe(document.body, { childList: true, subtree: true });
-        }
-
-        function stopLiquidGlassObserver() {
-            if (!liquidGlassObserver) return;
-            liquidGlassObserver.disconnect();
-            liquidGlassObserver = null;
-        }
-
-        function queueLiquidGlassRefresh() {
-            if (localStorage.getItem('metro_liquid_glass') !== 'true') return;
-            clearTimeout(liquidGlassRefreshTimer);
-            liquidGlassRefreshTimer = setTimeout(() => enableLiquidGlassEngine(false), 250);
-        }
-
-        async function enableLiquidGlassEngine(showMessage = true) {
-            document.body.classList.add('liquid-glass-enabled');
-            const pending = prepareLiquidGlassTargets();
-            setLiquidGlassCanvasVisible(true);
-            startLiquidGlassObserver();
-
-            const liquidReady = await ensureLiquidGLLibraries();
-            if (!liquidReady) {
-                if (showMessage) showToast('liquid glass fallback active');
-                return;
-            }
-
-            if (!pending.length) {
-                const renderer = window.__liquidGLRenderer__;
-                if (renderer && typeof renderer.captureSnapshot === 'function') renderer.captureSnapshot();
-                if (showMessage) showToast('liquid glass enabled');
-                return;
-            }
-
-            try {
-                window.liquidGL({
-                    snapshot: '#app-container',
-                    target: '.liquidGL-pending',
-                    resolution: 1.25,
-                    refraction: 0.018,
-                    bevelDepth: 0.06,
-                    bevelWidth: 0.18,
-                    frost: 1.2,
-                    shadow: false,
-                    specular: true,
-                    reveal: 'none',
-                    tilt: false,
-                    magnify: 1.02
-                });
-                pending.forEach(pane => {
-                    pane.dataset.liquidReady = 'true';
-                    pane.classList.remove('liquidGL-pending');
-                });
-                if (window.liquidGL.registerDynamic) {
-                    window.liquidGL.registerDynamic('.panorama-container');
-                    window.liquidGL.registerDynamic('.zune-hero-bg');
-                }
-                if (showMessage) showToast('liquidGL enabled');
-            } catch (e) {
-                console.warn('liquidGL init failed; using css fallback', e);
-                if (showMessage) showToast('liquid glass fallback active');
-            }
-        }
-
-        function disableLiquidGlassEngine(showMessage = true) {
-            document.body.classList.remove('liquid-glass-enabled');
-            setLiquidGlassCanvasVisible(false);
-            stopLiquidGlassObserver();
-            if (showMessage) showToast('liquid glass disabled');
-        }
-
-        function setLiquidGlassEnabled(enabled, showMessage = true) {
-            localStorage.setItem('metro_liquid_glass', enabled ? 'true' : 'false');
-            if (enabled) enableLiquidGlassEngine(showMessage);
-            else disableLiquidGlassEngine(showMessage);
-        }
 
         function loadWallpaper() {
             wallpaperDataUrl = localStorage.getItem('metro_wallpaper') || '';
@@ -4189,7 +4010,6 @@
                     console.error('User data load failed:', err);
                     showToast('welcome back (limited profile data)');
                 });
-                queueLiquidGlassRefresh();
             }
         }
         function login() { window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`; }
@@ -4215,7 +4035,6 @@
             loadTrending();
             initAiringCalendar();
             loadAiringSchedule('today');
-            queueLiquidGlassRefresh();
         }
         function initLoginSlideshow() {
             const slideshow = document.getElementById('slideshow-content');
@@ -4508,10 +4327,16 @@
                     document.getElementById('top-right-avatar').src = v.avatar.large;
                     document.getElementById('user-page-avatar').src = v.avatar.large;
                     document.getElementById('start-tile-avatar').src = v.avatar.large;
+                    const ddAv = document.getElementById('dropdown-avatar'); if (ddAv) ddAv.src = v.avatar.large;
                 }
                 const animeCount = v.statistics?.anime?.count || 0;
                 const mangaCount = v.statistics?.manga?.count || 0;
                 document.getElementById('user-page-sub').innerText = `${animeCount} anime // ${mangaCount} manga`;
+                const ddName = document.getElementById('dropdown-username'); if (ddName) ddName.innerText = v.name ? v.name.toLowerCase() : 'user';
+                const ddSub = document.getElementById('dropdown-sub'); if (ddSub) ddSub.innerText = `${animeCount} anime // ${mangaCount} manga`;
+                if (v.bannerImage) {
+                    const ddBanner = document.getElementById('dropdown-banner'); if (ddBanner) ddBanner.style.backgroundImage = `linear-gradient(to bottom, transparent, var(--bg)), url('${v.bannerImage}')`;
+                }
                 renderUserHomeStats(v);
                 renderUserHomeFavorites(v.favourites);
                 if (v.unreadNotificationCount > 0) {
@@ -4688,7 +4513,7 @@
             </div>`;
                 });
                 let btn = document.getElementById('load-more-community'); if (btn) btn.remove();
-                if (data.Page.pageInfo.hasNextPage) el.innerHTML += `<button class="load-more-btn" id="load-more-community" onclick="loadMoreCommunity()">load more...</button>`;
+                if (data.Page.pageInfo.hasNextPage) el.innerHTML += `<button class="load-more-btn" id="load-more-community" onclick="loadMoreCommunity()" style="grid-column: 1 / -1;">load more...</button>`;
             } catch (e) { if (!append) el.innerHTML = '<div style="color:var(--text-dim);">could not load.</div>'; }
         }
         function loadMoreCommunity() { communityPage++; loadPublicCommunityFeed(true); }
@@ -5368,7 +5193,7 @@
             </div>`;
                 });
                 let btn = document.getElementById('load-more-notif-btn'); if (btn) btn.remove();
-                if (data.Page.pageInfo.hasNextPage) el.innerHTML += `<button class="load-more-btn" id="load-more-notif-btn" onclick="loadMoreNotifications()">load more...</button>`;
+                if (data.Page.pageInfo.hasNextPage) el.innerHTML += `<button class="load-more-btn" id="load-more-notif-btn" onclick="loadMoreNotifications()" style="grid-column: 1 / -1;">load more...</button>`;
             } catch (e) { console.error(e); }
         }
         function loadMoreNotifications() { notifPage++; loadNotifications(inboxMode, true); }
@@ -6625,17 +6450,6 @@
                     localStorage.setItem('metro_blur', on ? 'true' : 'false');
                     if (blurLayer) blurLayer.classList.toggle('blur-disabled', !on);
                     showToast(on ? 'blur effect enabled' : 'blur effect disabled');
-                });
-            }
-
-            // Liquid Glass Toggle Init
-            const lgToggle = document.getElementById('liquid-glass-toggle');
-            const lgEnabled = localStorage.getItem('metro_liquid_glass') === 'true';
-            if (lgEnabled) setLiquidGlassEnabled(true, false);
-            if (lgToggle) {
-                lgToggle.checked = lgEnabled;
-                lgToggle.addEventListener('change', e => {
-                    setLiquidGlassEnabled(e.target.checked);
                 });
             }
         });
