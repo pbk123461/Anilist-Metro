@@ -1,0 +1,381 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-mono,monospace)}
+.wrap{padding:1.5rem 0;max-width:680px}
+.header{margin-bottom:2rem}
+.header h1{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px}
+.header p{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.notice{background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:12px 16px;margin-bottom:2rem;font-size:13px;color:var(--color-text-warning);line-height:1.6}
+.section{margin-bottom:2rem}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.group{margin-bottom:1.25rem}
+.group-name{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px}
+.items{display:flex;flex-direction:column;gap:3px}
+.item{font-size:12px;color:var(--color-text-secondary);line-height:1.5;padding-left:12px;position:relative}
+.item::before{content:"—";position:absolute;left:0;color:var(--color-text-tertiary)}
+.tag{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:4px;margin-left:5px;vertical-align:middle}
+.tag-auth{background:var(--color-background-info);color:var(--color-text-info)}
+.tag-mutation{background:var(--color-background-warning);color:var(--color-text-warning)}
+.tag-social{background:var(--color-background-success);color:var(--color-text-success)}
+.legend{display:flex;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
+</style>
+<div class="wrap">
+<div class="header">
+<h1>AniList app — complete feature spec</h1>
+<p>Every feature to build on top of your existing app. Do not replace, remove, or refactor anything already built. Add only what is missing. All items are additive. Auth-required features need a valid OAuth2 bearer token.</p>
+</div>
+<div class="notice">
+⚠ Instruction to agent: treat this as a feature addition task only. Do not touch, rewrite, or reorganize existing code, components, routes, or state. Find gaps and fill them. If something is already implemented, skip it.
+</div>
+<div class="legend">
+<div class="legend-item"><span class="tag tag-auth">auth</span> requires login</div>
+<div class="legend-item"><span class="tag tag-mutation">write</span> mutation / writes data</div>
+<div class="legend-item"><span class="tag tag-social">social</span> community feature</div>
+</div>
+
+<div class="section">
+<div class="section-title">Media browsing &amp; discovery</div>
+<div class="group"><div class="group-name">Search</div><div class="items">
+<div class="item">Full-text search across anime, manga, characters, staff, studios, users simultaneously</div>
+<div class="item">Filter by: type (anime/manga), format (TV/movie/OVA/ONA/special/music/manga/novel/one-shot/manhwa/manhua/doujin)</div>
+<div class="item">Filter by: status (releasing/finished/not yet released/cancelled/hiatus)</div>
+<div class="item">Filter by: season (winter/spring/summer/fall) + season year</div>
+<div class="item">Filter by: genre (multi-select, all AniList genres)</div>
+<div class="item">Filter by: tag (multi-select, all AniList tags with tag category grouping)</div>
+<div class="item">Filter by: minimum tag percentage (tag rank threshold slider)</div>
+<div class="item">Filter by: source (original/manga/light novel/visual novel/video game/other/novel/doujinshi/anime/web novel/live action/game/comic/multimedia project)</div>
+<div class="item">Filter by: country of origin (Japan/South Korea/China/Taiwan)</div>
+<div class="item">Filter by: year range (start/end year pickers)</div>
+<div class="item">Filter by: episodes/chapters/volumes range</div>
+<div class="item">Filter by: duration range (minutes per episode)</div>
+<div class="item">Filter by: average score range</div>
+<div class="item">Filter by: popularity range</div>
+<div class="item">Filter by: isAdult (18+ toggle, gated by user setting)</div>
+<div class="item">Filter by: on my list / not on my list</div>
+<div class="item">Sort by: trending, popularity, score, newest, oldest, title A-Z, title Z-A, start date, end date, episodes, chapters, volumes, updated at, added to list</div>
+<div class="item">Fuzzy search (search_id + search with synonyms)</div>
+<div class="item">Save and recall recent searches</div>
+</div></div>
+
+<div class="group"><div class="group-name">Browse pages</div><div class="items">
+<div class="item">Trending now (anime + manga tabs)</div>
+<div class="item">Popular this season</div>
+<div class="item">Upcoming next season</div>
+<div class="item">All-time popular</div>
+<div class="item">Top 100 anime / manga (by score)</div>
+<div class="item">New releases (recently added to database)</div>
+<div class="item">Browse by genre landing pages</div>
+<div class="item">Browse by tag landing pages</div>
+<div class="item">Browse by studio</div>
+<div class="item">AniChart-style seasonal calendar (grid of airing anime, grouped by day of week)</div>
+<div class="item">Airing schedule: next episode countdown timers for each currently airing show</div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">Media detail page</div>
+<div class="group"><div class="group-name">Core info</div><div class="items">
+<div class="item">Title: romaji, english, native — user-configurable which to display</div>
+<div class="item">All synonyms / alternative titles listed</div>
+<div class="item">Cover image (standard + extra-large), banner image</div>
+<div class="item">Type, format, status, source</div>
+<div class="item">Episodes (anime) / chapters + volumes (manga)</div>
+<div class="item">Episode duration</div>
+<div class="item">Start date, end date (fuzzy dates supported)</div>
+<div class="item">Season + season year</div>
+<div class="item">Country of origin</div>
+<div class="item">Description (with HTML rendering support)</div>
+<div class="item">Is adult content flag</div>
+<div class="item">Is licensed flag</div>
+</div></div>
+<div class="group"><div class="group-name">Scores &amp; stats</div><div class="items">
+<div class="item">Mean score (0–100)</div>
+<div class="item">Average score (0–100)</div>
+<div class="item">Popularity count (users with on list)</div>
+<div class="item">Favourites count</div>
+<div class="item">Trending rank</div>
+<div class="item">Score distribution chart (breakdown by score 10–100)</div>
+<div class="item">Status distribution chart (watching/completed/dropped/paused/planning)</div>
+<div class="item">Rankings: e.g. "#3 most popular anime of all time", "#12 highest rated anime of 2023"</div>
+</div></div>
+<div class="group"><div class="group-name">Genres, tags, links</div><div class="items">
+<div class="item">Genres list (tappable → genre browse)</div>
+<div class="item">Tags list with rank percentage and spoiler flag (spoiler tags hidden behind toggle)</div>
+<div class="item">External links: official site, streaming (Crunchyroll, Funimation, Netflix, etc.), social (Twitter, YouTube, etc.) with link type icons</div>
+<div class="item">Trailer embed (YouTube/Dailymotion, via trailer field)</div>
+<div class="item">Streaming episodes direct links</div>
+</div></div>
+<div class="group"><div class="group-name">Relations &amp; connections</div><div class="items">
+<div class="item">Relations: prequel, sequel, side story, parent, alternative, spin-off, other, source, compilation, contains — with type label</div>
+<div class="item">Characters list (main/supporting/background) with voice actor per language</div>
+<div class="item">Staff list with role labels</div>
+<div class="item">Studios (animation studios vs producers, isMain flag)</div>
+<div class="item">Recommendations: other titles suggested by community with up/down vote counts</div>
+<div class="item">Reviews: paginated list, show score, summary, body, author, likes</div>
+<div class="item">Forum threads linked to this media</div>
+<div class="item">Airing schedule: all episodes with air dates and countdown for unreleased</div>
+<div class="item">Trends graph: daily/weekly popularity + score over time</div>
+</div></div>
+<div class="group"><div class="group-name">User-specific (auth)</div><div class="items">
+<div class="item">Current list entry status inline on page <span class="tag tag-auth">auth</span></div>
+<div class="item">Quick-add to list with status picker <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Favourite toggle (heart) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">User's own review (if exists) shown prominently <span class="tag tag-auth">auth</span></div>
+<div class="item">User's own recommendation votes shown <span class="tag tag-auth">auth</span></div>
+<div class="item">mediaListEntry: progress, score, repeat count, notes, custom lists membership <span class="tag tag-auth">auth</span></div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">List management <span class="tag tag-auth">auth</span></div>
+<div class="group"><div class="group-name">List entry fields (SaveMediaListEntry mutation)</div><div class="items">
+<div class="item">Status: current / planning / completed / dropped / paused / repeating <span class="tag tag-mutation">write</span></div>
+<div class="item">Score (respects user's scoring format) <span class="tag tag-mutation">write</span></div>
+<div class="item">Progress (episodes watched / chapters read) <span class="tag tag-mutation">write</span></div>
+<div class="item">Progress volumes (manga only) <span class="tag tag-mutation">write</span></div>
+<div class="item">Repeat count (rewatches / rereads) <span class="tag tag-mutation">write</span></div>
+<div class="item">Priority (0–3) <span class="tag tag-mutation">write</span></div>
+<div class="item">Private entry toggle (hide from public profile) <span class="tag tag-mutation">write</span></div>
+<div class="item">Hide from status lists toggle (only show in custom list) <span class="tag tag-mutation">write</span></div>
+<div class="item">Notes (freetext, up to user) <span class="tag tag-mutation">write</span></div>
+<div class="item">Custom list membership (assign to any of user's custom lists) <span class="tag tag-mutation">write</span></div>
+<div class="item">Advanced scores (up to 5 named sub-scores, if enabled by user) <span class="tag tag-mutation">write</span></div>
+<div class="item">Started at / completed at dates (fuzzy date: year, month, day each optional) <span class="tag tag-mutation">write</span></div>
+<div class="item">Delete list entry (DeleteMediaListEntry mutation) <span class="tag tag-mutation">write</span></div>
+<div class="item">Bulk edit: change status/score for multiple selected entries <span class="tag tag-mutation">write</span></div>
+<div class="item">Bulk delete selected entries <span class="tag tag-mutation">write</span></div>
+<div class="item">Auto-set status to Completed when progress hits max episodes/chapters</div>
+<div class="item">Auto-set started/completed dates on status change (optional)</div>
+</div></div>
+<div class="group"><div class="group-name">List view &amp; sorting</div><div class="items">
+<div class="item">View modes: compact list, detailed list, grid cards</div>
+<div class="item">Sort by: title, score, progress, last updated, start date, completed date, release date, popularity, average score, priority, repeat count, added date</div>
+<div class="item">Filter within list by: genre, tag, format, year, studio, score range, status</div>
+<div class="item">Search within list</div>
+<div class="item">Split completed list by format (e.g. separate TV from movies) — respects user setting</div>
+<div class="item">Show/hide custom lists alongside status lists</div>
+<div class="item">Per-list custom color</div>
+<div class="item">Episode +1 progress increment button directly from list row</div>
+<div class="item">Score input directly from list row</div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">User profile</div>
+<div class="group"><div class="group-name">Profile data (query: User)</div><div class="items">
+<div class="item">Avatar (large + medium), banner image</div>
+<div class="item">Username, id, site URL</div>
+<div class="item">About section (HTML rendered)</div>
+<div class="item">Account created at timestamp</div>
+<div class="item">Last updated timestamp</div>
+<div class="item">Profile colour (used for theming)</div>
+<div class="item">Donator tier + donator badge</div>
+<div class="item">Moderator roles</div>
+<div class="item">Is blocked / is following / is follower status <span class="tag tag-auth">auth</span></div>
+<div class="item">Follower count, following count — tappable to user lists</div>
+<div class="item">Favourites: anime, manga, characters, staff, studios — all paged</div>
+</div></div>
+<div class="group"><div class="group-name">Statistics (UserStatisticTypes)</div><div class="items">
+<div class="item">Anime: count, mean score, minutes watched, episodes watched, chapters read</div>
+<div class="item">Manga: count, mean score, chapters read, volumes read</div>
+<div class="item">Breakdown by: format, status, score, length, release year, start year, genre, tag, country, voice actor, staff, studio</div>
+<div class="item">Each breakdown shows: count, mean score, minutes watched / chapters read, mediaIds list</div>
+<div class="item">Graphs: score distribution, format breakdown, genres bar chart, tags bar chart, release year timeline, activity over time</div>
+<div class="item">Top genres / tags / studios / voice actors / staff by count and by score</div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">Social &amp; activity <span class="tag tag-social">social</span></div>
+<div class="group"><div class="group-name">Activity feed (query: Page &gt; activities)</div><div class="items">
+<div class="item">Global feed and following-only feed toggle <span class="tag tag-auth">auth</span></div>
+<div class="item">Activity types: list (progress updates), text (status posts), message (sent to user)</div>
+<div class="item">Like activity <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Reply to activity (SaveActivityReply) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Edit own activity / reply <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Delete own activity / reply <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Post new text status / message to user (SaveTextActivity, SaveMessageActivity) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Like activity replies <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">View all likes on an activity (who liked)</div>
+<div class="item">Pin activity to top of profile <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Filter activity feed by type (lists only / text only / messages only)</div>
+</div></div>
+<div class="group"><div class="group-name">Following / followers</div><div class="items">
+<div class="item">Follow / unfollow user (ToggleFollow) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">View following list (paginated)</div>
+<div class="item">View followers list (paginated)</div>
+<div class="item">See which users follow you back</div>
+</div></div>
+<div class="group"><div class="group-name">Forums / threads <span class="tag tag-social">social</span></div><div class="items">
+<div class="item">Browse forum threads (query: Page &gt; threads) with filters: category, media, subscribed, sticky</div>
+<div class="item">Thread detail: title, body (HTML), author, created at, view count, reply count, like count</div>
+<div class="item">Thread replies (query: Page &gt; threadComments) paged, nested</div>
+<div class="item">Like thread <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Like thread comment <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Reply to thread (SaveThreadComment) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Reply to comment (nested, using parentCommentId) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Create new thread (SaveThread) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Edit / delete own thread or comment <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Subscribe to thread (get notifications on new replies) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Thread categories list and filter</div>
+<div class="item">Sticky and locked thread indicators</div>
+</div></div>
+<div class="group"><div class="group-name">Reviews</div><div class="items">
+<div class="item">View reviews for a media</div>
+<div class="item">Review detail: full body (HTML), rating out of 100, summary, like/dislike counts, author</div>
+<div class="item">Rate a review: like / dislike / no vote (RateReview) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Write a review (SaveReview) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Edit / delete own review <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Private review toggle (only visible to self) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Browse all recent reviews globally</div>
+</div></div>
+<div class="group"><div class="group-name">Recommendations</div><div class="items">
+<div class="item">View recommendations for a media</div>
+<div class="item">Vote on recommendation: up / down / no vote (SaveRecommendation) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="item">Browse global recommendations feed</div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">Notifications <span class="tag tag-auth">auth</span></div>
+<div class="group"><div class="group-name">All notification types (query: Page &gt; notifications)</div><div class="items">
+<div class="item">AiringNotification — episode aired for media on your list</div>
+<div class="item">FollowingNotification — someone followed you</div>
+<div class="item">ActivityMessageNotification — someone sent you a message</div>
+<div class="item">ActivityMentionNotification — you were mentioned in an activity</div>
+<div class="item">ActivityReplyNotification — someone replied to your activity</div>
+<div class="item">ActivityReplySubscribedNotification — reply on activity you subscribed to</div>
+<div class="item">ActivityLikeNotification — someone liked your activity</div>
+<div class="item">ActivityReplyLikeNotification — someone liked your activity reply</div>
+<div class="item">ThreadCommentMentionNotification — mentioned in a thread comment</div>
+<div class="item">ThreadCommentReplyNotification — reply to your thread comment</div>
+<div class="item">ThreadCommentSubscribedNotification — new comment on subscribed thread</div>
+<div class="item">ThreadCommentLikeNotification — someone liked your thread comment</div>
+<div class="item">ThreadLikeNotification — someone liked your thread</div>
+<div class="item">RelatedMediaAdditionNotification — related media added to site</div>
+<div class="item">MediaDataChangeNotification — media data was changed</div>
+<div class="item">MediaMergeNotification — media was merged</div>
+<div class="item">MediaDeletionNotification — media was deleted</div>
+<div class="item">Unread notification count badge (query: Viewer &gt; unreadNotificationCount)</div>
+<div class="item">Mark all notifications as read (resetNotificationCount mutation) <span class="tag tag-mutation">write</span></div>
+<div class="item">Filter notifications by type</div>
+<div class="item">Push notifications for airing episodes (local scheduling via airing schedule data)</div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">Characters &amp; staff</div>
+<div class="group"><div class="group-name">Character page</div><div class="items">
+<div class="item">Name: full, first, middle, last, native, alternative, alternative spoiler</div>
+<div class="item">Image (large + medium)</div>
+<div class="item">Description (HTML)</div>
+<div class="item">Gender, date of birth, age, blood type</div>
+<div class="item">Favourites count</div>
+<div class="item">Media appearances (filterable by anime/manga, sorted by popularity)</div>
+<div class="item">Voice actors per language for each appearance</div>
+<div class="item">Favourite toggle <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+</div></div>
+<div class="group"><div class="group-name">Staff page</div><div class="items">
+<div class="item">Name: full, first, last, native, alternative</div>
+<div class="item">Image (large + medium)</div>
+<div class="item">Description (HTML)</div>
+<div class="item">Language, primary occupations, gender, date of birth, date of death, age, years active, hometown, blood type</div>
+<div class="item">Favourites count</div>
+<div class="item">Staff roles in media (filterable anime/manga)</div>
+<div class="item">Voice acting roles: character + media (filterable by anime/manga, language)</div>
+<div class="item">Favourite toggle <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+</div></div>
+<div class="group"><div class="group-name">Studio page</div><div class="items">
+<div class="item">Studio name, isAnimationStudio flag</div>
+<div class="item">Favourites count</div>
+<div class="item">Media produced (filterable, sorted by popularity / start date)</div>
+<div class="item">Main works vs all works toggle</div>
+<div class="item">Favourite toggle <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">User settings (UpdateUser mutation) <span class="tag tag-auth">auth</span> <span class="tag tag-mutation">write</span></div>
+<div class="group"><div class="group-name">Profile settings</div><div class="items">
+<div class="item">Display name (cannot change username here — links to site)</div>
+<div class="item">About / bio (HTML editor)</div>
+<div class="item">Avatar upload (links to site — API does not support direct upload)</div>
+<div class="item">Banner upload (links to site)</div>
+<div class="item">Profile colour picker (9 preset colours: blue, purple, pink, orange, red, green, gray, teal, custom hex for donators)</div>
+</div></div>
+<div class="group"><div class="group-name">General preferences</div><div class="items">
+<div class="item">Title language: romaji / english / native</div>
+<div class="item">Staff / character name language: romaji-western / romaji-eastern / native</div>
+<div class="item">Activity merge time: how long before list updates are merged into one activity (never / 30 min / 1 hr / 3 hr / 6 hr / 12 hr / 1 day / 3 days / 1 week)</div>
+<div class="item">Display adult content toggle (18+ content visibility)</div>
+<div class="item">Restrict messages to following only toggle</div>
+<div class="item">Hide activity feed from global (private activity)</div>
+</div></div>
+<div class="group"><div class="group-name">List settings</div><div class="items">
+<div class="item">Scoring format: point-100 / point-10-decimal / point-10 / point-5 (stars) / point-3 (smileys)</div>
+<div class="item">Advanced scoring toggle (enable up to 5 named sub-scores)</div>
+<div class="item">Advanced scoring names (e.g. Story, Animation, Sound, Characters, Enjoyment)</div>
+<div class="item">Default list order: title / score / progress / last updated / added date</div>
+<div class="item">Split completed anime list by format toggle</div>
+<div class="item">Split completed manga list by format toggle</div>
+<div class="item">Custom anime lists: add / rename / delete custom list names</div>
+<div class="item">Custom manga lists: add / rename / delete custom list names</div>
+<div class="item">Row order (per status list) drag-to-reorder</div>
+</div></div>
+<div class="group"><div class="group-name">Notification preferences</div><div class="items">
+<div class="item">Toggle each notification type on/off: airing, following, activity message, activity mention, activity reply, activity reply subscribed, activity like, activity reply like, thread mention, thread reply, thread subscribed, thread like, thread comment like, related media addition, media data change</div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">App-level settings (local, not synced to AniList)</div>
+<div class="group"><div class="items">
+<div class="item">Theme: system / light / dark</div>
+<div class="item">Accent colour (sync from profile colour or override locally)</div>
+<div class="item">Default home tab (browse / list / activity / notifications / profile)</div>
+<div class="item">Preferred media type default (anime / manga)</div>
+<div class="item">Image quality preference (bandwidth saving: lower res covers)</div>
+<div class="item">Show/hide NSFW thumbnail override (blur vs hide vs show)</div>
+<div class="item">Spoiler tag reveal default (always hidden / tap to reveal)</div>
+<div class="item">List display default (compact / detailed / grid)</div>
+<div class="item">Swipe gesture shortcuts (e.g. swipe list row → +1 episode)</div>
+<div class="item">Calendar view: group by day of week vs flat chronological</div>
+<div class="item">Airing countdown format: relative ("in 3h") vs absolute ("Thu 22:00")</div>
+<div class="item">Notification polling interval</div>
+<div class="item">Haptic feedback toggle</div>
+<div class="item">Clear image cache</div>
+<div class="item">Export list to CSV / JSON</div>
+<div class="item">About: app version, AniList API version, open-source licenses</div>
+<div class="item">Rate limit indicator (X-RateLimit-Remaining display)</div>
+<div class="item">Logout / switch account</div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">Auth &amp; onboarding</div>
+<div class="group"><div class="items">
+<div class="item">OAuth2 implicit flow (redirect to anilist.co/api/v2/oauth/authorize, capture token from redirect)</div>
+<div class="item">Token storage (secure keychain / encrypted prefs)</div>
+<div class="item">Token expiry detection (tokens live 1 year; prompt re-auth on expiry)</div>
+<div class="item">Guest / unauthenticated mode (full browse, no list or social write access)</div>
+<div class="item">Onboarding: explain features, prompt login, show sample data in guest mode</div>
+<div class="item">Deep-link support: open media/character/staff/user pages from external links</div>
+</div></div>
+</div>
+
+<div class="section">
+<div class="section-title">Pagination &amp; API hygiene</div>
+<div class="group"><div class="items">
+<div class="item">All list queries use Page type with pageInfo (total, currentPage, lastPage, hasNextPage, perPage)</div>
+<div class="item">Infinite scroll or load-more pagination on all paged content</div>
+<div class="item">Rate limit handling: respect X-RateLimit-Remaining and X-RateLimit-Reset headers (90 req/min limit)</div>
+<div class="item">Retry with backoff on 429 Too Many Requests</div>
+<div class="item">MediaListCollection limited to 11,000 most recently updated entries — document this to user</div>
+<div class="item">Error boundary: surface GraphQL errors gracefully (errors array in response)</div>
+<div class="item">Optimistic UI updates for list mutations (update local state before server confirms)</div>
+<div class="item">Offline cache: serve stale list data when offline</div>
+</div></div>
+</div>
+</div>
