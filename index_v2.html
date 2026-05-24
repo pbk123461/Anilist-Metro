@@ -7356,38 +7356,88 @@
         }
 
         // Wrap fetchAPI with cache layer
+        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks in milliseconds
+
         async function fetchAPIWithCache(query, variables = {}) {
             const cacheKey = 'gql_' + btoa(unescape(encodeURIComponent(query + JSON.stringify(variables))));
             try {
                 const data = await fetchAPI(query, variables);
-                try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch(e) {}
+                try { 
+                    localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
+                } catch(e) {}
                 return data;
             } catch (e) {
                 const cached = localStorage.getItem(cacheKey);
                 if (cached) {
-                    showToast('offline: using cached data');
-                    return JSON.parse(cached);
+                    try {
+                        const parsed = JSON.parse(cached);
+                        if (Date.now() - parsed.timestamp > twoWeeks) {
+                            // too old, treat as missing
+                            localStorage.removeItem(cacheKey);
+                        } else {
+                            showToast('offline: using cached data');
+                            return parsed.data;
+                        }
+                    } catch (err) {
+                        // if parsing fails, treat as missing
+                        localStorage.removeItem(cacheKey);
+                    }
                 }
                 throw e;
             }
         }
+
         // Replace fetchAPI with cached version for offline resilience
         const _origFetchAPI = fetchAPI;
         fetchAPI = async function(query, variables) {
             const cacheKey = 'gql_' + btoa(unescape(encodeURIComponent(query + JSON.stringify(variables))));
             try {
                 const data = await _origFetchAPI(query, variables);
-                try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch(e) {}
+                try { 
+                    localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
+                } catch(e) {}
                 return data;
             } catch (e) {
                 const cached = localStorage.getItem(cacheKey);
                 if (cached) {
-                    showToast('offline: using cached data');
-                    return JSON.parse(cached);
+                    try {
+                        const parsed = JSON.parse(cached);
+                        if (Date.now() - parsed.timestamp > twoWeeks) {
+                            localStorage.removeItem(cacheKey);
+                        } else {
+                            showToast('offline: using cached data');
+                            return parsed.data;
+                        }
+                    } catch (err) {
+                        localStorage.removeItem(cacheKey);
+                    }
                 }
                 throw e;
             }
         };
+
+        // Cache cleanup: remove entries older than two weeks
+        function cacheCleanup() {
+            const now = Date.now();
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('gql_')) {
+                    try {
+                        const cached = JSON.parse(localStorage.getItem(key));
+                        if (now - cached.timestamp > twoWeeks) {
+                            localStorage.removeItem(key);
+                        }
+                    } catch (e) {
+                        // if parsing fails, remove the corrupted entry
+                        localStorage.removeItem(key);
+                    }
+                }
+            }
+        }
+
+        // Run cleanup on start and then every two weeks
+        cacheCleanup();
+        setInterval(cacheCleanup, twoWeeks);
 
         // ==========================================
         // DEEP-LINK SUPPORT
