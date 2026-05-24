@@ -627,6 +627,25 @@
             text-transform: lowercase;
         }
 
+        .load-more-spinner {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 8px 0 28px;
+        }
+
+        .load-more-spinner .spinner {
+            width: 28px;
+            height: 28px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.12);
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         .load-more-btn:hover,
         .load-more-btn:active {
             border-color: var(--accent);
