@@ -225,34 +225,35 @@
         }
 
         /* Liquid Glass (Experimental) */
-        .liquid-glass-enabled .metro-tile,
-        .liquid-glass-enabled .metro-tile-start,
-        .liquid-glass-enabled .tile .flip-tile-front,
-        .liquid-glass-enabled .tile .flip-tile-back,
-        .liquid-glass-enabled .prog-item,
-        .liquid-glass-enabled .inbox-item,
-        .liquid-glass-enabled .wide-info-tile,
-        .liquid-glass-enabled .wp-setting-item,
-        .liquid-glass-enabled .settings-item,
-        .liquid-glass-enabled .panel,
-        .liquid-glass-enabled .metro-subview,
-        .liquid-glass-enabled .editor-overlay,
-        .liquid-glass-enabled .airing-calendar-panel,
-        .liquid-glass-enabled .airing-date-panel,
-        .liquid-glass-enabled .airing-timeline,
-        .liquid-glass-enabled .airing-tile,
-        .liquid-glass-enabled .char-card,
-        .liquid-glass-enabled .metro-btn,
-        .liquid-glass-enabled .filter-chip,
-        .liquid-glass-enabled .mts-btn,
-        .liquid-glass-enabled select.metro-select,
-        .liquid-glass-enabled .metro-input,
-        .liquid-glass-enabled .toggle-track,
-        .liquid-glass-enabled .wallpaper-preview {
-            background: var(--liquid-glass-bg) !important;
+        .liquidGL-host {
+            position: relative;
+            isolation: isolate;
+        }
+
+        .liquidGL-pane {
+            position: absolute !important;
+            inset: 0;
+            z-index: 90;
+            display: none;
+            pointer-events: none;
+            border-color: var(--glass-line) !important;
+        }
+
+        .liquid-glass-enabled .liquidGL-host {
+            background: transparent !important;
+            border-color: var(--glass-line) !important;
+        }
+
+        .liquid-glass-enabled .liquidGL-host > :not(.liquidGL-pane) {
+            position: relative;
+            z-index: 91;
+        }
+
+        .liquid-glass-enabled .liquidGL-pane {
+            display: block;
+            background: var(--liquid-glass-bg);
             backdrop-filter: blur(24px) saturate(1.4);
             -webkit-backdrop-filter: blur(24px) saturate(1.4);
-            border-color: var(--glass-line) !important;
         }
 
         .liquid-glass-enabled .metro-tile:hover,
@@ -1881,6 +1882,287 @@
             border-left: 4px solid var(--accent);
         }
 
+        .user-hero {
+            display: grid;
+            grid-template-columns: 140px minmax(0, 1fr);
+            gap: 24px;
+            align-items: end;
+            margin-bottom: 26px;
+        }
+
+        .user-avatar-shell {
+            width: 140px;
+            height: 140px;
+            background: var(--surface);
+            overflow: hidden;
+            border: 2px solid var(--surface-hover);
+        }
+
+        .user-avatar-shell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .user-quick-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .user-stat-strip {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 26px;
+        }
+
+        .user-stat-tile {
+            min-height: 112px;
+            background: var(--surface);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top: 2px solid transparent;
+        }
+
+        .user-stat-tile.accent {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .user-stat-value {
+            font-size: 2.4rem;
+            font-weight: 100;
+            line-height: 0.9;
+            color: var(--text-main);
+        }
+
+        .user-stat-tile.accent .user-stat-value,
+        .user-stat-tile.accent .user-stat-label,
+        .user-stat-tile.accent .user-stat-sub {
+            color: #fff;
+        }
+
+        .user-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+            text-transform: lowercase;
+        }
+
+        .user-stat-sub {
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        .user-overview-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+            gap: 18px;
+            align-items: start;
+            margin-bottom: 26px;
+        }
+
+        .user-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .user-section-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .user-section-title {
+            font-size: 2rem;
+            font-weight: 200;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .user-section-kicker {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .user-activity-heatmap {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .heat-cell {
+            aspect-ratio: 1;
+            background: var(--bg);
+            border: 1px solid var(--surface-hover);
+        }
+
+        .heat-cell.l1 { background: rgba(27, 161, 226, 0.28); }
+        .heat-cell.l2 { background: rgba(27, 161, 226, 0.5); }
+        .heat-cell.l3 { background: rgba(27, 161, 226, 0.72); }
+        .heat-cell.l4 { background: var(--accent); }
+
+        .user-mini-legend {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .user-mini-legend-scale {
+            display: flex;
+            gap: 4px;
+        }
+
+        .user-mini-legend-scale span {
+            width: 12px;
+            height: 12px;
+            background: var(--surface-hover);
+        }
+
+        .genre-overview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .genre-overview-item {
+            display: grid;
+            grid-template-columns: 120px minmax(0, 1fr) 56px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .genre-overview-name {
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .genre-overview-track {
+            height: 12px;
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .genre-overview-fill {
+            position: absolute;
+            inset: 0 auto 0 0;
+            background: var(--accent);
+        }
+
+        .genre-overview-count {
+            text-align: right;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .user-activity-feed {
+            display: grid;
+            gap: 10px;
+        }
+
+        .user-activity-card {
+            display: grid;
+            grid-template-columns: 54px minmax(0, 1fr);
+            gap: 12px;
+            background: var(--surface);
+            padding: 12px;
+            border-left: 2px solid transparent;
+        }
+
+        .user-activity-card:hover {
+            border-color: var(--accent);
+        }
+
+        .user-activity-card img {
+            width: 54px;
+            height: 72px;
+            object-fit: cover;
+            background: var(--surface-hover);
+        }
+
+        .user-activity-line {
+            font-size: 1rem;
+            color: var(--text-main);
+            line-height: 1.35;
+        }
+
+        .user-activity-time {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .user-favorites-band {
+            display: grid;
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .user-favorites-row {
+            background: var(--surface);
+            padding: 18px;
+        }
+
+        .favorite-strip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+            gap: 10px;
+        }
+
+        .favorite-strip-tile {
+            position: relative;
+            aspect-ratio: 2 / 3;
+            background: var(--bg);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .favorite-strip-tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.92;
+        }
+
+        .favorite-strip-label {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 6px 8px;
+            background: rgba(0, 0, 0, 0.84);
+            color: #fff;
+            font-size: 0.78rem;
+            line-height: 1.15;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-empty {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
         /* =========================================
            MEDIA EDITOR OVERLAY
            ========================================= */
@@ -2785,35 +3067,148 @@
         <section class="header-section">
             <h1 class="metro-huge-title" id="user-section-title">user</h1>
             <div class="content-scroll">
-                <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 40px;">
-                    <div style="width: 120px; height: 120px; background: var(--surface); overflow: hidden;">
+                <div class="user-hero">
+                    <div class="user-avatar-shell">
                         <img id="user-page-avatar"
                             src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png"
                             onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';"
                             style="width:100%; height:100%; object-fit: cover;" alt="avatar">
                     </div>
-                    <div style="padding-bottom: 5px;">
-                        <h1 class="metro-huge-title" id="user-page-name"
-                            style="color: var(--accent); margin-bottom: 10px;">guest</h1>
-                        <div style="color: var(--text-dim); font-size: 1.2rem;" id="user-page-sub">login via anilist
+                    <div style="min-width:0;">
+                        <div class="user-meta-row">
+                            <div style="min-width:0;">
+                                <h1 class="metro-huge-title" id="user-page-name"
+                                    style="color: var(--accent); margin-bottom: 10px;">guest</h1>
+                                <div style="color: var(--text-dim); font-size: 1.2rem;" id="user-page-sub">login via anilist
+                                </div>
+                            </div>
+                            <div class="user-quick-links">
+                                <button class="metro-btn" onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">anime list</button>
+                                <button class="metro-btn" onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">manga list</button>
+                                <button class="metro-btn" onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">full profile</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="settings-list" style="margin-bottom: 40px;">
-                    <div class="wp-setting-item"
-                        onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">
-                        <div class="wp-setting-title">anime list</div>
-                        <div class="wp-setting-sub">track watching and completed</div>
+
+                <div class="user-stat-strip" id="user-stat-strip">
+                    <div class="user-stat-tile accent">
+                        <div class="user-stat-value" id="user-stat-anime-count">0</div>
+                        <div class="user-stat-label">anime tracked</div>
+                        <div class="user-stat-sub" id="user-stat-episodes">0 episodes watched</div>
                     </div>
-                    <div class="wp-setting-item"
-                        onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">
-                        <div class="wp-setting-title">manga list</div>
-                        <div class="wp-setting-sub">track reading and completed</div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-days">0.0</div>
+                        <div class="user-stat-label">days watched</div>
+                        <div class="user-stat-sub">anime time</div>
                     </div>
-                    <div class="wp-setting-item"
-                        onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">
-                        <div class="wp-setting-title">overview</div>
-                        <div class="wp-setting-sub">favorites, stats, and history</div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-anime-mean">0.0</div>
+                        <div class="user-stat-label">anime mean</div>
+                        <div class="user-stat-sub">score</div>
+                    </div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-manga-count">0</div>
+                        <div class="user-stat-label">manga tracked</div>
+                        <div class="user-stat-sub" id="user-stat-chapters">0 chapters read</div>
+                    </div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-volumes">0</div>
+                        <div class="user-stat-label">volumes read</div>
+                        <div class="user-stat-sub">manga time</div>
+                    </div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-manga-mean">0.0</div>
+                        <div class="user-stat-label">manga mean</div>
+                        <div class="user-stat-sub">score</div>
+                    </div>
+                </div>
+
+                <div class="user-overview-grid">
+                    <div class="user-stack">
+                        <div class="panel">
+                            <div class="user-section-head">
+                                <div class="user-section-title">activity history</div>
+                                <div class="user-section-kicker" id="user-heatmap-caption">last 126 updates</div>
+                            </div>
+                            <div class="user-activity-heatmap" id="user-activity-heatmap">
+                                <div class="user-empty">sign in to load activity history.</div>
+                            </div>
+                            <div class="user-mini-legend">
+                                <span>quiet</span>
+                                <div class="user-mini-legend-scale">
+                                    <span></span><span class="heat-cell l1"></span><span class="heat-cell l2"></span><span class="heat-cell l3"></span><span class="heat-cell l4"></span>
+                                </div>
+                                <span>busy</span>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="user-section-head">
+                                <div class="user-section-title">recent activity</div>
+                                <div class="user-section-kicker">latest list updates</div>
+                            </div>
+                            <div class="user-activity-feed" id="user-home-activity-feed">
+                                <div class="user-empty">sign in to load activity.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-stack">
+                        <div class="panel">
+                            <div class="user-section-head">
+                                <div class="user-section-title">genre overview</div>
+                                <div class="user-section-kicker">from your library</div>
+                            </div>
+                            <div class="genre-overview-list" id="user-genre-overview">
+                                <div class="user-empty">sign in to map your top genres.</div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="user-section-head">
+                                <div class="user-section-title">quick access</div>
+                                <div class="user-section-kicker">jump deeper</div>
+                            </div>
+                            <div class="settings-list" style="margin-bottom: 0;">
+                                <div class="wp-setting-item"
+                                    onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">
+                                    <div class="wp-setting-title">anime list</div>
+                                    <div class="wp-setting-sub">track watching and completed</div>
+                                </div>
+                                <div class="wp-setting-item"
+                                    onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">
+                                    <div class="wp-setting-title">manga list</div>
+                                    <div class="wp-setting-sub">track reading and completed</div>
+                                </div>
+                                <div class="wp-setting-item"
+                                    onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">
+                                    <div class="wp-setting-title">full profile</div>
+                                    <div class="wp-setting-sub">favorites, followers, and extended history</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-favorites-band">
+                    <div class="user-favorites-row">
+                        <div class="user-section-head">
+                            <div class="user-section-title">favorite anime</div>
+                            <div class="user-section-kicker">current signals</div>
+                        </div>
+                        <div class="favorite-strip-grid" id="user-home-fav-anime">
+                            <div class="user-empty">sign in to load favorites.</div>
+                        </div>
+                    </div>
+                    <div class="user-favorites-row">
+                        <div class="user-section-head">
+                            <div class="user-section-title">favorite manga</div>
+                            <div class="user-section-kicker">shelves</div>
+                        </div>
+                        <div class="favorite-strip-grid" id="user-home-fav-manga">
+                            <div class="user-empty">sign in to load favorites.</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3264,6 +3659,10 @@
     </div>
 
     <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+    <script id="html2canvas-script" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+        defer onload="this.dataset.loaded='true'" onerror="this.dataset.failed='true'"></script>
+    <script id="liquidgl-script" src="https://cdn.jsdelivr.net/gh/naughtyduk/liquidGL@main/scripts/liquidGL.js"
+        defer onload="this.dataset.loaded='true'" onerror="this.dataset.failed='true'"></script>
     <script>
         // ==========================================
         // CONFIG & STATE
@@ -3291,6 +3690,7 @@
         let notifPage = 1;
         let communityPage = 1;
         let wheelPickedColor = localStorage.getItem('metro_theme') || '#1ba1e2';
+        let currentViewerActivity = [];
 
         // ==========================================
         // FLIP TILES
@@ -3476,6 +3876,197 @@
             }
         }
 
+        const LIQUID_GL_SURFACE_SELECTOR = [
+            '.metro-tile',
+            '.metro-tile-start',
+            '.flip-tile-front',
+            '.flip-tile-back',
+            '.prog-item',
+            '.inbox-item',
+            '.wide-info-tile',
+            '.wp-setting-item',
+            '.settings-item',
+            '.panel',
+            '.metro-subview',
+            '.editor-overlay',
+            '.airing-calendar-panel',
+            '.airing-date-panel',
+            '.airing-timeline',
+            '.airing-tile',
+            '.char-card',
+            '.wallpaper-preview'
+        ].join(',');
+        let liquidGlassObserver = null;
+        let liquidGlassRefreshTimer = null;
+
+        function getLiquidGlassPane(host) {
+            return Array.from(host.children || []).find(child => child.classList && child.classList.contains('liquidGL-pane'));
+        }
+
+        function prepareLiquidGlassTargets() {
+            return Array.from(document.querySelectorAll(LIQUID_GL_SURFACE_SELECTOR))
+                .filter(el => el && !el.closest('[data-liquid-ignore]') && !el.classList.contains('liquidGL-pane'))
+                .map(host => {
+                    host.classList.add('liquidGL-host');
+                    let pane = getLiquidGlassPane(host);
+                    if (!pane) {
+                        pane = document.createElement('span');
+                        pane.className = 'liquidGL-pane liquidGL liquidGL-pending';
+                        pane.setAttribute('aria-hidden', 'true');
+                        host.insertBefore(pane, host.firstChild);
+                    } else if (!pane.dataset.liquidReady) {
+                        pane.classList.add('liquidGL', 'liquidGL-pending');
+                    }
+                    return pane;
+                })
+                .filter(pane => !pane.dataset.liquidReady);
+        }
+
+        function setLiquidGlassCanvasVisible(visible) {
+            const renderer = window.__liquidGLRenderer__;
+            if (renderer && renderer.canvas) {
+                renderer.canvas.style.display = visible ? 'block' : 'none';
+                if (visible && typeof renderer.captureSnapshot === 'function') {
+                    renderer.captureSnapshot();
+                }
+            }
+        }
+
+        function loadScriptOnce(id, src, globalName) {
+            if (typeof window[globalName] === 'function') return Promise.resolve(true);
+            return new Promise((resolve, reject) => {
+                let script = document.getElementById(id);
+                const timeout = setTimeout(() => reject(new Error(`${id} timed out`)), 8000);
+                const done = () => {
+                    clearTimeout(timeout);
+                    if (typeof window[globalName] === 'function') resolve(true);
+                    else reject(new Error(`${id} loaded without ${globalName}`));
+                };
+                const failed = () => {
+                    clearTimeout(timeout);
+                    reject(new Error(`${id} failed to load`));
+                };
+
+                if (!script) {
+                    script = document.createElement('script');
+                    script.id = id;
+                    script.src = src;
+                    script.defer = true;
+                    document.body.appendChild(script);
+                }
+
+                if (script.dataset.loaded === 'true') {
+                    done();
+                    return;
+                }
+                if (script.dataset.failed === 'true') {
+                    failed();
+                    return;
+                }
+
+                script.addEventListener('load', () => {
+                    script.dataset.loaded = 'true';
+                    done();
+                }, { once: true });
+                script.addEventListener('error', () => {
+                    script.dataset.failed = 'true';
+                    failed();
+                }, { once: true });
+            });
+        }
+
+        async function ensureLiquidGLLibraries() {
+            if (typeof window.html2canvas === 'function' && typeof window.liquidGL === 'function') return true;
+            try {
+                await loadScriptOnce('html2canvas-script', 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvas');
+                await loadScriptOnce('liquidgl-script', 'https://cdn.jsdelivr.net/gh/naughtyduk/liquidGL@main/scripts/liquidGL.js', 'liquidGL');
+                return typeof window.html2canvas === 'function' && typeof window.liquidGL === 'function';
+            } catch (e) {
+                console.warn('liquidGL dependencies unavailable; using css fallback', e);
+                return false;
+            }
+        }
+
+        function startLiquidGlassObserver() {
+            if (liquidGlassObserver || !('MutationObserver' in window)) return;
+            liquidGlassObserver = new MutationObserver(() => queueLiquidGlassRefresh());
+            liquidGlassObserver.observe(document.body, { childList: true, subtree: true });
+        }
+
+        function stopLiquidGlassObserver() {
+            if (!liquidGlassObserver) return;
+            liquidGlassObserver.disconnect();
+            liquidGlassObserver = null;
+        }
+
+        function queueLiquidGlassRefresh() {
+            if (localStorage.getItem('metro_liquid_glass') !== 'true') return;
+            clearTimeout(liquidGlassRefreshTimer);
+            liquidGlassRefreshTimer = setTimeout(() => enableLiquidGlassEngine(false), 250);
+        }
+
+        async function enableLiquidGlassEngine(showMessage = true) {
+            document.body.classList.add('liquid-glass-enabled');
+            const pending = prepareLiquidGlassTargets();
+            setLiquidGlassCanvasVisible(true);
+            startLiquidGlassObserver();
+
+            const liquidReady = await ensureLiquidGLLibraries();
+            if (!liquidReady) {
+                if (showMessage) showToast('liquid glass fallback active');
+                return;
+            }
+
+            if (!pending.length) {
+                const renderer = window.__liquidGLRenderer__;
+                if (renderer && typeof renderer.captureSnapshot === 'function') renderer.captureSnapshot();
+                if (showMessage) showToast('liquid glass enabled');
+                return;
+            }
+
+            try {
+                window.liquidGL({
+                    snapshot: '#app-container',
+                    target: '.liquidGL-pending',
+                    resolution: 1.25,
+                    refraction: 0.018,
+                    bevelDepth: 0.06,
+                    bevelWidth: 0.18,
+                    frost: 1.2,
+                    shadow: false,
+                    specular: true,
+                    reveal: 'none',
+                    tilt: false,
+                    magnify: 1.02
+                });
+                pending.forEach(pane => {
+                    pane.dataset.liquidReady = 'true';
+                    pane.classList.remove('liquidGL-pending');
+                });
+                if (window.liquidGL.registerDynamic) {
+                    window.liquidGL.registerDynamic('.panorama-container');
+                    window.liquidGL.registerDynamic('.zune-hero-bg');
+                }
+                if (showMessage) showToast('liquidGL enabled');
+            } catch (e) {
+                console.warn('liquidGL init failed; using css fallback', e);
+                if (showMessage) showToast('liquid glass fallback active');
+            }
+        }
+
+        function disableLiquidGlassEngine(showMessage = true) {
+            document.body.classList.remove('liquid-glass-enabled');
+            setLiquidGlassCanvasVisible(false);
+            stopLiquidGlassObserver();
+            if (showMessage) showToast('liquid glass disabled');
+        }
+
+        function setLiquidGlassEnabled(enabled, showMessage = true) {
+            localStorage.setItem('metro_liquid_glass', enabled ? 'true' : 'false');
+            if (enabled) enableLiquidGlassEngine(showMessage);
+            else disableLiquidGlassEngine(showMessage);
+        }
+
         function loadWallpaper() {
             wallpaperDataUrl = localStorage.getItem('metro_wallpaper') || '';
             wallpaperName = localStorage.getItem('metro_wallpaper_name') || 'default';
@@ -3642,6 +4233,7 @@
                     console.error('User data load failed:', err);
                     showToast('welcome back (limited profile data)');
                 });
+                queueLiquidGlassRefresh();
             }
         }
         function login() { window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`; }
@@ -3658,12 +4250,16 @@
 
             document.getElementById('user-page-name').innerText = 'guest';
             document.getElementById('start-tile-user').innerText = 'guest';
+            document.getElementById('user-page-sub').innerText = 'browse the metro shell without syncing';
+            renderUserHomeStats({ statistics: { anime: {}, manga: {} } });
+            setUserHomeGuestState();
             document.getElementById('notif-list').innerHTML = '<div style="color:var(--text-dim);">sign in to see notifications.</div>';
             document.getElementById('library-grid').innerHTML = '<div style="color:var(--text-dim);">sign in to access library.</div>';
             loadPublicCommunityFeed();
             loadTrending();
             initAiringCalendar();
             loadAiringSchedule('today');
+            queueLiquidGlassRefresh();
         }
         function initLoginSlideshow() {
             const slideshow = document.getElementById('slideshow-content');
@@ -3783,13 +4379,169 @@
             if (d === 1) return 'yesterday'; if (d < 7) return d + 'd ago'; return d + ' days ago';
         }
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+        function formatListActivity(status, progress) {
+            const normalized = (status || '').replace(/_/g, ' ').toLowerCase();
+            if (!normalized) return progress ? `${progress}` : 'updated list';
+            return progress ? `${normalized} ${progress}` : normalized;
+        }
+        function setUserHomeGuestState() {
+            const heatmap = document.getElementById('user-activity-heatmap');
+            const feed = document.getElementById('user-home-activity-feed');
+            const genres = document.getElementById('user-genre-overview');
+            const favAnime = document.getElementById('user-home-fav-anime');
+            const favManga = document.getElementById('user-home-fav-manga');
+            const caption = document.getElementById('user-heatmap-caption');
+            if (caption) caption.innerText = 'sign in required';
+            if (heatmap) heatmap.innerHTML = '<div class="user-empty">sign in to load activity history.</div>';
+            if (feed) feed.innerHTML = '<div class="user-empty">sign in to load activity.</div>';
+            if (genres) genres.innerHTML = '<div class="user-empty">sign in to map your top genres.</div>';
+            if (favAnime) favAnime.innerHTML = '<div class="user-empty">sign in to load favorites.</div>';
+            if (favManga) favManga.innerHTML = '<div class="user-empty">sign in to load favorites.</div>';
+        }
+        function renderUserHomeStats(viewer) {
+            const animeStats = viewer.statistics?.anime || {};
+            const mangaStats = viewer.statistics?.manga || {};
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = value;
+            };
+            setText('user-stat-anime-count', animeStats.count || 0);
+            setText('user-stat-episodes', `${animeStats.episodesWatched || 0} episodes watched`);
+            setText('user-stat-days', ((animeStats.minutesWatched || 0) / 1440).toFixed(1));
+            setText('user-stat-anime-mean', animeStats.meanScore ? animeStats.meanScore.toFixed(1) : '0.0');
+            setText('user-stat-manga-count', mangaStats.count || 0);
+            setText('user-stat-chapters', `${mangaStats.chaptersRead || 0} chapters read`);
+            setText('user-stat-volumes', mangaStats.volumesRead || 0);
+            setText('user-stat-manga-mean', mangaStats.meanScore ? mangaStats.meanScore.toFixed(1) : '0.0');
+        }
+        function renderUserHomeFavorites(favs) {
+            const renderStrip = (id, items, type, titleKey) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (!items || !items.length) {
+                    el.innerHTML = '<div class="user-empty">nothing pinned here yet.</div>';
+                    return;
+                }
+                el.innerHTML = items.map(item => {
+                    const title = titleKey(item);
+                    return `<div class="favorite-strip-tile" onclick="openDetailById(${item.id}, '${type}')">
+                        <img src="${item.coverImage?.large || ''}" loading="lazy" alt="${title}">
+                        <div class="favorite-strip-label">${title.toLowerCase()}</div>
+                    </div>`;
+                }).join('');
+            };
+            renderStrip('user-home-fav-anime', favs?.anime?.nodes || [], 'ANIME', item => item.title?.english || item.title?.romaji || 'unknown');
+            renderStrip('user-home-fav-manga', favs?.manga?.nodes || [], 'MANGA', item => item.title?.english || item.title?.romaji || 'unknown');
+        }
+        function renderUserHomeActivity(activities) {
+            currentViewerActivity = activities || [];
+            const feed = document.getElementById('user-home-activity-feed');
+            const heatmap = document.getElementById('user-activity-heatmap');
+            const caption = document.getElementById('user-heatmap-caption');
+            if (caption) caption.innerText = `last ${Math.min(currentViewerActivity.length, 126)} updates`;
+            if (feed) {
+                if (!currentViewerActivity.length) {
+                    feed.innerHTML = '<div class="user-empty">no recent list activity yet.</div>';
+                } else {
+                    feed.innerHTML = currentViewerActivity.slice(0, 8).map(act => {
+                        const title = act.media?.title?.english || act.media?.title?.romaji || 'unknown';
+                        return `<div class="user-activity-card" onclick="openDetailById(${act.media.id}, '${act.media.type}')">
+                            <img src="${act.media.coverImage?.large || ''}" loading="lazy" alt="${title}">
+                            <div>
+                                <div class="user-activity-line">${formatListActivity(act.status, act.progress)} <span style="color:var(--accent);">${title.toLowerCase()}</span></div>
+                                <div class="user-activity-time">${timeAgo(act.createdAt)}</div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+            }
+            if (heatmap) {
+                if (!currentViewerActivity.length) {
+                    heatmap.innerHTML = '<div class="user-empty">no recent activity to chart.</div>';
+                    return;
+                }
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const dayBuckets = new Map();
+                currentViewerActivity.forEach(act => {
+                    const day = new Date(act.createdAt * 1000);
+                    day.setHours(0, 0, 0, 0);
+                    const key = day.toISOString().slice(0, 10);
+                    dayBuckets.set(key, (dayBuckets.get(key) || 0) + 1);
+                });
+                const counts = [];
+                for (let i = 125; i >= 0; i--) {
+                    const day = new Date(today);
+                    day.setDate(today.getDate() - i);
+                    const key = day.toISOString().slice(0, 10);
+                    counts.push({ day, count: dayBuckets.get(key) || 0 });
+                }
+                const maxCount = Math.max(...counts.map(item => item.count), 1);
+                heatmap.innerHTML = counts.map(item => {
+                    let level = '';
+                    if (item.count >= Math.ceil(maxCount * 0.85)) level = 'l4';
+                    else if (item.count >= Math.ceil(maxCount * 0.55)) level = 'l3';
+                    else if (item.count >= Math.ceil(maxCount * 0.25)) level = 'l2';
+                    else if (item.count > 0) level = 'l1';
+                    const label = `${item.day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}: ${item.count} update${item.count === 1 ? '' : 's'}`;
+                    return `<div class="heat-cell ${level}" title="${label}"></div>`;
+                }).join('');
+            }
+        }
+        function renderUserGenreOverview(entries) {
+            const el = document.getElementById('user-genre-overview');
+            if (!el) return;
+            if (!entries.length) {
+                el.innerHTML = '<div class="user-empty">no genre data yet.</div>';
+                return;
+            }
+            const maxCount = Math.max(...entries.map(entry => entry.count), 1);
+            el.innerHTML = entries.map(entry => `
+                <div class="genre-overview-item">
+                    <div class="genre-overview-name">${entry.genre.toLowerCase()}</div>
+                    <div class="genre-overview-track"><div class="genre-overview-fill" style="width:${(entry.count / maxCount) * 100}%;"></div></div>
+                    <div class="genre-overview-count">${entry.count}</div>
+                </div>
+            `).join('');
+        }
+        async function loadUserHomeOverview(userId) {
+            if (!userId || isGuest) {
+                setUserHomeGuestState();
+                return;
+            }
+            try {
+                const [activityData, animeGenres, mangaGenres] = await Promise.all([
+                    fetchAPI(`query($userId:Int){ Page(page:1, perPage:140) { activities(userId:$userId, type:MEDIA_LIST, sort:ID_DESC) { ... on ListActivity { id status progress createdAt media { id type title { english romaji } coverImage { large } } } } } }`, { userId }),
+                    fetchAPI(`query($userId:Int){ MediaListCollection(userId:$userId, type:ANIME) { lists { entries { media { genres } } } } }`, { userId }),
+                    fetchAPI(`query($userId:Int){ MediaListCollection(userId:$userId, type:MANGA) { lists { entries { media { genres } } } } }`, { userId })
+                ]);
+                renderUserHomeActivity((activityData?.Page?.activities || []).filter(act => act && act.media));
+                const genreMap = new Map();
+                [animeGenres, mangaGenres].forEach(group => {
+                    (group?.MediaListCollection?.lists || []).forEach(list => {
+                        (list.entries || []).forEach(entry => {
+                            (entry.media?.genres || []).forEach(genre => {
+                                genreMap.set(genre, (genreMap.get(genre) || 0) + 1);
+                            });
+                        });
+                    });
+                });
+                const topGenres = Array.from(genreMap.entries())
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 6)
+                    .map(([genre, count]) => ({ genre, count }));
+                renderUserGenreOverview(topGenres);
+            } catch (e) {
+                console.error('error loading user overview:', e);
+            }
+        }
 
         // ==========================================
         // USER DATA
         // ==========================================
         async function loadUserData() {
             if (isGuest) return;
-            const q = `query { Viewer { id name avatar { large } statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead } } unreadNotificationCount } }`;
+            const q = `query { Viewer { id name avatar { large } bannerImage statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } } unreadNotificationCount favourites { anime(page:1, perPage:8) { nodes { id title { english romaji } coverImage { large } } } manga(page:1, perPage:8) { nodes { id title { english romaji } coverImage { large } } } } } }`;
             try {
                 const data = await fetchAPI(q);
                 if (!data || !data.Viewer) { showToast('error loading user data'); return; }
@@ -3804,6 +4556,8 @@
                 const animeCount = v.statistics?.anime?.count || 0;
                 const mangaCount = v.statistics?.manga?.count || 0;
                 document.getElementById('user-page-sub').innerText = `${animeCount} anime // ${mangaCount} manga`;
+                renderUserHomeStats(v);
+                renderUserHomeFavorites(v.favourites);
                 if (v.unreadNotificationCount > 0) {
                     document.getElementById('notif-page-title').innerHTML = `inbox <span style="background:var(--accent); color:#fff; font-size:40px; padding:2px 10px; vertical-align:top;">${v.unreadNotificationCount}</span>`;
                 } else {
@@ -3812,6 +4566,7 @@
                 document.getElementById('start-tile-notif').innerText = v.unreadNotificationCount || 0;
                 loadLibrary('ANIME'); loadLibrary('MANGA');
                 loadPublicCommunityFeed(); loadNotifications('unread'); loadTrending(); initAiringCalendar(); loadAiringSchedule('today');
+                loadUserHomeOverview(v.id);
             } catch (err) {
                 console.error(err);
                 showToast('userlogin failed');
@@ -5156,6 +5911,7 @@
                 pageInfo { total }
                 nodes { id summary rating score user { name avatar { large } } }
             }
+            mediaListEntry { id status score progress repeat private notes }
             popularity
             trending
             siteUrl
@@ -5199,7 +5955,7 @@
                     }).join('');
                 }
                 let entryStatus = m.mediaListEntry?.status || '';
-                const currentProgress = m.mediaListEntry?.progress || 0;
+                const currentProgress = m.mediaListEntry?.progress ?? 0;
                 const progressTotal = total || '?';
                 const progressStepperHtml = !isGuest ? `
             <div class="progress-stepper">
@@ -5919,14 +6675,11 @@
             // Liquid Glass Toggle Init
             const lgToggle = document.getElementById('liquid-glass-toggle');
             const lgEnabled = localStorage.getItem('metro_liquid_glass') === 'true';
-            if (lgEnabled) document.body.classList.add('liquid-glass-enabled');
+            if (lgEnabled) setLiquidGlassEnabled(true, false);
             if (lgToggle) {
                 lgToggle.checked = lgEnabled;
                 lgToggle.addEventListener('change', e => {
-                    const on = e.target.checked;
-                    localStorage.setItem('metro_liquid_glass', on ? 'true' : 'false');
-                    document.body.classList.toggle('liquid-glass-enabled', on);
-                    showToast(on ? 'liquid glass enabled' : 'liquid glass disabled');
+                    setLiquidGlassEnabled(e.target.checked);
                 });
             }
         });

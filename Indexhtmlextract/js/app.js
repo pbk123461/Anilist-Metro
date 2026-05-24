@@ -117,6 +117,11 @@ function scrollPanorama(dir) {
 function scrollToSection(index) {
     const width = getSectionWidth();
     if (container) container.scrollTo({ left: width * index, behavior: 'smooth' });
+    updateMobileNavActive(index);
+}
+
+function scrollToSectionMobile(index) {
+    scrollToSection(index);
 }
 
 // ==========================================
@@ -197,6 +202,13 @@ function applyWheelColor() { setTheme(wheelPickedColor, wheelPickedColor); }
 const savedTheme = localStorage.getItem('metro_theme') || '#1ba1e2';
 document.documentElement.style.setProperty('--accent', savedTheme);
 
+function updateMobileNavActive(index) {
+    if (window.innerWidth > 768) return;
+    const items = document.querySelectorAll('.mobile-nav-item');
+    items.forEach(item => item.classList.remove('active'));
+    if (items[index]) items[index].classList.add('active');
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initColorWheel();
     initLiveTiles();
@@ -251,9 +263,13 @@ function checkAuth() {
     if (accessToken) {
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
-        document.getElementById('main-nav').style.display = 'flex';
+        if(window.innerWidth > 768) {
+            document.getElementById('main-nav').style.display = 'flex';
+            document.getElementById('main-arrows').style.display = 'flex';
+        } else {
+            document.getElementById('mobile-bottom-nav').style.display = 'flex';
+        }
         document.getElementById('top-right-nav').style.display = 'block';
-        if(window.innerWidth > 768) document.getElementById('main-arrows').style.display = 'flex';
         const firstNav = navItems[0];
         if(firstNav) topNav.style.transform = `translateX(-${firstNav.offsetLeft}px)`;
         loadUserData();
@@ -264,8 +280,12 @@ function guestMode() {
     isGuest = true;
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('app-container').style.display = 'flex';
-    document.getElementById('main-nav').style.display = 'flex';
-    if(window.innerWidth > 768) document.getElementById('main-arrows').style.display = 'flex';
+    if(window.innerWidth > 768) {
+        document.getElementById('main-nav').style.display = 'flex';
+        document.getElementById('main-arrows').style.display = 'flex';
+    } else {
+        document.getElementById('mobile-bottom-nav').style.display = 'flex';
+    }
     const firstNav = navItems[0];
     if(firstNav) topNav.style.transform = `translateX(-${firstNav.offsetLeft}px)`;
     document.getElementById('user-page-name').innerText = 'guest';
