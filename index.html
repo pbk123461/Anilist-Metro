@@ -4546,7 +4546,10 @@
             </div>`;
                 });
                 let btn = document.getElementById('load-more-community'); if (btn) btn.remove();
-                if (data.Page.pageInfo.hasNextPage) el.innerHTML += `<button class="load-more-btn" id="load-more-community" onclick="loadMoreCommunity()" style="grid-column: 1 / -1;">load more...</button>`;
+                const perPageCount = 20;
+                const fallbackHasMore = (acts && acts.length >= perPageCount);
+                const hasNext = !!(data.Page.pageInfo && data.Page.pageInfo.hasNextPage);
+                if (hasNext || fallbackHasMore) el.innerHTML += `<button class="load-more-btn" id="load-more-community" onclick="loadMoreCommunity()" style="grid-column: 1 / -1;">load more...</button>`;
             } catch (e) { if (!append) el.innerHTML = '<div style="color:var(--text-dim);">could not load.</div>'; }
         }
         function loadMoreCommunity() { communityPage++; loadPublicCommunityFeed(true); }
