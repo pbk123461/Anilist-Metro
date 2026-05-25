@@ -3522,8 +3522,26 @@
                         <input type="range" id="filter-score-max" min="0" max="100" value="100" onchange="applySearchFilters()" style="width:60px;">
                         <span id="score-max-label">100</span>
                         <span style="margin-left:10px;">year:</span>
-                        <input type="number" id="filter-year-start" placeholder="from" style="width:60px;background:var(--surface);border:2px solid transparent;color:var(--text);padding:4px 8px;font-family:inherit;font-size:12px;" onchange="applySearchFilters()">
-                        <input type="number" id="filter-year-end" placeholder="to" style="width:60px;background:var(--surface);border:2px solid transparent;color:var(--text);padding:4px 8px;font-family:inherit;font-size:12px;" onchange="applySearchFilters()">
+                        <div id="year-range-selector" style="display:flex;gap:5px;align-items:center;">
+                            <button class="metro-btn small" onclick="showYearPicker('start')" id="year-start-btn">from</button>
+                            <span id="year-start-display" style="min-width:50px;text-align:center;background:var(--surface-hover);padding:2px 5px;border-radius:3px;">any</span>
+                            <span>to</span>
+                            <button class="metro-btn small" onclick="showYearPicker('end')" id="year-end-btn">to</button>
+                            <span id="year-end-display" style="min-width:50px;text-align:center;background:var(--surface-hover);padding:2px 5px;border-radius:3px;">any</span>
+                        </div>
+                        <div id="year-picker" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:10000;">
+                            <div style="background:var(--surface);padding:30px;border-radius:0;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;">
+                                <h3 style="text-align:center;margin-bottom:20px;color:var(--accent);">select year range</h3>
+                                <div style="margin-bottom:15px;">
+                                    <span id="year-picker-mode" style="font-weight:bold;">start year</span>
+                                </div>
+                                <div id="year-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;"></div>
+                                <div style="text-align:center;margin-top:20px;">
+                                    <button class="metro-btn" onclick="hideYearPicker()" style="width:100px;">cancel</button>
+                                    <button class="metro-btn primary" onclick="applyYearRange()" style="width:100px;margin-left:10px;">apply</button>
+                                </div>
+                            </div>
+                        </div>
                         <label class="switch" style="margin-left:10px;">
                             <input type="checkbox" id="filter-adult" onchange="applySearchFilters()">
                             <span class="toggle-track"></span>
