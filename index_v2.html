@@ -32,8 +32,6 @@
             --text-dim: rgba(255, 255, 255, 0.4);
             --hero-bg-text: rgba(255, 255, 255, 0.055);
             --wallpaper-overlay: rgba(0, 0, 0, 0.65);
-            --liquid-glass-bg: rgba(17, 17, 17, 0.42);
-            --liquid-glass-hover: rgba(26, 26, 26, 0.58);
             --glass-line: rgba(255, 255, 255, 0.16);
         }
 
@@ -48,8 +46,6 @@
             --text-dim: rgba(0, 0, 0, 0.45);
             --hero-bg-text: rgba(0, 0, 0, 0.05);
             --wallpaper-overlay: rgba(255, 255, 255, 0.85);
-            --liquid-glass-bg: rgba(255, 255, 255, 0.48);
-            --liquid-glass-hover: rgba(255, 255, 255, 0.68);
             --glass-line: rgba(0, 0, 0, 0.12);
         }
 
@@ -221,6 +217,9 @@
             z-index: 50;
             pointer-events: none;
             transition: opacity 0.3s var(--metro-easing);
+        }
+        .top-blur-layer.blur-disabled {
+            opacity: 0;
         }
 
         .xbox-nav {
@@ -1358,16 +1357,14 @@
         }
 
         .metro-tile {
-            background: var(--surface);
-            color: white;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            cursor: pointer;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.05) 100%), var(--surface);
             position: relative;
             overflow: hidden;
-            transition: transform 0.1s var(--metro-easing);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .metro-tile:hover {
+            transform: scale(0.98);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
         }
 
         .metro-tile:hover {
@@ -2756,11 +2753,19 @@
         }
 
         /* MOBILE BOTTOM NAVIGATION (Metro UI v4 Style) */
-        .mobile-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--surface-hover); display: flex; justify-content: space-around; align-items: center; z-index: 999; }
-        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--text-dim); flex: 1; height: 100%; transition: all 0.2s; font-size: 11px; font-weight: 400; text-transform: lowercase; }
-        .mobile-nav-item i { font-size: 20px; }
-        .mobile-nav-item.active { color: var(--accent); background: rgba(27,161,226,0.1); }
-        .mobile-nav-item:active { transform: scale(0.9); }
+        .mobile-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: var(--surface); border-top: 2px solid var(--glass-line); display: flex; justify-content: space-around; align-items: center; z-index: 999; padding: 0; }
+        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; color: var(--text-dim); flex: 1; height: 100%; transition: color 0.15s; font-size: 10px; font-weight: 400; text-transform: lowercase; position: relative; }
+        .mobile-nav-item i { font-size: 22px; transition: font-size 0.15s; }
+        .mobile-nav-item.active { color: var(--accent); }
+        .mobile-nav-item.active i { font-size: 24px; }
+        .mobile-nav-item span { line-height: 1; }
+        .mobile-nav-item:active { opacity: 0.6; }
+        @media (min-width: 769px) {
+            .mobile-bottom-nav { display: none !important; }
+        }
+        @media (max-width: 768px) {
+            .panorama-container { padding-bottom: 56px; }
+        }
         
         /* MOBILE */
         @media (max-width: 768px) {
@@ -2942,14 +2947,166 @@
         .multi-select-chip:hover { border-color: var(--accent); }
         .multi-select-chip.selected { background: var(--accent); color: #fff; }
         .multi-select-category { font-size: 14px; color: var(--accent); font-weight: 400; margin: 16px 0 8px; }
-        .range-slider-wrap { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
+        .range-slider-wrap { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+        .range-value { font-size: 14px; color: var(--accent); text-align: right; font-weight: 400; }
+        /* Tag selector range slider - Metro flat style */
         .range-slider-wrap input[type="range"] {
-            flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: var(--surface-hover); outline: none;
+            -webkit-appearance: none; appearance: none; outline: none; border: none;
+            height: 20px; width: 100px; background: transparent; cursor: pointer; margin: 0; padding: 0;
+        }
+        .range-slider-wrap input[type="range"]::-webkit-slider-runnable-track {
+            height: 4px; background: var(--surface-hover); border: none;
         }
         .range-slider-wrap input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); cursor: pointer; border: none; border-radius: 0;
+            -webkit-appearance: none; width: 14px; height: 14px;
+            background: var(--accent); cursor: pointer; border: none;
+            margin-top: -5px;
         }
-        .range-value { font-size: 18px; color: var(--accent); min-width: 40px; text-align: right; }
+        .range-slider-wrap input[type="range"]::-moz-range-track {
+            height: 4px; background: var(--surface-hover); border: none;
+        }
+        .range-slider-wrap input[type="range"]::-moz-range-thumb {
+            width: 14px; height: 14px; background: var(--accent); cursor: pointer; border: none;
+        }
+        .range-slider-wrap input[type="range"]::-ms-track {
+            height: 4px; background: transparent; border-color: transparent; color: transparent;
+        }
+        .range-slider-wrap input[type="range"]::-ms-thumb {
+            width: 14px; height: 14px; background: var(--accent); cursor: pointer; border: none;
+        }
+        /* Search filter row improvements */
+        #filter-row-scores { border-bottom: 1px solid var(--glass-line); margin-bottom: 6px; }
+        .metro-toggle-btn {
+            width: 44px;
+            height: 22px;
+            background: var(--surface-hover);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .metro-toggle-btn.active {
+            background: var(--accent);
+        }
+        .metro-toggle-btn::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--text-dim);
+            transition: background 0.2s;
+        }
+        .metro-toggle-btn.active::after {
+            background: #fff;
+        }
+        .metro-select-wrap { position: relative; display: inline-block; }
+        .metro-select-btn {
+            background: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--surface-hover);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-width: 120px;
+            transition: background 0.2s;
+        }
+        .metro-select-btn:hover { background: var(--surface-hover); }
+        .metro-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--surface-hover);
+            border-top: none;
+            z-index: 1000;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .metro-select-dropdown.open { display: block; }
+        .metro-select-opt {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-main);
+            transition: background 0.1s;
+        }
+        .metro-select-opt:hover { background: var(--accent); color: #fff; }
+
+        /* =========================================
+           FLUENT 1 DESIGN SYSTEM OVERRIDES
+           ========================================= */
+        [data-ui="fluent"] {
+            --fluent-radius: 4px;
+            --fluent-card-radius: 6px;
+            --fluent-acrylic-bg: rgba(17, 17, 17, 0.7);
+            --fluent-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --fluent-elevation: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        [data-ui="fluent"] .metro-tile-start,
+        [data-ui="fluent"] .tile,
+        [data-ui="fluent"] .metro-tile,
+        [data-ui="fluent"] .char-card,
+        [data-ui="fluent"] .prog-item,
+        [data-ui="fluent"] .airing-tile,
+        [data-ui="fluent"] .wide-info-tile,
+        [data-ui="fluent"] .user-stat-tile,
+        [data-ui="fluent"] .browse-card,
+        [data-ui="fluent"] .inbox-item,
+        [data-ui="fluent"] .metro-btn,
+        [data-ui="fluent"] .filter-chip,
+        [data-ui="fluent"] .metro-input,
+        [data-ui="fluent"] select {
+            border-radius: var(--fluent-radius);
+            box-shadow: var(--fluent-shadow);
+            transition: box-shadow 0.2s, transform 0.1s, background 0.2s;
+        }
+        [data-ui="fluent"] .metro-tile-start:hover,
+        [data-ui="fluent"] .tile:hover,
+        [data-ui="fluent"] .metro-tile:hover,
+        [data-ui="fluent"] .char-card:hover,
+        [data-ui="fluent"] .prog-item:hover {
+            box-shadow: var(--fluent-elevation);
+            transform: translateY(-1px);
+        }
+        [data-ui="fluent"] .metro-btn:hover,
+        [data-ui="fluent"] .filter-chip:hover {
+            box-shadow: var(--fluent-elevation);
+            transform: translateY(-1px);
+        }
+        [data-ui="fluent"] .metro-btn:active,
+        [data-ui="fluent"] .filter-chip:active {
+            transform: translateY(0);
+            box-shadow: var(--fluent-shadow);
+        }
+        [data-ui="fluent"] .dropbtn {
+            border-radius: var(--fluent-radius);
+        }
+        [data-ui="fluent"] .dropdown-content {
+            border-radius: var(--fluent-radius);
+            box-shadow: var(--fluent-elevation);
+        }
+        [data-ui="fluent"] .mobile-bottom-nav {
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background: var(--fluent-acrylic-bg);
+        }
+        [data-ui="fluent"] body,
+        [data-ui="fluent"] html {
+            font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif !important;
+        }
+        [data-ui="fluent"] .metro-huge-title {
+            font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif !important;
+            font-weight: 600;
+        }
 
         /* Browse page tiles */
         .browse-grid {
@@ -3085,14 +3242,14 @@
     <div class="zune-hero-bg" id="dynamic-header">start user library community discover airing inbox system</div>
 
     <div class="xbox-nav" id="main-nav" style="display: none;">
-        <div class="nav-item active" onclick="scrollToSection(0)">start</div>
-        <div class="nav-item" id="main-nav-user" onclick="scrollToSection(1)">user</div>
-        <div class="nav-item" onclick="scrollToSection(2)">library</div>
-        <div class="nav-item" onclick="scrollToSection(3)">community</div>
-        <div class="nav-item" onclick="scrollToSection(4)">discover</div>
-        <div class="nav-item" onclick="scrollToSection(5)">airing</div>
-        <div class="nav-item" onclick="scrollToSection(6)">inbox</div>
-        <div class="nav-item" onclick="scrollToSection(7)">system</div>
+                                <div class="nav-item active" onclick="scrollToSection(0)"><i class="fa-solid fa-house"></i> start</div>
+                                <div class="nav-item" id="main-nav-user" onclick="scrollToSection(1)"><i class="fa-solid fa-user"></i> user</div>
+                                <div class="nav-item" onclick="scrollToSection(2)"><i class="fa-solid fa-list"></i> library</div>
+                                <div class="nav-item" onclick="scrollToSection(3)"><i class="fa-solid fa-users"></i> community</div>
+                                <div class="nav-item" onclick="scrollToSection(4)"><i class="fa-solid fa-compass"></i> discover</div>
+                                <div class="nav-item" onclick="scrollToSection(5)"><i class="fa-solid fa-calendar-days"></i> airing</div>
+                                <div class="nav-item" onclick="scrollToSection(6)"><i class="fa-solid fa-envelope"></i> inbox</div>
+                                <div class="nav-item" onclick="scrollToSection(7)"><i class="fa-solid fa-gear"></i> system</div>
     </div>
 
     <div class="top-right-nav" id="top-right-nav">
@@ -3440,113 +3597,104 @@
                         <button class="filter-chip" data-type="USER" onclick="setSearchType('USER',this)">user</button>
                     </div>
                     <div class="search-filters" id="advanced-filters">
-                        <select class="metro-select" id="filter-season" onchange="applySearchFilters()">
-                            <option value="">all seasons</option>
-                            <option value="WINTER">winter</option>
-                            <option value="SPRING">spring</option>
-                            <option value="SUMMER">summer</option>
-                            <option value="FALL">fall</option>
-                        </select>
-                        <select class="metro-select" id="filter-year" onchange="applySearchFilters()">
-                            <option value="">all years</option>
-                            <option value="2026">2026</option>
-                            <option value="2025">2025</option>
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
-                            <option value="2022">2022</option>
-                            <option value="2021">2021</option>
-                            <option value="2020">2020</option>
-                            <option value="2019">2019</option>
-                            <option value="2018">2018</option>
-                            <option value="2017">2017</option>
-                            <option value="2016">2016</option>
-                            <option value="2015">2015</option>
-                            <option value="2010">2010</option>
-                            <option value="2005">2005</option>
-                            <option value="2000">2000</option>
-                        </select>
-                        <select class="metro-select" id="filter-format" onchange="applySearchFilters()">
-                            <option value="">all formats</option>
-                            <option value="TV">tv</option>
-                            <option value="TV_SHORT">tv short</option>
-                            <option value="MOVIE">movie</option>
-                            <option value="OVA">ova</option>
-                            <option value="SPECIAL">special</option>
-                            <option value="ONA">ona</option>
-                            <option value="MUSIC">music</option>
-                            <option value="NOVEL">novel</option>
-                            <option value="ONE_SHOT">one shot</option>
-                        </select>
-                        <select class="metro-select" id="filter-status" onchange="applySearchFilters()">
-                            <option value="">all status</option>
-                            <option value="RELEASING">airing</option>
-                            <option value="FINISHED">finished</option>
-                            <option value="NOT_YET_RELEASED">upcoming</option>
-                            <option value="CANCELLED">cancelled</option>
-                            <option value="HIATUS">hiatus</option>
-                        </select>
-                        <select class="metro-select" id="filter-episodes" onchange="applySearchFilters()">
-                            <option value="">any length</option>
-                            <option value="1-12">1-12 eps</option>
-                            <option value="13-26">13-26 eps</option>
-                            <option value="27-50">27-50 eps</option>
-                            <option value="51-100">51-100 eps</option>
-                            <option value="100-">100+ eps</option>
-                        </select>
-                        <select class="metro-select" id="filter-source" onchange="applySearchFilters()">
-                            <option value="">any source</option>
-                            <option value="ORIGINAL">original</option>
-                            <option value="MANGA">manga</option>
-                            <option value="LIGHT_NOVEL">light novel</option>
-                            <option value="VISUAL_NOVEL">visual novel</option>
-                            <option value="VIDEO_GAME">video game</option>
-                            <option value="ANIME">anime</option>
-                            <option value="NOVEL">novel</option>
-                            <option value="COMIC">comic</option>
-                        </select>
-                        <select class="metro-select" id="filter-country" onchange="applySearchFilters()">
-                            <option value="">any country</option>
-                            <option value="JP">japan</option>
-                            <option value="KR">south korea</option>
-                            <option value="CN">china</option>
-                            <option value="TW">taiwan</option>
-                        </select>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('season')" id="season-btn">all seasons <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="season-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('season','','all seasons')">all seasons</div>
+                                <div class="metro-select-opt" data-value="WINTER" onclick="setFilter('season','WINTER','winter')">winter</div>
+                                <div class="metro-select-opt" data-value="SPRING" onclick="setFilter('season','SPRING','spring')">spring</div>
+                                <div class="metro-select-opt" data-value="SUMMER" onclick="setFilter('season','SUMMER','summer')">summer</div>
+                                <div class="metro-select-opt" data-value="FALL" onclick="setFilter('season','FALL','fall')">fall</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('format')" id="format-btn">all formats <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="format-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('format','','all formats')">all formats</div>
+                                <div class="metro-select-opt" data-value="TV" onclick="setFilter('format','TV','tv')">tv</div>
+                                <div class="metro-select-opt" data-value="TV_SHORT" onclick="setFilter('format','TV_SHORT','tv short')">tv short</div>
+                                <div class="metro-select-opt" data-value="MOVIE" onclick="setFilter('format','MOVIE','movie')">movie</div>
+                                <div class="metro-select-opt" data-value="OVA" onclick="setFilter('format','OVA','ova')">ova</div>
+                                <div class="metro-select-opt" data-value="SPECIAL" onclick="setFilter('format','SPECIAL','special')">special</div>
+                                <div class="metro-select-opt" data-value="ONA" onclick="setFilter('format','ONA','ona')">ona</div>
+                                <div class="metro-select-opt" data-value="MUSIC" onclick="setFilter('format','MUSIC','music')">music</div>
+                                <div class="metro-select-opt" data-value="NOVEL" onclick="setFilter('format','NOVEL','novel')">novel</div>
+                                <div class="metro-select-opt" data-value="ONE_SHOT" onclick="setFilter('format','ONE_SHOT','one shot')">one shot</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('status')" id="status-btn">all status <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="status-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('status','','all status')">all status</div>
+                                <div class="metro-select-opt" data-value="RELEASING" onclick="setFilter('status','RELEASING','airing')">airing</div>
+                                <div class="metro-select-opt" data-value="FINISHED" onclick="setFilter('status','FINISHED','finished')">finished</div>
+                                <div class="metro-select-opt" data-value="NOT_YET_RELEASED" onclick="setFilter('status','NOT_YET_RELEASED','upcoming')">upcoming</div>
+                                <div class="metro-select-opt" data-value="CANCELLED" onclick="setFilter('status','CANCELLED','cancelled')">cancelled</div>
+                                <div class="metro-select-opt" data-value="HIATUS" onclick="setFilter('status','HIATUS','hiatus')">hiatus</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('episodes')" id="episodes-btn">any length <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="episodes-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('episodes','','any length')">any length</div>
+                                <div class="metro-select-opt" data-value="1-12" onclick="setFilter('episodes','1-12','1-12 eps')">1-12 eps</div>
+                                <div class="metro-select-opt" data-value="13-26" onclick="setFilter('episodes','13-26','13-26 eps')">13-26 eps</div>
+                                <div class="metro-select-opt" data-value="27-50" onclick="setFilter('episodes','27-50','27-50 eps')">27-50 eps</div>
+                                <div class="metro-select-opt" data-value="51-100" onclick="setFilter('episodes','51-100','51-100 eps')">51-100 eps</div>
+                                <div class="metro-select-opt" data-value="100-" onclick="setFilter('episodes','100-','100+ eps')">100+ eps</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('source')" id="source-btn">any source <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="source-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('source','','any source')">any source</div>
+                                <div class="metro-select-opt" data-value="ORIGINAL" onclick="setFilter('source','ORIGINAL','original')">original</div>
+                                <div class="metro-select-opt" data-value="MANGA" onclick="setFilter('source','MANGA','manga')">manga</div>
+                                <div class="metro-select-opt" data-value="LIGHT_NOVEL" onclick="setFilter('source','LIGHT_NOVEL','light novel')">light novel</div>
+                                <div class="metro-select-opt" data-value="VISUAL_NOVEL" onclick="setFilter('source','VISUAL_NOVEL','visual novel')">visual novel</div>
+                                <div class="metro-select-opt" data-value="VIDEO_GAME" onclick="setFilter('source','VIDEO_GAME','video game')">video game</div>
+                                <div class="metro-select-opt" data-value="ANIME" onclick="setFilter('source','ANIME','anime')">anime</div>
+                                <div class="metro-select-opt" data-value="NOVEL" onclick="setFilter('source','NOVEL','novel')">novel</div>
+                                <div class="metro-select-opt" data-value="COMIC" onclick="setFilter('source','COMIC','comic')">comic</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('country')" id="country-btn">any country <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="country-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('country','','any country')">any country</div>
+                                <div class="metro-select-opt" data-value="JP" onclick="setFilter('country','JP','japan')">japan</div>
+                                <div class="metro-select-opt" data-value="KR" onclick="setFilter('country','KR','south korea')">south korea</div>
+                                <div class="metro-select-opt" data-value="CN" onclick="setFilter('country','CN','china')">china</div>
+                                <div class="metro-select-opt" data-value="TW" onclick="setFilter('country','TW','taiwan')">taiwan</div>
+                            </div>
+                        </div>
                         <button class="filter-chip" onclick="openGenreSelector()">genre +</button>
                         <button class="filter-chip" onclick="openTagSelector()">tags +</button>
                     </div>
-                    <div class="search-filters" style="gap:6px;font-size:12px;color:var(--text-dim);align-items:center;">
-                        <span>score:</span>
-                        <input type="range" id="filter-score-min" min="0" max="100" value="0" onchange="applySearchFilters()" style="width:60px;">
-                        <span id="score-min-label">0</span>
-                        <span>-</span>
-                        <input type="range" id="filter-score-max" min="0" max="100" value="100" onchange="applySearchFilters()" style="width:60px;">
-                        <span id="score-max-label">100</span>
-                        <span style="margin-left:10px;">year:</span>
-                        <div id="year-range-selector" style="display:flex;gap:5px;align-items:center;">
-                            <button class="metro-btn small" onclick="showYearPicker('start')" id="year-start-btn">from</button>
-                            <span id="year-start-display" style="min-width:50px;text-align:center;background:var(--surface-hover);padding:2px 5px;border-radius:3px;">any</span>
-                            <span>to</span>
-                            <button class="metro-btn small" onclick="showYearPicker('end')" id="year-end-btn">to</button>
-                            <span id="year-end-display" style="min-width:50px;text-align:center;background:var(--surface-hover);padding:2px 5px;border-radius:3px;">any</span>
+                    <div class="search-filters" id="filter-row-scores" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:8px 0;">
+                        <div class="range-slider-wrap" style="flex:1;min-width:180px;">
+                            <span style="font-size:12px;color:var(--text-dim);min-width:35px;">score</span>
+                            <input type="range" id="filter-score-min" min="0" max="100" value="0" onchange="applySearchFilters()" style="width:80px;">
+                            <span id="score-min-label" class="range-value" style="width:30px;">0</span>
+                            <span style="color:var(--text-dim);font-size:12px;">-</span>
+                            <input type="range" id="filter-score-max" min="0" max="100" value="100" onchange="applySearchFilters()" style="width:80px;">
+                            <span id="score-max-label" class="range-value" style="width:30px;">100</span>
                         </div>
-                        <div id="year-picker" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:10000;">
-                            <div style="background:var(--surface);padding:30px;border-radius:0;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;">
-                                <h3 style="text-align:center;margin-bottom:20px;color:var(--accent);">select year range</h3>
-                                <div style="margin-bottom:15px;">
-                                    <span id="year-picker-mode" style="font-weight:bold;">start year</span>
-                                </div>
-                                <div id="year-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;"></div>
-                                <div style="text-align:center;margin-top:20px;">
-                                    <button class="metro-btn" onclick="hideYearPicker()" style="width:100px;">cancel</button>
-                                    <button class="metro-btn primary" onclick="applyYearRange()" style="width:100px;margin-left:10px;">apply</button>
-                                </div>
-                            </div>
+                        <div style="display:flex;gap:4px;align-items:center;">
+                            <span style="font-size:12px;color:var(--text-dim);margin-right:4px;">year</span>
+                            <button class="metro-btn small" onclick="showYearPicker('start')" style="font-size:10px;padding:2px 6px;">from</button>
+                            <span id="year-start-display" style="min-width:36px;text-align:center;background:var(--surface-hover);padding:2px 4px;font-size:11px;">any</span>
+                            <span style="color:var(--text-dim);font-size:11px;">-</span>
+                            <button class="metro-btn small" onclick="showYearPicker('end')" style="font-size:10px;padding:2px 6px;">to</button>
+                            <span id="year-end-display" style="min-width:36px;text-align:center;background:var(--surface-hover);padding:2px 4px;font-size:11px;">any</span>
                         </div>
-                        <label class="switch" style="margin-left:10px;">
-                            <input type="checkbox" id="filter-adult" onchange="applySearchFilters()">
-                            <span class="toggle-track"></span>
-                        </label>
-                        <span class="toggle-label" style="font-size:12px;">18+</span>
+                        <div style="display:flex;gap:6px;align-items:center;margin-left:auto;">
+                            <label class="switch" style="margin:0;">
+                                <input type="checkbox" id="filter-adult" onchange="applySearchFilters()">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span style="font-size:11px;color:var(--text-dim);">18+</span>
+                        </div>
                     </div>
                     <div class="search-filters">
                         <button class="filter-chip active" data-sort="SEARCH_MATCH"
@@ -3697,14 +3845,19 @@
                                 <option value="light">light</option>
                             </select>
                         </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">ui style</div>
+                            <div class="settings-item-sub">metro = flat tiles, fluent = rounded & blurred</div>
+                            <select class="metro-select" id="ui-style-select" onchange="setUIStyle(this.value)">
+                                <option value="metro">metro (classic)</option>
+                                <option value="fluent">fluent 1 (windows 11)</option>
+                            </select>
+                        </div>
 
                         <div class="settings-item">
                             <div class="settings-item-header">ui sound effects</div>
                             <div class="settings-item-sub">xbox 360 dashboard sounds for navigation</div>
-                            <label class="switch">
-                                <input type="checkbox" id="sfx-toggle">
-                                <span class="toggle-track"></span>
-                            </label>
+                            <button class="metro-toggle-btn" id="sfx-toggle-btn" onclick="toggleSfxBtn()"></button>
                             <span class="toggle-label">toggle sounds</span>
                             <div style="margin-top: 15px;">
                                 <div class="settings-item-sub" style="margin-bottom: 8px;">sound pack</div>
@@ -3953,6 +4106,21 @@
 
     </div>
 
+    <!-- Year picker overlay (always available) -->
+    <div id="year-picker" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);display:none;justify-content:center;align-items:center;z-index:10000;">
+        <div style="background:var(--surface);padding:25px;width:90%;max-width:420px;max-height:85vh;overflow-y:auto;">
+            <h3 style="text-align:center;margin-bottom:15px;color:var(--accent);font-weight:300;font-size:1.5rem;">select year range</h3>
+            <div style="margin-bottom:12px;">
+                <span id="year-picker-mode" style="font-weight:400;color:var(--text-dim);">start year</span>
+            </div>
+            <div id="year-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;"></div>
+            <div style="display:flex;gap:10px;justify-content:center;margin-top:18px;">
+                <button class="metro-btn" onclick="hideYearPicker()" style="flex:1;">cancel</button>
+                <button class="metro-btn primary" onclick="applyYearRange()" style="flex:1;">apply</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
 
     <script>
@@ -3968,6 +4136,45 @@
         let currentLibStatus = 'CURRENT';
         let searchType = 'ANIME';
         let searchSort = null;
+        let yearStart = null;
+        let yearEnd = null;
+
+        // Year picker
+        let yearPickerMode = 'start';
+        function showYearPicker(mode) {
+            yearPickerMode = mode;
+            document.getElementById('year-picker-mode').textContent = mode === 'start' ? 'start year (earliest)' : 'end year (latest)';
+            const grid = document.getElementById('year-grid');
+            grid.innerHTML = `<button class="filter-chip" onclick="selectYear(null)" style="grid-column:1/-1;text-align:center;">any year</button>`;
+            const thisYear = new Date().getFullYear();
+            for (let y = thisYear + 1; y >= 1940; y--) {
+                const btn = document.createElement('button');
+                btn.className = 'filter-chip';
+                btn.textContent = y;
+                btn.onclick = () => selectYear(y);
+                if ((mode === 'start' && yearStart === y) || (mode === 'end' && yearEnd === y)) {
+                    btn.classList.add('active');
+                }
+                grid.appendChild(btn);
+            }
+            document.getElementById('year-picker').style.display = 'flex';
+        }
+        function hideYearPicker() {
+            document.getElementById('year-picker').style.display = 'none';
+        }
+        function selectYear(y) {
+            if (yearPickerMode === 'start') {
+                yearStart = y;
+                document.getElementById('year-start-display').textContent = y || 'any';
+            } else {
+                yearEnd = y;
+                document.getElementById('year-end-display').textContent = y || 'any';
+            }
+        }
+        function applyYearRange() {
+            hideYearPicker();
+            applySearchFilters();
+        }
         let isGuest = false;
         let feedMode = 'following';
         let inboxMode = 'unread';
@@ -4071,6 +4278,17 @@
         function scrollToSection(index) {
             const width = getSectionWidth();
             if (container) container.scrollTo({ left: width * index, behavior: 'smooth' });
+            // Update mobile nav
+            document.querySelectorAll('.mobile-nav-item').forEach(el => {
+                el.classList.toggle('active', parseInt(el.dataset.section) === index);
+            });
+        }
+        function scrollToSectionMobile(index) {
+            const width = getSectionWidth();
+            if (container) container.scrollTo({ left: width * index, behavior: 'smooth' });
+            document.querySelectorAll('.mobile-nav-item').forEach(el => {
+                el.classList.toggle('active', parseInt(el.dataset.section) === index);
+            });
         }
 
         function scrollPanorama(dir) {
@@ -4113,6 +4331,38 @@
             if (select) select.value = mode;
         }
         function setThemeMode(mode) { localStorage.setItem('theme_mode', mode); applyThemeMode(mode); updateThemeSubtitle(); }
+        function setUIStyle(style) {
+            localStorage.setItem('ui_style', style);
+            if (style === 'fluent') {
+                document.documentElement.setAttribute('data-ui', 'fluent');
+                // Apply Fluent-specific overrides
+                document.documentElement.style.setProperty('--metro-radius', '4px');
+                document.documentElement.style.setProperty('--metro-card-radius', '6px');
+                // Add acrylic effect to panels
+                document.querySelectorAll('.panel, .settings-item, .wide-info-tile, .browse-card').forEach(el => {
+                    el.style.backdropFilter = 'blur(15px)';
+                    el.style.webkitBackdropFilter = 'blur(15px)';
+                });
+                
+            } else {
+                document.documentElement.removeAttribute('data-ui');
+                document.documentElement.style.removeProperty('--metro-radius');
+                document.documentElement.style.removeProperty('--metro-card-radius');
+                document.documentElement.style.removeProperty('--metro-blur');
+                // Remove acrylic overrides
+                document.querySelectorAll('.panel, .settings-item, .wide-info-tile, .browse-card').forEach(el => {
+                    el.style.backdropFilter = '';
+                    el.style.webkitBackdropFilter = '';
+                });
+                
+            }
+        }
+        function applyUIStyle() {
+            const saved = localStorage.getItem('ui_style') || 'metro';
+            const sel = document.getElementById('ui-style-select');
+            if (sel) sel.value = saved;
+            setUIStyle(saved);
+        }
         window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
             const currentMode = localStorage.getItem('theme_mode') || 'system';
             if (currentMode === 'system') applyThemeMode('system');
@@ -4342,9 +4592,18 @@
             isGuest = true;
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('app-container').style.display = 'flex';
-            document.getElementById('main-nav').style.display = 'flex';
+            document.getElementById('main-nav').style.display = window.innerWidth > 768 ? 'flex' : 'none';
             document.getElementById('top-right-nav').style.display = 'flex';
             if (window.innerWidth > 768) document.getElementById('main-arrows').style.display = 'flex';
+            const mobileNav = document.getElementById('mobile-bottom-nav');
+            if (mobileNav) {
+                if (window.innerWidth <= 768) {
+                    mobileNav.style.display = 'flex';
+                    document.getElementById('main-nav').style.display = 'none';
+                } else {
+                    mobileNav.style.display = 'none';
+                }
+            }
 
             const firstNav = navItems[0];
             if (firstNav) topNav.style.transform = `translateX(-${firstNav.offsetLeft}px)`;
@@ -4405,49 +4664,92 @@
         // ==========================================
         // API
         // ==========================================
+        // Request deduplication and rate limiter
+        const pendingRequests = new Map();
+        const requestTimestamps = [];
+        let requestQueue = [];
+
+        // Ensure max 80 requests per minute with minimum 750ms between requests
+        async function rateLimitedFetch(url, options) {
+            // Clean old timestamps (>60s)
+            const now = Date.now();
+            while (requestTimestamps.length > 0 && requestTimestamps[0] < now - 60000) {
+                requestTimestamps.shift();
+            }
+            // If we've made 80+ requests in the last 60 seconds, wait
+            if (requestTimestamps.length >= 80) {
+                const waitMs = requestTimestamps[0] + 60000 - now + 100;
+                await new Promise(resolve => setTimeout(resolve, waitMs));
+            }
+            // Ensure minimum 400ms between requests
+            if (requestTimestamps.length > 0) {
+                const lastTs = requestTimestamps[requestTimestamps.length - 1];
+                const elapsed = now - lastTs;
+                if (elapsed < 400) {
+                    await new Promise(resolve => setTimeout(resolve, 400 - elapsed));
+                }
+            }
+            requestTimestamps.push(Date.now());
+            return fetch(url, options);
+        }
+
         async function fetchAPI(query, variables = {}) {
+            const cacheKey = 'gql_' + btoa(unescape(encodeURIComponent(query + JSON.stringify(variables))));
+            
+            // Deduplicate in-flight requests
+            if (pendingRequests.has(cacheKey)) {
+                return pendingRequests.get(cacheKey);
+            }
+            
             const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
             if (accessToken && !isGuest) headers['Authorization'] = 'Bearer ' + accessToken;
 
-            try {
-                const response = await fetch('https://graphql.anilist.co', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({ query, variables })
-                });
+            const promise = (async () => {
+                try {
+                    const response = await rateLimitedFetch('https://graphql.anilist.co', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({ query, variables })
+                    });
 
-                // Track rate limit headers
-                updateRateLimitIndicator(response.headers);
+                    // Track rate limit headers
+                    updateRateLimitIndicator(response.headers);
 
-                if (response.status === 429) {
-                    const retryAfter = parseInt(response.headers.get('Retry-After')) || 60;
-                    showRateLimitPopup(retryAfter);
-                    throw new Error(`Rate limited. Please wait ${retryAfter} seconds.`);
-                }
-
-                if (!response.ok) {
-                    const errorBody = await response.json().catch(() => null);
-                    if (errorBody?.errors) {
-                        console.error('GraphQL Errors:', errorBody.errors);
-                        throw new Error(errorBody.errors[0]?.message || `API Error: ${response.status}`);
+                    if (response.status === 429) {
+                        const retryAfter = parseInt(response.headers.get('Retry-After')) || 60;
+                        showRateLimitPopup(retryAfter);
+                        throw new Error(`Rate limited. Please wait ${retryAfter} seconds.`);
                     }
-                    throw new Error(`API Error: ${response.status}`);
-                }
-                const json = await response.json();
-                if (json.errors) {
-                    console.error('GraphQL Errors:', json.errors);
-                    if (json.errors[0].message.includes('unauthorized') || json.errors[0].message.includes('invalid token')) {
-                        showToast('session expired. please sign in again.');
-                        logout();
+
+                    if (!response.ok) {
+                        const errorBody = await response.json().catch(() => null);
+                        if (errorBody?.errors) {
+                            console.error('GraphQL Errors:', errorBody.errors);
+                            throw new Error(errorBody.errors[0]?.message || `API Error: ${response.status}`);
+                        }
+                        throw new Error(`API Error: ${response.status}`);
                     }
-                    throw new Error(json.errors[0].message || 'API Error');
+                    const json = await response.json();
+                    if (json.errors) {
+                        console.error('GraphQL Errors:', json.errors);
+                        if (json.errors[0].message.includes('unauthorized') || json.errors[0].message.includes('invalid token')) {
+                            showToast('session expired. please sign in again.');
+                            logout();
+                        }
+                        throw new Error(json.errors[0].message || 'API Error');
+                    }
+                    return json.data;
+                } catch (e) {
+                    if (e.message.includes('Rate limited')) throw e;
+                    console.error('fetchAPI Error:', e);
+                    throw e;
+                } finally {
+                    pendingRequests.delete(cacheKey);
                 }
-                return json.data;
-            } catch (e) {
-                if (e.message.includes('Rate limited')) throw e;
-                console.error('fetchAPI Error:', e);
-                throw e;
-            }
+            })();
+
+            pendingRequests.set(cacheKey, promise);
+            return promise;
         }
 
         async function fetchAPIWithRetry(query, variables = {}, retries = 3, delay = 2000) {
@@ -4466,15 +4768,32 @@
         }
 
         function showRateLimitPopup(seconds) {
+            const existing = document.getElementById('rate-limit-popup');
+            if (existing) existing.remove();
             const popup = document.createElement('div');
             popup.id = 'rate-limit-popup';
-            popup.style = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:10000; display:flex; align-items:center; justify-content:center; color:#fff; font-family:inherit; text-align:center; flex-direction:column; gap:20px;';
+            popup.style = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; color:#fff; font-family:inherit; text-align:center; flex-direction:column; gap:15px;';
             popup.innerHTML = `
-        <div style="font-size:2rem; font-weight:bold;">rate limited</div>
-        <div style="font-size:1.2rem; color:var(--text-dim);">please wait ${seconds} seconds before trying again.</div>
-        <button class="metro-btn" onclick="this.parentElement.remove()">dismiss</button>
+        <div style="font-size:3rem; font-weight:100; letter-spacing:-2px;">rate limited</div>
+        <div id="rate-limit-countdown" style="font-size:5rem; font-weight:100; color:var(--accent); margin:15px 0;">${seconds}</div>
+        <div style="font-size:1rem; color:var(--text-dim);">seconds until next request</div>
+        <button class="metro-btn" onclick="this.parentElement.remove(); if(window._rateLimitInterval) clearInterval(window._rateLimitInterval);">dismiss</button>
     `;
             document.body.appendChild(popup);
+            if (window._rateLimitInterval) clearInterval(window._rateLimitInterval);
+            let remaining = seconds;
+            const cd = document.getElementById('rate-limit-countdown');
+            window._rateLimitInterval = setInterval(() => {
+                remaining--;
+                if (cd) cd.textContent = remaining;
+                if (remaining <= 0) {
+                    clearInterval(window._rateLimitInterval);
+                    window._rateLimitInterval = null;
+                    if (popup.parentElement) {
+                        popup.querySelector('.metro-btn')?.click();
+                    }
+                }
+            }, 1000);
         }
         function timeAgo(ts) {
             const h = Math.floor((Date.now() - ts * 1000) / 3600000), d = Math.floor(h / 24);
@@ -5332,8 +5651,8 @@
             const country = document.getElementById('filter-country')?.value || '';
             const scoreMin = parseInt(document.getElementById('filter-score-min')?.value || 0);
             const scoreMax = parseInt(document.getElementById('filter-score-max')?.value || 100);
-            const yearStart = parseInt(document.getElementById('filter-year-start')?.value) || 0;
-            const yearEnd = parseInt(document.getElementById('filter-year-end')?.value) || 0;
+            const yearStartVal = yearStart || 0;
+            const yearEndVal = yearEnd || 0;
             const isAdultFilter = document.getElementById('filter-adult')?.checked || false;
 
             let variables = { search: term, type: searchType, sort: [searchSort || 'SEARCH_MATCH'] };
@@ -5346,77 +5665,14 @@
             if (country) variables.countryOfOrigin = country;
             if (scoreMin > 0) variables.averageScore_greater = scoreMin;
             if (scoreMax < 100) variables.averageScore_lesser = scoreMax;
-            if (yearStart) variables.startDate_greater = yearStart.toString();
-            if (yearEnd) variables.startDate_lesser = (yearEnd + 1).toString();
+            if (yearStartVal) variables.startDate_greater = yearStartVal.toString();
+            if (yearEndVal) variables.startDate_lesser = (yearEndVal + 1).toString();
             if (isAdultFilter) variables.isAdult = true;
-            // Use selectedGenres/tags as tag filter in AniList API
-            if (selectedGenres.length) variables.genre_in = selectedGenres.join(',');
-            if (selectedTags.length) variables.tag_in = selectedTags.join(',');
-            if (episodes) {
-                if (episodes === '1-12') { variables.episodes_greater = 0; variables.episodes_lesser = 13; }
-                else if (episodes === '13-26') { variables.episodes_greater = 12; variables.episodes_lesser = 27; }
-                else if (episodes === '27-50') { variables.episodes_greater = 26; variables.episodes_lesser = 51; }
-                else if (episodes === '51-100') { variables.episodes_greater = 50; variables.episodes_lesser = 101; }
-                else if (episodes === '100-') { variables.episodes_greater = 100; }
-            }
 
             const q = `query ($search:String,$type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$genre_in:String,$tag_in:String,$source:MediaSource,$countryOfOrigin:CountryCode,$averageScore_greater:Int,$averageScore_lesser:Int,$startDate_greater:String,$startDate_lesser:String,$isAdult:Boolean,$episodes_greater:Int,$episodes_lesser:Int) { 
         Page(page:1,perPage:20) { 
             media(search:$search,type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,format:$format,status:$status,genre:$genre,genre_in:[$genre_in],tag_in:[$tag_in],source:$source,countryOfOrigin:$countryOfOrigin,averageScore_greater:$averageScore_greater,averageScore_lesser:$averageScore_lesser,startDate_greater:$startDate_greater,startDate_lesser:$startDate_lesser,isAdult:$isAdult,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser) { 
                 id title { english romaji } coverImage { large } status averageScore isAdult
-            } 
-        } 
-    }`;
-
-            const data = await fetchAPI(q, variables);
-            renderSearchResults(data.Page.media);
-            setTimeout(() => el.classList.remove('zoom-in'), 300);
-        }
-
-        async function doSortedBrowse() {
-            const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
-
-            const season = document.getElementById('filter-season').value;
-            const year = document.getElementById('filter-year').value;
-            const format = document.getElementById('filter-format').value;
-            const status = document.getElementById('filter-status').value;
-            const episodes = document.getElementById('filter-episodes').value;
-            const genre = document.getElementById('filter-genre')?.value || '';
-            const source = document.getElementById('filter-source')?.value || '';
-            const country = document.getElementById('filter-country')?.value || '';
-            const scoreMin = parseInt(document.getElementById('filter-score-min')?.value || 0);
-            const scoreMax = parseInt(document.getElementById('filter-score-max')?.value || 100);
-            const yearStart = parseInt(document.getElementById('filter-year-start')?.value) || 0;
-            const yearEnd = parseInt(document.getElementById('filter-year-end')?.value) || 0;
-            const isAdultFilter = document.getElementById('filter-adult')?.checked || false;
-
-            let variables = { type: searchType, sort: [searchSort || 'TRENDING_DESC'] };
-            if (season) variables.season = season;
-            if (year) variables.seasonYear = parseInt(year);
-            if (format) variables.format = format;
-            if (status) variables.status = status;
-            if (genre) variables.genre = genre;
-            if (source) variables.source = source;
-            if (country) variables.countryOfOrigin = country;
-            if (scoreMin > 0) variables.averageScore_greater = scoreMin;
-            if (scoreMax < 100) variables.averageScore_lesser = scoreMax;
-            if (yearStart) variables.startDate_greater = yearStart.toString();
-            if (yearEnd) variables.startDate_lesser = (yearEnd + 1).toString();
-            if (isAdultFilter) variables.isAdult = true;
-            if (selectedGenres.length) variables.genre_in = selectedGenres.join(',');
-            if (selectedTags.length) variables.tag_in = selectedTags.join(',');
-            if (episodes) {
-                if (episodes === '1-12') { variables.episodes_greater = 0; variables.episodes_lesser = 13; }
-                else if (episodes === '13-26') { variables.episodes_greater = 12; variables.episodes_lesser = 27; }
-                else if (episodes === '27-50') { variables.episodes_greater = 26; variables.episodes_lesser = 51; }
-                else if (episodes === '51-100') { variables.episodes_greater = 50; variables.episodes_lesser = 101; }
-                else if (episodes === '100-') { variables.episodes_greater = 100; }
-            }
-
-            const q = `query ($type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$genre_in:String,$tag_in:String,$source:MediaSource,$countryOfOrigin:CountryCode,$averageScore_greater:Int,$averageScore_lesser:Int,$startDate_greater:String,$startDate_lesser:String,$isAdult:Boolean,$episodes_greater:Int,$episodes_lesser:Int) { 
-        Page(page:1,perPage:24) { 
-            media(type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,format:$format,status:$status,genre:$genre,genre_in:[$genre_in],tag_in:[$tag_in],source:$source,countryOfOrigin:$countryOfOrigin,averageScore_greater:$averageScore_greater,averageScore_lesser:$averageScore_lesser,startDate_greater:$startDate_greater,startDate_lesser:$startDate_lesser,isAdult:$isAdult,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser) { 
-                id title { english romaji } coverImage { large } status averageScore 
             } 
         } 
     }`;
@@ -5433,6 +5689,48 @@
                 const isAdult = m.isAdult || false;
                 el.innerHTML += createFlipTile(m.id, searchType, m.coverImage.large, title, title, score, (m.status || '').toLowerCase(), null, isAdult);
             });
+        }
+        async function doSortedBrowse() {
+            const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
+
+            const season = document.getElementById('filter-season').value;
+            const year = document.getElementById('filter-year').value;
+            const format = document.getElementById('filter-format').value;
+            const status = document.getElementById('filter-status').value;
+            const episodes = document.getElementById('filter-episodes').value;
+            const genre = document.getElementById('filter-genre')?.value || '';
+            const source = document.getElementById('filter-source')?.value || '';
+            const country = document.getElementById('filter-country')?.value || '';
+            const scoreMin = parseInt(document.getElementById('filter-score-min')?.value || 0);
+            const scoreMax = parseInt(document.getElementById('filter-score-max')?.value || 100);
+            const yearStartVal = yearStart || 0;
+            const yearEndVal = yearEnd || 0;
+            const isAdultFilter = document.getElementById('filter-adult')?.checked || false;
+
+            let variables = { type: searchType, sort: [searchSort || 'TRENDING_DESC'] };
+            if (season) variables.season = season;
+            if (year) variables.seasonYear = parseInt(year);
+            if (format) variables.format = format;
+            if (status) variables.status = status;
+            if (genre) variables.genre = genre;
+            if (source) variables.source = source;
+            if (country) variables.countryOfOrigin = country;
+            if (scoreMin > 0) variables.averageScore_greater = scoreMin;
+            if (scoreMax < 100) variables.averageScore_lesser = scoreMax;
+            if (yearStartVal) variables.startDate_greater = yearStartVal.toString();
+            if (yearEndVal) variables.startDate_lesser = (yearEndVal + 1).toString();
+            if (isAdultFilter) variables.isAdult = true;
+
+            const q = `query ($type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$source:MediaSource,$countryOfOrigin:CountryCode,$averageScore_greater:Int,$averageScore_lesser:Int,$startDate_greater:String,$startDate_lesser:String,$isAdult:Boolean,$episodes_greater:Int,$episodes_lesser:Int) { 
+        Page(page:1,perPage:24) { 
+            media(type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,format:$format,status:$status,genre:$genre,source:$source,countryOfOrigin:$countryOfOrigin,averageScore_greater:$averageScore_greater,averageScore_lesser:$averageScore_lesser,startDate_greater:$startDate_greater,startDate_lesser:$startDate_lesser,isAdult:$isAdult,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser) { 
+                id title { english romaji } coverImage { large } status averageScore 
+            } 
+        } 
+    }`;
+
+            const data = await fetchAPI(q, variables);
+            renderSearchResults(data.Page.media);
         }
         function setSearchType(type, el) {
             searchType = type; document.querySelectorAll('.filter-chip[data-type]').forEach(c => c.classList.remove('active')); el.classList.add('active');
@@ -7357,6 +7655,8 @@
                 countdownSelect.value = saved;
                 countdownSelect.addEventListener('change', e => localStorage.setItem('countdown_format', e.target.value));
             }
+            // UI style (metro / fluent)
+            applyUIStyle();
         }
 
         // ==========================================
@@ -7528,6 +7828,22 @@
         // Watch for offline/online
         window.addEventListener('online', () => { document.getElementById('offline-banner')?.classList.remove('show'); showToast('back online'); });
         window.addEventListener('offline', () => { document.getElementById('offline-banner')?.classList.add('show'); });
+
+        // Responsive: show/hide mobile nav on resize
+        window.addEventListener('resize', () => {
+            const mobileNav = document.getElementById('mobile-bottom-nav');
+            const mainNav = document.getElementById('main-nav');
+            const arrows = document.getElementById('main-arrows');
+            if (window.innerWidth <= 768) {
+                if (mobileNav) mobileNav.style.display = 'flex';
+                if (mainNav) mainNav.style.display = 'none';
+                if (arrows) arrows.style.display = 'none';
+            } else {
+                if (mobileNav) mobileNav.style.display = 'none';
+                if (mainNav) mainNav.style.display = 'flex';
+                if (arrows) arrows.style.display = 'flex';
+            }
+        });
 
         checkAuth();
         if (!isGuest) {

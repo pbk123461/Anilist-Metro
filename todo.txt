@@ -161,8 +161,8 @@
 161: [ ] Character: Image (large+medium), description (HTML)
 162: [ ] Character: Gender, DOB, age, blood type, favourites count
 163: [ ] Character: Media appearances (filterable, sorted by popularity)
-164: [ ] Character: Voice actors per language for each appearance
-165: [ ] Character: Favourite toggle [auth]
+164: [ ] Charach appearance
+165: [ ] Characteracter: Voice actors per language for e: Favourite toggle [auth]
 166: [ ] Staff: Name (full/first/last/native/alt), image, description
 167: [ ] Staff: Language, occupations, gender, DOB/DOD, age, years active, hometown, blood type
 168: [ ] Staff: Roles in media (filterable), voice acting roles
