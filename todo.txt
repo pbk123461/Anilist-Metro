@@ -20,7 +20,8 @@
 20: 12. ✅ System: Fixed wallpaper import logic (size validation before FileReader)
 21: 13. ✅ System: Throttled arrow key navigation (300ms)
 22: 14. ✅ System: Refined rate limit handling in fetchAPI (token expiry detection)
-23: 
+23: 15. ✅ Search: added character, staff, and studio search support
+24:
 24: ALL TASKS COMPLETED - SEE restoresesh.txt FOR SESSION STATE
 25: 
 26: 
@@ -53,76 +54,75 @@
 53: [ ] Browse: Airing schedule with next episode countdown timers
 54: 
 55: === Media Detail Page ===
-56: [ ] Detail: Title (romaji/english/native, user-configurable), all synonyms
-57: [ ] Detail: Cover image (standard + XL), banner image
-58: [ ] Detail: Type, format, status, source, episodes/chapters/volumes, duration
-59: [ ] Detail: Start/end date (fuzzy), season+year, country of origin
-60: [ ] Detail: Description (HTML rendering), adult flag, licensed flag
-61: [ ] Detail: Mean score (0-100), avg score, popularity, favourites count, trending rank
-62: [ ] Detail: Score distribution chart (score 10-100)
-63: [ ] Detail: Status distribution chart (watching/completed/dropped/paused/planning)
-64: [ ] Detail: Rankings (e.g. "#3 most popular anime of all time")
-65: [ ] Detail: Genres list (tappable -> genre browse)
-66: [ ] Detail: Tags list with rank % and spoiler flag (hidden behind toggle)
-67: [ ] Detail: External links (official site, streaming, social) with type icons
-68: [ ] Detail: Trailer embed (YouTube/Dailymotion)
-69: [ ] Detail: Streaming episodes direct links
-70: [ ] Detail: Relations (prequel, sequel, side story, etc.) with type label
-71: [ ] Detail: Characters list (main/supporting/background) with VA per language
-72: [ ] Detail: Staff list with role labels
-73: [ ] Detail: Studios (animation vs producers, isMain flag)
-74: [ ] Detail: Recommendations (community suggestions with up/down votes)
-75: [ ] Detail: Reviews (paginated, score, summary, body, author, likes)
+56: [x] Detail: Title (romaji/english/native, user-configurable), all synonyms
+57: [x] Detail: Cover image (standard + XL), banner image
+58: [x] Detail: Type, format, status, source, episodes/chapters/volumes, duration
+59: [x] Detail: Start/end date (fuzzy), season+year, country of origin
+60: [x] Detail: Description (HTML rendering), adult flag, licensed flag
+61: [x] Detail: Mean score (0-100), avg score, popularity, favourites count, trending rank
+62: [x] Detail: Score distribution chart (score 10-100)
+63: [x] Detail: Status distribution chart (watching/completed/dropped/paused/planning)
+64: [x] Detail: Rankings (e.g. "#3 most popular anime of all time")
+65: [x] Detail: Genres list (tappable -> genre browse)
+66: [x] Detail: Tags list with rank % and spoiler flag (hidden behind toggle)
+67: [x] Detail: External links (official site, streaming, social) with type icons
+68: [x] Detail: Trailer embed (YouTube/Dailymotion)
+69: [x] Detail: Streaming episodes direct links
+70: [x] Detail: Relations (prequel, sequel, side story, etc.) with type label
+71: [x] Detail: Characters list (main/supporting/background) with VA per language
+72: [x] Detail: Staff list with role labels
+73: [x] Detail: Studios (animation vs producers, isMain flag)
+74: [x] Detail: Recommendations (community suggestions with up/down votes)
+75: [x] Detail: Reviews (paginated, score, summary, body, author, likes)
 76: [ ] Detail: Forum threads linked to this media
-77: [ ] Detail: Airing schedule (all episodes with dates, countdown)
+77: [x] Detail: Airing schedule (all episodes with dates, countdown)
 78: [ ] Detail: Trends graph (daily/weekly popularity + score over time)
-79: [ ] Detail [auth]: Current list entry status inline
-80: [ ] Detail [auth]: Quick-add to list with status picker
-81: [ ] Detail [auth]: Favourite toggle (heart)
+79: [x] Detail [auth]: Current list entry status inline
+80: [x] Detail [auth]: Quick-add to list with status picker
+81: [x] Detail [auth]: Favourite toggle (heart)
 82: [ ] Detail [auth]: User's own review shown prominently
 83: [ ] Detail [auth]: User's own recommendation votes shown
-84: [ ] Detail [auth]: mediaListEntry (progress, score, repeat, notes, custom lists)
+84: [x] Detail [auth]: mediaListEntry (progress, score, repeat, notes, custom lists)
 85: 
 86: === List Management [auth] ===
-87: [ ] List: Status (current/planning/completed/dropped/paused/repeating)
-88: [ ] List: Score (respects user's scoring format)
-89: [ ] List: Progress (episodes/chapters), progress volumes (manga)
-90: [ ] List: Repeat count, priority (0-3)
-91: [ ] List: Private entry toggle, hide from status lists toggle
-92: [ ] List: Notes (freetext), custom list membership
+87: [x] List: Status (current/planning/completed/dropped/paused/repeating)
+88: [x] List: Score (respects user's scoring format)
+89: [x] List: Progress (episodes/chapters), progress volumes (manga)
+90: [x] List: Repeat count, priority (0-3)
+91: [x] List: Private entry toggle, hide from status lists toggle
+92: [x] List: Notes (freetext), custom list membership
 93: [ ] List: Advanced scores (up to 5 named sub-scores)
-94: [ ] List: Started at / completed at dates (fuzzy)
-95: [ ] List: Delete list entry
+94: [x] List: Started at / completed at dates (fuzzy)
+95: [x] List: Delete list entry
 96: [ ] List: Bulk edit (change status/score for multiple entries)
 97: [ ] List: Bulk delete selected entries
 98: [ ] List: Auto-set status to Completed when progress hits max
 99: [ ] List: Auto-set started/completed dates on status change
-100: [ ] List View: Compact list, detailed list, grid cards
-101: [ ] List View: Sort by title, score, progress, last updated, dates, etc.
+100: [x] List View: Compact list, detailed list, grid cards
+101: [x] List View: Sort by title, score, progress, last updated, dates, etc.
 102: [ ] List View: Filter by genre, tag, format, year, studio, score range, status
-103: [ ] List View: Search within list
+103: [x] List View: Search within list
 104: [ ] List View: Split completed list by format
 105: [ ] List View: Show/hide custom lists alongside status lists, per-list color
 106: [ ] List View: Episode +1 progress button from list row
 107: [ ] List View: Score input directly from list row
 108: 
 109: === User Profile ===
-110: [ ] Profile: Avatar (large + medium), banner image
-111: [ ] Profile: Username, id, site URL
-112: [ ] Profile: About section (HTML rendered), created at, last updated
+110: [x] Profile: Avatar (large + medium), banner image
+111: [x] Profile: Username, id, site URL
+112: [x] Profile: About section (HTML rendered), created at, last updated
 113: [ ] Profile: Profile colour (for theming), donator tier + badge, mod roles
-114: [ ] Profile [auth]: Is blocked / following / follower status
-115: [ ] Profile: Follower count, following count (tappable lists)
-116: [ ] Profile: Favourites (anime, manga, characters, staff, studios) all paged
-117: [ ] Stats: Anime (count, mean score, minutes, episodes, chapters)
-118: [ ] Stats: Manga (count, mean score, chapters, volumes)
+114: [x] Profile [auth]: Is blocked / following / follower status
+115: [x] Profile: Follower count, following count (tappable lists)
+116: [x] Profile: Favourites (anime, manga, characters, staff, studios) all paged
+117: [x] Stats: Anime (count, mean score, minutes, episodes, chapters)
+118: [x] Stats: Manga (count, mean score, chapters, volumes)
 119: [ ] Stats: Breakdown by format, status, score, length, year, genre, tag, country, VA, staff, studio
 120: [ ] Stats: Graphs (score distribution, format, genres, tags, timeline, activity)
 121: 
 122: === Social & Activity ===
 123: [ ] Activity: Global feed and following-only feed toggle [auth]
 124: [ ] Activity: List (progress), text (status), message types
-125: [ ] Activity: Like, reply, edit, delete [auth]
 126: [ ] Activity: Post new text status / message to user [auth]
 127: [ ] Activity: Like replies, view all likes, pin to profile [auth]
 128: [ ] Activity: Filter by type (lists/text/messages)

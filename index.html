@@ -1148,6 +1148,105 @@
             margin-bottom: 20px;
         }
 
+        .year-picker-wrapper {
+            position: relative;
+            min-width: 170px;
+            max-width: 220px;
+        }
+
+        .year-picker-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 40px;
+            padding: 10px 14px;
+            background: var(--surface);
+            color: var(--text-dim);
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+
+        .year-picker-control:hover {
+            border-color: var(--accent);
+            color: var(--text-main);
+        }
+
+        .year-calendar-popup {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            z-index: 300;
+            padding: 14px;
+            background: var(--surface);
+            border: 2px solid var(--surface-hover);
+            box-shadow: none;
+            border-radius: 0;
+            min-width: 260px;
+            max-width: 360px;
+            width: 100%;
+            max-height: 340px;
+            overflow: auto;
+        }
+
+        .year-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .year-popup-title {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            text-transform: lowercase;
+        }
+
+        .year-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 8px;
+        }
+
+        .year-item {
+            padding: 10px 12px;
+            text-align: center;
+            background: var(--bg);
+            color: var(--text-main);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 0.95rem;
+            text-transform: lowercase;
+        }
+
+        .year-item:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+        }
+
+        .year-item.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .year-item.clear {
+            background: transparent;
+            color: var(--text-dim);
+            border-color: transparent;
+        }
+
+        .year-item.clear:hover {
+            background: var(--surface-hover);
+            color: var(--text-main);
+        }
+
         .filter-chip {
             padding: 8px 16px;
             font-size: 14px;
@@ -1241,7 +1340,6 @@
             font-size: 14px;
             cursor: pointer;
             transition: all 0.1s;
-        }
         }
 
         .status-btn:hover {
@@ -3260,12 +3358,42 @@
                     <button class="mts-btn active" onclick="switchMediaType('ANIME',this)">anime</button>
                     <button class="mts-btn" onclick="switchMediaType('MANGA',this)">manga</button>
                 </div>
+                <!-- Library Controls -->
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+                    <input type="text" id="lib-search-input" placeholder="search in library..." style="background:var(--input-bg); border:2px solid transparent; color:var(--text); padding:8px 14px; font-size:14px; font-family:inherit; outline:none; width:200px; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='transparent'" oninput="filterLibrarySearch(this.value)">
+                    <select class="metro-select" id="lib-sort-select" style="max-width:160px; padding:8px 10px; font-size:13px; margin:0;" onchange="sortLibrary(this.value)">
+                        <option value="default">default order</option>
+                        <option value="title">title a-z</option>
+                        <option value="title-desc">title z-a</option>
+                        <option value="score-desc">score (high)</option>
+                        <option value="score">score (low)</option>
+                        <option value="progress-desc">progress (high)</option>
+                        <option value="progress">progress (low)</option>
+                    </select>
+                    <select class="metro-select" id="lib-view-select" style="max-width:130px; padding:8px 10px; font-size:13px; margin:0;" onchange="setLibraryView(this.value)">
+                        <option value="grid">grid</option>
+                        <option value="list">list</option>
+                    </select>
+                    <button class="metro-btn small" onclick="toggleBulkMode()" id="bulk-mode-btn">bulk select</button>
+                    <button class="metro-btn small" id="bulk-action-btn" style="display:none;" onclick="applyBulkAction()">apply to selected</button>
+                    <button class="metro-btn small" id="bulk-delete-btn" style="display:none;" onclick="bulkDeleteSelected()"><i class="fa-solid fa-trash"></i> delete selected</button>
+                    <select class="metro-select" id="bulk-status-select" style="display:none; max-width:140px; padding:8px 10px; font-size:13px; margin:0;">
+                        <option value="CURRENT">watching</option>
+                        <option value="PLANNING">planning</option>
+                        <option value="COMPLETED">completed</option>
+                        <option value="PAUSED">paused</option>
+                        <option value="DROPPED">dropped</option>
+                    </select>
+                    <button class="metro-btn small" onclick="exportLibrary('csv')"><i class="fa-solid fa-download"></i> csv</button>
+                    <button class="metro-btn small" onclick="exportLibrary('json')"><i class="fa-solid fa-download"></i> json</button>
+                </div>
                 <div class="pivot-headers" id="library-pivots">
                     <div class="pivot-item active" data-status="CURRENT">watching</div>
                     <div class="pivot-item" data-status="COMPLETED">completed</div>
                     <div class="pivot-item" data-status="PLANNING">planned</div>
                     <div class="pivot-item" data-status="PAUSED">paused</div>
                     <div class="pivot-item" data-status="DROPPED">dropped</div>
+                    <div class="pivot-item" data-status="REPEATING">repeating</div>
                 </div>
                 <div class="tile-grid" id="library-grid">
                     <div style="color:var(--text-dim);">loading...</div>
@@ -3307,24 +3435,25 @@
             <h1 class="metro-huge-title">discover</h1>
             <div class="content-scroll">
                 <div class="pivot-headers" id="discover-pivots">
-                    <div class="pivot-item active" data-mode="trending" onclick="switchDiscoverMode('trending', this)">
-                        trending</div>
+                    <div class="pivot-item active" data-mode="trending" onclick="switchDiscoverMode('trending', this)">trending</div>
                     <div class="pivot-item" data-mode="search" onclick="switchDiscoverMode('search', this)">search</div>
-                    <div class="pivot-item" data-mode="discussions" onclick="switchDiscoverMode('discussions', this)">
-                        discussions</div>
+                    <div class="pivot-item" data-mode="seasonal" onclick="switchDiscoverMode('seasonal', this)">seasonal</div>
+                    <div class="pivot-item" data-mode="top" onclick="switchDiscoverMode('top', this)">top 100</div>
+                    <div class="pivot-item" data-mode="popular" onclick="switchDiscoverMode('popular', this)">popular</div>
+                    <div class="pivot-item" data-mode="upcoming" onclick="switchDiscoverMode('upcoming', this)">upcoming</div>
+                    <div class="pivot-item" data-mode="genre" onclick="switchDiscoverMode('genre', this)">by genre</div>
+                    <div class="pivot-item" data-mode="studio" onclick="switchDiscoverMode('studio', this)">by studio</div>
+                    <div class="pivot-item" data-mode="discussions" onclick="switchDiscoverMode('discussions', this)">discussions</div>
                 </div>
 
+                <!-- Trending Mode -->
                 <div id="discover-trending" style="display: block;">
-                    <div
-                        style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
-                        currently watching <button class="metro-btn small"
-                            onclick="openFullGrid('watching')">more</button></div>
+                    <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
+                        currently watching <button class="metro-btn small" onclick="openFullGrid('watching')">more</button></div>
                     <div class="trending-row" id="watching-row">
                         <div style="color:var(--text-dim);">log in to see...</div>
                     </div>
-
-                    <div
-                        style="font-size: 1.5rem; font-weight: 300; margin: 30px 0 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
+                    <div style="font-size: 1.5rem; font-weight: 300; margin: 30px 0 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
                         trending now <button class="metro-btn small" onclick="openFullGrid('trending')">more</button>
                     </div>
                     <div class="trending-row" id="trending-row">
@@ -3332,13 +3461,18 @@
                     </div>
                 </div>
 
+                <!-- Search Mode -->
                 <div id="discover-search" style="display: none;">
-                    <input type="text" class="metro-input" id="search-input" placeholder="search anime or manga...">
-                    <div class="search-filters">
-                        <button class="filter-chip active" data-type="ANIME"
-                            onclick="setSearchType('ANIME',this)">anime</button>
-                        <button class="filter-chip" data-type="MANGA"
-                            onclick="setSearchType('MANGA',this)">manga</button>
+                    <div style="position:relative; margin-bottom:8px;">
+                        <input type="text" class="metro-input" id="search-input" placeholder="search anime or manga..." style="margin-bottom:0;">
+                        <div id="recent-searches-box" style="display:none; position:absolute; top:100%; left:0; right:0; background:var(--surface); border:2px solid var(--surface-hover); z-index:200; max-height:180px; overflow-y:auto;"></div>
+                    </div>
+                    <div class="search-filters" id="search-type-filters">
+                        <button class="filter-chip active" data-type="ANIME" onclick="setSearchType('ANIME',this)">anime</button>
+                        <button class="filter-chip" data-type="MANGA" onclick="setSearchType('MANGA',this)">manga</button>
+                        <button class="filter-chip" data-type="CHARACTER" onclick="setSearchType('CHARACTER',this)">character</button>
+                        <button class="filter-chip" data-type="STAFF" onclick="setSearchType('STAFF',this)">staff</button>
+                        <button class="filter-chip" data-type="STUDIO" onclick="setSearchType('STUDIO',this)">studio</button>
                         <button class="filter-chip" data-type="USER" onclick="setSearchType('USER',this)">user</button>
                     </div>
                     <div class="search-filters" id="advanced-filters">
@@ -3349,42 +3483,25 @@
                             <option value="SUMMER">summer</option>
                             <option value="FALL">fall</option>
                         </select>
-                        <select class="metro-select" id="filter-year" onchange="applySearchFilters()">
-                            <option value="">all years</option>
-                            <option value="2026">2026</option>
-                            <option value="2025">2025</option>
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
-                            <option value="2022">2022</option>
-                            <option value="2021">2021</option>
-                            <option value="2020">2020</option>
-                            <option value="2019">2019</option>
-                            <option value="2018">2018</option>
-                            <option value="2017">2017</option>
-                            <option value="2016">2016</option>
-                            <option value="2015">2015</option>
-                            <option value="2010">2010</option>
-                            <option value="2005">2005</option>
-                            <option value="2000">2000</option>
-                        </select>
+                        <div class="year-picker-wrapper">
+                            <div id="filter-year-control" class="year-picker-control" onclick="toggleYearCalendar(event)">
+                                <span id="filter-year-label">all years</span>
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </div>
+                            <input type="hidden" id="filter-year" value="">
+                            <div class="year-calendar-popup" id="filter-year-calendar">
+                                <div class="year-popup-header">
+                                    <div class="year-popup-title">select year</div>
+                                    <button class="metro-btn small" type="button" onclick="clearFilterYear()">clear</button>
+                                </div>
+                                <div class="year-grid" id="filter-year-grid"></div>
+                            </div>
+                        </div>
                         <select class="metro-select" id="filter-format" onchange="applySearchFilters()">
                             <option value="">all formats</option>
-                            <option value="TV">tv</option>
-                            <option value="TV_SHORT">tv short</option>
-                            <option value="MOVIE">movie</option>
-                            <option value="OVA">ova</option>
-                            <option value="SPECIAL">special</option>
-                            <option value="ONA">ona</option>
-                            <option value="MUSIC">music</option>
-                            <option value="NOVEL">novel</option>
-                            <option value="ONE_SHOT">one shot</option>
                         </select>
                         <select class="metro-select" id="filter-status" onchange="applySearchFilters()">
                             <option value="">all status</option>
-                            <option value="RELEASING">airing</option>
-                            <option value="FINISHED">finished</option>
-                            <option value="NOT_YET_RELEASED">upcoming</option>
-                            <option value="CANCELLED">cancelled</option>
                         </select>
                         <select class="metro-select" id="filter-episodes" onchange="applySearchFilters()">
                             <option value="">any length</option>
@@ -3394,45 +3511,107 @@
                             <option value="51-100">51-100 eps</option>
                             <option value="100-">100+ eps</option>
                         </select>
+                        <select class="metro-select" id="filter-score" onchange="applySearchFilters()">
+                            <option value="">any score</option>
+                            <option value="90">90+</option>
+                            <option value="80">80+</option>
+                            <option value="70">70+</option>
+                            <option value="60">60+</option>
+                        </select>
                         <select class="metro-select" id="filter-genre" onchange="applySearchFilters()">
                             <option value="">all genres</option>
-                            <option value="Action">action</option>
-                            <option value="Adventure">adventure</option>
-                            <option value="Comedy">comedy</option>
-                            <option value="Drama">drama</option>
-                            <option value="Fantasy">fantasy</option>
-                            <option value="Horror">horror</option>
-                            <option value="Mystery">mystery</option>
-                            <option value="Romance">romance</option>
-                            <option value="Sci-Fi">sci-fi</option>
-                            <option value="Slice of Life">slice of life</option>
-                            <option value="Sports">sports</option>
-                            <option value="Supernatural">supernatural</option>
-                            <option value="Thriller">thriller</option>
+                        </select>
+                        <select class="metro-select" id="filter-source" onchange="applySearchFilters()">
+                            <option value="">all sources</option>
+                        </select>
+                        <select class="metro-select" id="filter-country" onchange="applySearchFilters()">
+                            <option value="">all countries</option>
                         </select>
                     </div>
-                    <div class="search-filters">
-                        <button class="filter-chip active" data-sort="SEARCH_MATCH"
-                            onclick="setSort('SEARCH_MATCH',this)">relevance</button>
-                        <button class="filter-chip" data-sort="TRENDING_DESC"
-                            onclick="setSort('TRENDING_DESC',this)">trending</button>
-                        <button class="filter-chip" data-sort="SCORE_DESC" onclick="setSort('SCORE_DESC',this)">top
-                            rated</button>
-                        <button class="filter-chip" data-sort="POPULARITY_DESC"
-                            onclick="setSort('POPULARITY_DESC',this)">popular</button>
-                        <button class="filter-chip" data-sort="FAVOURITES_DESC"
-                            onclick="setSort('FAVOURITES_DESC',this)">most favorited</button>
+                    <div class="search-filters" id="search-sort-filters">
+                        <button class="filter-chip active" data-sort="SEARCH_MATCH" onclick="setSort('SEARCH_MATCH',this)">relevance</button>
+                        <button class="filter-chip" data-sort="TRENDING_DESC" onclick="setSort('TRENDING_DESC',this)">trending</button>
+                        <button class="filter-chip" data-sort="SCORE_DESC" onclick="setSort('SCORE_DESC',this)">top rated</button>
+                        <button class="filter-chip" data-sort="POPULARITY_DESC" onclick="setSort('POPULARITY_DESC',this)">popular</button>
+                        <button class="filter-chip" data-sort="FAVOURITES_DESC" onclick="setSort('FAVOURITES_DESC',this)">most favorited</button>
+                        <button class="filter-chip" data-sort="START_DATE_DESC" onclick="setSort('START_DATE_DESC',this)">newest</button>
+                        <button class="filter-chip" data-sort="START_DATE" onclick="setSort('START_DATE',this)">oldest</button>
+                        <button class="filter-chip" data-sort="TITLE_ROMAJI" onclick="setSort('TITLE_ROMAJI',this)">a-z</button>
+                        <button class="filter-chip" data-sort="EPISODES_DESC" onclick="setSort('EPISODES_DESC',this)">most episodes</button>
+                        <button class="filter-chip" data-sort="DURATION_DESC" onclick="setSort('DURATION_DESC',this)">longest</button>
                     </div>
                     <div class="tile-grid" id="search-results" style="margin-bottom: 40px;"></div>
+                    <button class="load-more-btn" id="search-load-more" style="display:none;" onclick="loadMoreSearch()">load more...</button>
                 </div>
 
+                <!-- Seasonal Mode -->
+                <div id="discover-seasonal" style="display: none;">
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
+                        <select class="metro-select" id="seasonal-year-select" style="max-width:120px;" onchange="loadSeasonalGrid()"></select>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="filter-chip active" data-season="WINTER" onclick="setSeasonFilter('WINTER',this)">winter</button>
+                            <button class="filter-chip" data-season="SPRING" onclick="setSeasonFilter('SPRING',this)">spring</button>
+                            <button class="filter-chip" data-season="SUMMER" onclick="setSeasonFilter('SUMMER',this)">summer</button>
+                            <button class="filter-chip" data-season="FALL" onclick="setSeasonFilter('FALL',this)">fall</button>
+                        </div>
+                    </div>
+                    <div class="tile-grid" id="seasonal-grid"><div style="color:var(--text-dim);">select a season...</div></div>
+                    <button class="load-more-btn" id="seasonal-load-more" style="display:none;" onclick="loadMoreSeasonal()">load more...</button>
+                </div>
+
+                <!-- Top 100 Mode -->
+                <div id="discover-top" style="display: none;">
+                    <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+                        <button class="filter-chip active" data-toptype="ANIME" onclick="setTopType('ANIME',this)">anime</button>
+                        <button class="filter-chip" data-toptype="MANGA" onclick="setTopType('MANGA',this)">manga</button>
+                    </div>
+                    <div class="tile-grid" id="top100-grid"><div style="color:var(--text-dim);">loading...</div></div>
+                    <button class="load-more-btn" id="top100-load-more" style="display:none;" onclick="loadMoreTop100()">load more...</button>
+                </div>
+
+                <!-- Popular Mode -->
+                <div id="discover-popular" style="display: none;">
+                    <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+                        <button class="filter-chip active" data-poptype="ANIME" onclick="setPopularType('ANIME',this)">anime</button>
+                        <button class="filter-chip" data-poptype="MANGA" onclick="setPopularType('MANGA',this)">manga</button>
+                    </div>
+                    <div class="tile-grid" id="popular-grid"><div style="color:var(--text-dim);">loading...</div></div>
+                    <button class="load-more-btn" id="popular-load-more" style="display:none;" onclick="loadMorePopular()">load more...</button>
+                </div>
+
+                <!-- Upcoming Mode -->
+                <div id="discover-upcoming" style="display: none;">
+                    <div class="tile-grid" id="upcoming-grid"><div style="color:var(--text-dim);">loading...</div></div>
+                    <button class="load-more-btn" id="upcoming-load-more" style="display:none;" onclick="loadMoreUpcoming()">load more...</button>
+                </div>
+
+                <!-- By Genre Mode -->
+                <div id="discover-genre" style="display: none;">
+                    <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+                        <button class="filter-chip active" data-genretype="ANIME" onclick="setGenreType('ANIME',this)">anime</button>
+                        <button class="filter-chip" data-genretype="MANGA" onclick="setGenreType('MANGA',this)">manga</button>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;" id="genre-browse-chips"></div>
+                    <div class="tile-grid" id="genre-browse-grid"><div style="color:var(--text-dim);">select a genre above...</div></div>
+                    <button class="load-more-btn" id="genre-browse-load-more" style="display:none;" onclick="loadMoreGenreBrowse()">load more...</button>
+                </div>
+
+                <!-- By Studio Mode -->
+                <div id="discover-studio" style="display: none;">
+                    <div style="position:relative; margin-bottom:16px;">
+                        <input type="text" class="metro-input" id="studio-search-input" placeholder="search studios..." style="margin-bottom:0; font-size:18px;">
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;" id="studio-list-chips"><div style="color:var(--text-dim);">loading studios...</div></div>
+                    <div class="tile-grid" id="studio-media-grid"></div>
+                    <button class="load-more-btn" id="studio-load-more" style="display:none;" onclick="loadMoreStudioMedia()">load more...</button>
+                </div>
+
+                <!-- Discussions Mode -->
                 <div id="discover-discussions" style="display: none;">
-                    <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">
-                        community discussions</div>
+                    <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">community discussions</div>
                     <div class="trending-row">
                         <div class="wide-info-tile" onclick="switchDiscoverMode('discussions', this)">
-                            <div class="wide-info-title"><i class="fa-regular fa-comments"></i> episode discussions
-                            </div>
+                            <div class="wide-info-title"><i class="fa-regular fa-comments"></i> episode discussions</div>
                             <div class="wide-info-sub">community reactions and reviews</div>
                         </div>
                         <div class="wide-info-tile" onclick="switchDiscoverMode('discussions', this)">
@@ -3515,6 +3694,17 @@
         <section class="header-section">
             <h1 class="metro-huge-title">system</h1>
             <div class="content-scroll">
+                <!-- Rate Limit Indicator -->
+                <div id="rate-limit-bar" style="display:flex; align-items:center; gap:12px; margin-bottom:20px; padding:10px 16px; background:var(--surface); border-left:4px solid var(--accent);">
+                    <i class="fa-solid fa-gauge-high" style="color:var(--accent);"></i>
+                    <div style="flex:1;">
+                        <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;">api rate limit</div>
+                        <div style="height:4px; background:var(--surface-hover); position:relative;">
+                            <div id="rate-limit-fill" style="position:absolute; left:0; top:0; height:4px; background:var(--accent); width:100%; transition:width 0.5s;"></div>
+                        </div>
+                    </div>
+                    <div id="rate-limit-label" style="font-size:13px; color:var(--text-dim); min-width:60px; text-align:right;">90/90 req</div>
+                </div>
                 <div id="settings-main-list" class="settings-list">
                     <div class="wp-setting-item" onclick="openSettingsView('theme')">
                         <div class="wp-setting-title">theme</div>
@@ -3525,8 +3715,16 @@
                         <div class="wp-setting-sub">anilist integration</div>
                     </div>
                     <div class="wp-setting-item" onclick="openSettingsView('animemanga')">
-                        <div class="wp-setting-title">anime & manga</div>
+                        <div class="wp-setting-title">anime &amp; manga</div>
                         <div class="wp-setting-sub">title language, content settings</div>
+                    </div>
+                    <div class="wp-setting-item" onclick="openSettingsView('display')">
+                        <div class="wp-setting-title">display &amp; app</div>
+                        <div class="wp-setting-sub">list view, image quality, notifications</div>
+                    </div>
+                    <div class="wp-setting-item" onclick="openSettingsView('data')">
+                        <div class="wp-setting-title">data &amp; privacy</div>
+                        <div class="wp-setting-sub">export, cache, account security</div>
                     </div>
                     <div class="wp-setting-item" onclick="openSettingsView('about')">
                         <div class="wp-setting-title">about</div>
@@ -3684,6 +3882,7 @@
     </div>
 
     <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.32.2/dist/date-fns.min.js"></script>
 
     <script>
         // ==========================================
@@ -3697,7 +3896,8 @@
         let currentMediaType = 'ANIME';
         let currentLibStatus = 'CURRENT';
         let searchType = 'ANIME';
-        let searchSort = null;
+        let searchSort = 'SEARCH_MATCH';
+        let searchYearRange = { minYear: 2000, maxYear: new Date().getFullYear() };
         let isGuest = false;
         let feedMode = 'following';
         let inboxMode = 'unread';
@@ -4030,6 +4230,7 @@
             }
 
             loadWallpaper();
+            initializeSearchFilters();
             const savedThemeMode = localStorage.getItem('theme_mode') || 'system';
             applyThemeMode(savedThemeMode);
         });
@@ -4151,6 +4352,11 @@
                     showRateLimitPopup(retryAfter);
                     throw new Error(`Rate limited. Please wait ${retryAfter} seconds.`);
                 }
+                
+                // Update Rate Limit Indicator
+                const remaining = parseInt(response.headers.get('X-RateLimit-Remaining')) || 0;
+                const limit = parseInt(response.headers.get('X-RateLimit-Limit')) || 90;
+                updateRateLimitIndicator(remaining, limit);
 
                 if (!response.ok) {
                     const errorBody = await response.json().catch(() => null);
@@ -4177,6 +4383,17 @@
             }
         }
 
+        function updateRateLimitIndicator(remaining, limit) {
+            const fill = document.getElementById('rate-limit-fill');
+            const label = document.getElementById('rate-limit-label');
+            if (!fill || !label) return;
+            const pct = Math.min(100, Math.max(0, (remaining / limit) * 100));
+            fill.style.width = pct + '%';
+            label.innerText = `${remaining}/${limit} req`;
+            if (pct < 20) fill.style.background = '#ff0033'; // red when low
+            else fill.style.background = 'var(--accent)';
+        }
+
         async function fetchAPIWithRetry(query, variables = {}, retries = 3, delay = 2000) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -4198,10 +4415,17 @@
             popup.style = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:10000; display:flex; align-items:center; justify-content:center; color:#fff; font-family:inherit; text-align:center; flex-direction:column; gap:20px;';
             popup.innerHTML = `
         <div style="font-size:2rem; font-weight:bold;">rate limited</div>
-        <div style="font-size:1.2rem; color:var(--text-dim);">please wait ${seconds} seconds before trying again.</div>
+        <div style="font-size:1.2rem; color:var(--text-dim);">please wait <span id="rl-countdown">${seconds}</span> seconds before trying again.</div>
         <button class="metro-btn" onclick="this.parentElement.remove()">dismiss</button>
     `;
             document.body.appendChild(popup);
+            const countdownEl = document.getElementById('rl-countdown');
+            let s = seconds;
+            const iv = setInterval(() => {
+                s--;
+                if(s <= 0) { clearInterval(iv); if(popup) popup.remove(); }
+                else if (countdownEl) countdownEl.innerText = s;
+            }, 1000);
         }
         function timeAgo(ts) {
             const h = Math.floor((Date.now() - ts * 1000) / 3600000), d = Math.floor(h / 24);
@@ -4410,7 +4634,7 @@
         }
 
         // ==========================================
-        // COMMUNITY FEED
+        // COMMUNITY FEED Anilist (wip)
         // ==========================================
         let communityMode = 'feed';
 
@@ -4921,7 +5145,38 @@
             if (isGuest) { document.getElementById('library-grid').innerHTML = '<div style="color:var(--text-dim);">sign in to access library.</div>'; return; }
             const el = document.getElementById('library-grid');
             if (!append) { el.innerHTML = ''; currentLibraryPage = 1; }
-            const entries = (allListsData[currentMediaType] || {})[status] || [];
+            
+            let entries = (allListsData[currentMediaType] || {})[status] || [];
+            
+            // Search filter
+            const searchTerm = (document.getElementById('lib-search-input')?.value || '').toLowerCase().trim();
+            if (searchTerm) {
+                entries = entries.filter(e => {
+                    if(!e || !e.media) return false;
+                    const title = (e.media.title?.english || e.media.title?.romaji || '').toLowerCase();
+                    return title.includes(searchTerm);
+                });
+            }
+
+            // Sort
+            const sortVal = document.getElementById('lib-sort-select')?.value || 'default';
+            if (sortVal !== 'default') {
+                entries = [...entries].sort((a, b) => {
+                    if (sortVal === 'title' || sortVal === 'title-desc') {
+                        const titleA = (a.media?.title?.english || a.media?.title?.romaji || '').toLowerCase();
+                        const titleB = (b.media?.title?.english || b.media?.title?.romaji || '').toLowerCase();
+                        return sortVal === 'title' ? titleA.localeCompare(titleB) : titleB.localeCompare(titleA);
+                    }
+                    if (sortVal === 'score' || sortVal === 'score-desc') {
+                        return sortVal === 'score' ? (a.score - b.score) : (b.score - a.score);
+                    }
+                    if (sortVal === 'progress' || sortVal === 'progress-desc') {
+                        return sortVal === 'progress' ? (a.progress - b.progress) : (b.progress - a.progress);
+                    }
+                    return 0;
+                });
+            }
+
             document.querySelector('#library-pivots .pivot-item[data-status="CURRENT"]').innerText = currentMediaType === 'ANIME' ? 'watching' : 'reading';
             if (!entries.length && !append) { el.innerHTML = '<div style="color:var(--text-dim);">no entries found.</div>'; return; }
             const chunk = entries.slice((currentLibraryPage - 1) * libraryItemsPerPage, currentLibraryPage * libraryItemsPerPage);
@@ -4937,13 +5192,145 @@
                 if (status === 'COMPLETED') badge = total !== '?' ? `${total}/${total}` : 'done';
                 else if (status === 'CURRENT') badge = displayProgress + (total !== '?' ? '/' + total : '');
 
-                el.innerHTML += createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
+                // Custom render for tile vs list view
+                const viewMode = document.getElementById('lib-view-select')?.value || 'grid';
+                if (viewMode === 'list') {
+                    const isBulk = isBulkMode ? `<input type="checkbox" class="metro-checkbox bulk-check" data-id="${entry.media.id}" onclick="event.stopPropagation()">` : '';
+                    el.innerHTML += `
+                    <div class="timeline-item" onclick="${!isBulkMode ? `openDetailById(${entry.media.id}, '${currentMediaType}')` : ''}" style="cursor:pointer; background:var(--surface); padding:8px; display:flex; align-items:center; gap:10px;">
+                        ${isBulk}
+                        <img src="${entry.media.coverImage?.large || ''}" style="width:36px; height:48px; object-fit:cover;">
+                        <div style="flex:1; overflow:hidden;">
+                            <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${title.toLowerCase()}</div>
+                            <div style="font-size:12px; color:var(--text-dim);">${progressStr}</div>
+                        </div>
+                        <div style="color:var(--accent); font-weight:bold; margin-right:10px;"><i class="fa-solid fa-star"></i> ${entry.score || '-'}</div>
+                    </div>`;
+                } else {
+                    const tileHtml = createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
+                    if (isBulkMode) {
+                        // Inject checkbox into tile
+                        const domParser = new DOMParser();
+                        const doc = domParser.parseFromString(tileHtml, 'text/html');
+                        const tileWrap = doc.body.firstChild;
+                        tileWrap.style.position = 'relative';
+                        tileWrap.removeAttribute('onclick');
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'metro-checkbox bulk-check';
+                        checkbox.dataset.id = entry.media.id;
+                        checkbox.style = 'position:absolute; top:5px; right:5px; z-index:10; transform:scale(1.2);';
+                        tileWrap.appendChild(checkbox);
+                        tileWrap.onclick = function() { checkbox.checked = !checkbox.checked; };
+                        el.appendChild(tileWrap);
+                    } else {
+                        el.innerHTML += tileHtml;
+                    }
+                }
             });
             if (entries.length > currentLibraryPage * libraryItemsPerPage) {
                 el.innerHTML += `<button class="load-more-btn" id="load-more-lib-btn" onclick="loadMoreLibrary()" style="grid-column: 1 / -1;">load more...</button>`;
             }
         }
         function loadMoreLibrary() { currentLibraryPage++; renderLibrary(currentLibStatus, true); }
+        function filterLibrarySearch(val) { currentLibraryPage = 1; renderLibrary(currentLibStatus, false); }
+        function sortLibrary(val) { currentLibraryPage = 1; renderLibrary(currentLibStatus, false); }
+        function setLibraryView(val) { currentLibraryPage = 1; renderLibrary(currentLibStatus, false); }
+
+        let isBulkMode = false;
+        function toggleBulkMode() {
+            isBulkMode = !isBulkMode;
+            document.getElementById('bulk-mode-btn').classList.toggle('primary', isBulkMode);
+            document.getElementById('bulk-action-btn').style.display = isBulkMode ? 'inline-block' : 'none';
+            document.getElementById('bulk-delete-btn').style.display = isBulkMode ? 'inline-block' : 'none';
+            document.getElementById('bulk-status-select').style.display = isBulkMode ? 'inline-block' : 'none';
+            renderLibrary(currentLibStatus, false);
+        }
+
+        async function applyBulkAction() {
+            if (isGuest) return;
+            const checkedBoxes = Array.from(document.querySelectorAll('.bulk-check:checked'));
+            if (checkedBoxes.length === 0) { showToast('select at least one item'); return; }
+            const status = document.getElementById('bulk-status-select').value;
+            const q = `mutation ($mediaId:Int,$status:MediaListStatus) { SaveMediaListEntry(mediaId:$mediaId,status:$status) { id } }`;
+            let success = 0;
+            for (const box of checkedBoxes) {
+                try {
+                    await fetchAPIWithRetry(q, { mediaId: parseInt(box.dataset.id), status });
+                    success++;
+                } catch (e) { console.error('Bulk update error', e); }
+            }
+            showToast(`updated ${success} entries`);
+            toggleBulkMode(); // turn off bulk mode
+            loadLibrary(currentMediaType); // refresh lists entirely
+        }
+
+        async function bulkDeleteSelected() {
+            if (isGuest) return;
+            const checkedBoxes = Array.from(document.querySelectorAll('.bulk-check:checked'));
+            if (checkedBoxes.length === 0) { showToast('select at least one item'); return; }
+            if(!confirm(`Delete ${checkedBoxes.length} items from your list?`)) return;
+            let success = 0;
+            // First we need to get the list entry IDs (not media IDs) for deletion
+            // We can look them up in allListsData
+            const listData = (allListsData[currentMediaType] || {})[currentLibStatus] || [];
+            
+            for (const box of checkedBoxes) {
+                const mId = parseInt(box.dataset.id);
+                const entry = listData.find(e => e.media.id === mId);
+                if (entry && entry.id) {
+                    try {
+                        await fetchAPIWithRetry(`mutation($id:Int){ DeleteMediaListEntry(id:$id) { deleted } }`, { id: entry.id });
+                        success++;
+                    } catch (e) { console.error(e); }
+                }
+            }
+            showToast(`deleted ${success} entries`);
+            toggleBulkMode();
+            loadLibrary(currentMediaType);
+        }
+
+        function exportLibrary(format) {
+            if (isGuest) { showToast('sign in to export'); return; }
+            const lists = allListsData[currentMediaType];
+            if (!lists) return;
+            
+            let exportData = [];
+            Object.keys(lists).forEach(status => {
+                lists[status].forEach(entry => {
+                    exportData.push({
+                        title: entry.media.title?.english || entry.media.title?.romaji,
+                        mediaId: entry.media.id,
+                        status: status,
+                        score: entry.score,
+                        progress: entry.progress,
+                        total: currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters,
+                        type: currentMediaType
+                    });
+                });
+            });
+
+            if (format === 'json') {
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `anilist_metro_${currentMediaType.toLowerCase()}_export.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else if (format === 'csv') {
+                const header = ['title', 'mediaId', 'status', 'score', 'progress', 'total', 'type'].join(',');
+                const rows = exportData.map(r => `"${(r.title || '').replace(/"/g, '""')}",${r.mediaId},${r.status},${r.score},${r.progress},${r.total || ''},${r.type}`);
+                const csv = [header, ...rows].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `anilist_metro_${currentMediaType.toLowerCase()}_export.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
 
         function switchMediaType(type, btn) {
             currentMediaType = type;
@@ -4968,14 +5355,60 @@
         });
 
         // ==========================================
-        // SEARCH
+        // SEARCH & BROWSE
         // ==========================================
         let searchTimeout = null;
         document.getElementById('search-input').addEventListener('input', e => {
             clearTimeout(searchTimeout); const term = e.target.value.trim();
-            if (term.length < 2) { document.getElementById('search-results').innerHTML = ''; return; }
+            if (term.length < 2) { 
+                document.getElementById('search-results').innerHTML = ''; 
+                document.getElementById('recent-searches-box').style.display = 'block';
+                renderRecentSearches();
+                return; 
+            }
+            document.getElementById('recent-searches-box').style.display = 'none';
             searchTimeout = setTimeout(() => doSearch(term), 450);
         });
+        
+        document.getElementById('search-input').addEventListener('focus', () => {
+            const term = document.getElementById('search-input').value.trim();
+            if (term.length < 2) {
+                document.getElementById('recent-searches-box').style.display = 'block';
+                renderRecentSearches();
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('blur', () => {
+            setTimeout(() => { document.getElementById('recent-searches-box').style.display = 'none'; }, 200);
+        });
+
+        function saveRecentSearch(term) {
+            if(!term || term.length < 2) return;
+            let recents = JSON.parse(localStorage.getItem('metro_recent_searches') || '[]');
+            recents = recents.filter(r => r.toLowerCase() !== term.toLowerCase());
+            recents.unshift(term);
+            if(recents.length > 10) recents = recents.slice(0, 10);
+            localStorage.setItem('metro_recent_searches', JSON.stringify(recents));
+        }
+
+        function renderRecentSearches() {
+            const box = document.getElementById('recent-searches-box');
+            if(!box) return;
+            const recents = JSON.parse(localStorage.getItem('metro_recent_searches') || '[]');
+            if(!recents.length) { box.innerHTML = '<div style="padding:10px; color:var(--text-dim); font-size:14px;">no recent searches</div>'; return; }
+            box.innerHTML = recents.map(r => `
+                <div style="padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid var(--surface-hover); color:var(--text-main);" onclick="clickRecentSearch('${r.replace(/'/g, "\\'")}')">
+                    <i class="fa-solid fa-clock-rotate-left" style="color:var(--accent); margin-right:8px;"></i> ${r.toLowerCase()}
+                </div>
+            `).join('');
+        }
+
+        function clickRecentSearch(term) {
+            const input = document.getElementById('search-input');
+            input.value = term;
+            document.getElementById('recent-searches-box').style.display = 'none';
+            doSearch(term);
+        }
 
         function applySearchFilters() {
             const term = document.getElementById('search-input').value.trim();
@@ -4983,15 +5416,25 @@
             else doSortedBrowse();
         }
 
-        async function doSearch(term) {
-            const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">searching...</div>';
-            el.classList.add('zoom-in');
+        let searchPage = 1;
+        let searchHasNextPage = false;
+        
+        async function doSearch(term, append = false) {
+            const el = document.getElementById('search-results'); 
+            const btn = document.getElementById('search-load-more');
+            if(!append) {
+                el.innerHTML = '<div style="color:var(--text-dim);">searching...</div>';
+                el.classList.add('zoom-in');
+                searchPage = 1;
+                saveRecentSearch(term);
+            }
 
             if (searchType === 'USER') {
-                const q = `query ($search: String) { Page(page:1,perPage:24) { users(search: $search) { id name avatar { large } } } }`;
+                const q = `query ($search: String, $page: Int) { Page(page:$page,perPage:24) { pageInfo { hasNextPage } users(search: $search) { id name avatar { large } } } }`;
                 try {
-                    const data = await fetchAPI(q, { search: term });
-                    el.innerHTML = '';
+                    const data = await fetchAPI(q, { search: term, page: searchPage });
+                    if(!append) el.innerHTML = '';
+                    searchHasNextPage = data.Page.pageInfo.hasNextPage;
                     data.Page.users.forEach(u => {
                         el.innerHTML += `
                     <div class="metro-tile" style="background:var(--surface);" onclick="openUserDetail('${u.name}')">
@@ -4999,8 +5442,70 @@
                         <div class="metro-tile-title" style="position:relative; z-index:2;">${u.name.toLowerCase()}</div>
                     </div>`;
                     });
+                    btn.style.display = searchHasNextPage ? 'block' : 'none';
                 } catch (e) { showToast('error searching users'); }
-                setTimeout(() => el.classList.remove('zoom-in'), 300);
+                if(!append) setTimeout(() => el.classList.remove('zoom-in'), 300);
+                return;
+            }
+
+            if (searchType === 'CHARACTER') {
+                const q = `query ($search: String, $page: Int) { Page(page:$page,perPage:24) { pageInfo { hasNextPage } characters(search: $search, sort: SEARCH_MATCH) { id name { full native } image { large } } } }`;
+                try {
+                    const data = await fetchAPI(q, { search: term, page: searchPage });
+                    if(!append) el.innerHTML = '';
+                    searchHasNextPage = data.Page.pageInfo.hasNextPage;
+                    data.Page.characters.forEach(c => {
+                        const charName = c.name.full || c.name.native || 'unknown';
+                        el.innerHTML += `
+                    <div class="metro-tile" style="background:var(--surface);" onclick="openCharacterDetail(${c.id}, '${(charName || '').replace(/'/g, "\\'")}', '', '', '')">
+                        <div class="tile-bg" style="background-image: url('${c.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;"></div>
+                        <div class="metro-tile-title" style="position:relative; z-index:2;">${charName.toLowerCase()}</div>
+                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;">character</div>
+                    </div>`;
+                    });
+                    btn.style.display = searchHasNextPage ? 'block' : 'none';
+                } catch (e) { showToast('error searching characters'); }
+                if(!append) setTimeout(() => el.classList.remove('zoom-in'), 300);
+                return;
+            }
+
+            if (searchType === 'STAFF') {
+                const q = `query ($search: String, $page: Int) { Page(page:$page,perPage:24) { pageInfo { hasNextPage } staff(search: $search, sort: SEARCH_MATCH) { id name { full native } image { large } } } }`;
+                try {
+                    const data = await fetchAPI(q, { search: term, page: searchPage });
+                    if(!append) el.innerHTML = '';
+                    searchHasNextPage = data.Page.pageInfo.hasNextPage;
+                    data.Page.staff.forEach(s => {
+                        const staffName = s.name.full || s.name.native || 'unknown';
+                        el.innerHTML += `
+                    <div class="metro-tile" style="background:var(--surface);" onclick="openVADetail(${s.id}, '${(staffName || '').replace(/'/g, "\\'")}')">
+                        <div class="tile-bg" style="background-image: url('${s.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;"></div>
+                        <div class="metro-tile-title" style="position:relative; z-index:2;">${staffName.toLowerCase()}</div>
+                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;">staff</div>
+                    </div>`;
+                    });
+                    btn.style.display = searchHasNextPage ? 'block' : 'none';
+                } catch (e) { showToast('error searching staff'); }
+                if(!append) setTimeout(() => el.classList.remove('zoom-in'), 300);
+                return;
+            }
+
+            if (searchType === 'STUDIO') {
+                const q = `query ($search: String, $page: Int) { Page(page:$page,perPage:24) { pageInfo { hasNextPage } studios(search: $search, sort: SEARCH_MATCH) { id name } } }`;
+                try {
+                    const data = await fetchAPI(q, { search: term, page: searchPage });
+                    if(!append) el.innerHTML = '';
+                    searchHasNextPage = data.Page.pageInfo.hasNextPage;
+                    data.Page.studios.forEach(s => {
+                        el.innerHTML += `
+                    <div class="metro-tile" style="background:var(--surface);" onclick="openStudioDetail(${s.id}, '${(s.name || '').replace(/'/g, "\\'")}')">
+                        <div class="metro-tile-title" style="position:relative; z-index:2;">${s.name.toLowerCase()}</div>
+                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;">studio</div>
+                    </div>`;
+                    });
+                    btn.style.display = searchHasNextPage ? 'block' : 'none';
+                } catch (e) { showToast('error searching studios'); }
+                if(!append) setTimeout(() => el.classList.remove('zoom-in'), 300);
                 return;
             }
 
@@ -5010,13 +5515,19 @@
             const status = document.getElementById('filter-status').value;
             const episodes = document.getElementById('filter-episodes').value;
             const genre = document.getElementById('filter-genre').value;
+            const score = document.getElementById('filter-score')?.value;
+            const source = document.getElementById('filter-source')?.value;
+            const country = document.getElementById('filter-country')?.value;
 
-            let variables = { search: term, type: searchType, sort: [searchSort || 'SEARCH_MATCH'] };
+            let variables = { search: term, type: searchType, sort: [searchSort || 'SEARCH_MATCH'], page: searchPage };
             if (season) variables.season = season;
             if (year) variables.seasonYear = parseInt(year);
             if (format) variables.format = format;
             if (status) variables.status = status;
             if (genre) variables.genre = genre;
+            if (score) variables.averageScore_greater = parseInt(score);
+            if (source) variables.source = source;
+            if (country) variables.countryOfOrigin = country;
             if (episodes) {
                 if (episodes === '1-12') { variables.episodes_greater = 0; variables.episodes_lesser = 13; }
                 else if (episodes === '13-26') { variables.episodes_greater = 12; variables.episodes_lesser = 27; }
@@ -5025,21 +5536,40 @@
                 else if (episodes === '100-') { variables.episodes_greater = 100; }
             }
 
-            const q = `query ($search:String,$type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$episodes_greater:Int,$episodes_lesser:Int) { 
-        Page(page:1,perPage:20) { 
-            media(search:$search,type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,format:$format,status:$status,genre:$genre,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser) { 
-                id title { english romaji } coverImage { large } status averageScore isAdult
+            const q = `query ($search:String,$type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$seasonYear_lesser:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$episodes_greater:Int,$episodes_lesser:Int,$page:Int,$averageScore_greater:Int,$source:MediaSource,$countryOfOrigin:CountryCode) { 
+        Page(page:$page,perPage:20) { 
+            pageInfo { hasNextPage }
+            media(search:$search,type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,seasonYear_lesser:$seasonYear_lesser,format:$format,status:$status,genre:$genre,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser,averageScore_greater:$averageScore_greater,source:$source,countryOfOrigin:$countryOfOrigin) { 
+                id title { english romaji } coverImage { large } status averageScore isAdult chapters episodes
             } 
         } 
     }`;
 
-            const data = await fetchAPI(q, variables);
-            renderSearchResults(data.Page.media);
-            setTimeout(() => el.classList.remove('zoom-in'), 300);
+            try {
+                const data = await fetchAPI(q, variables);
+                if(!append) el.innerHTML = '';
+                searchHasNextPage = data.Page.pageInfo.hasNextPage;
+                renderSearchResults(data.Page.media, append);
+                btn.style.display = searchHasNextPage ? 'block' : 'none';
+            } catch(e) {
+                if(!append) el.innerHTML = '<div style="color:var(--text-dim);">search failed.</div>';
+            }
+            if(!append) setTimeout(() => el.classList.remove('zoom-in'), 300);
         }
 
-        async function doSortedBrowse() {
-            const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
+        async function doSortedBrowse(append = false) {
+            const el = document.getElementById('search-results'); 
+            const btn = document.getElementById('search-load-more');
+            if(!append) {
+                el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
+                searchPage = 1;
+            }
+
+            if (['USER','CHARACTER','STAFF','STUDIO'].includes(searchType)) {
+                if(!append) el.innerHTML = `<div style="color:var(--text-dim);">sorting is only available for anime/manga browse.</div>`;
+                if(btn) btn.style.display = 'none';
+                return;
+            }
 
             const season = document.getElementById('filter-season').value;
             const year = document.getElementById('filter-year').value;
@@ -5047,13 +5577,19 @@
             const status = document.getElementById('filter-status').value;
             const episodes = document.getElementById('filter-episodes').value;
             const genre = document.getElementById('filter-genre').value;
+            const score = document.getElementById('filter-score')?.value;
+            const source = document.getElementById('filter-source')?.value;
+            const country = document.getElementById('filter-country')?.value;
 
-            let variables = { type: searchType, sort: [searchSort || 'TRENDING_DESC'] };
+            let variables = { type: searchType, sort: [searchSort || 'TRENDING_DESC'], page: searchPage };
             if (season) variables.season = season;
             if (year) variables.seasonYear = parseInt(year);
             if (format) variables.format = format;
             if (status) variables.status = status;
             if (genre) variables.genre = genre;
+            if (score) variables.averageScore_greater = parseInt(score);
+            if (source) variables.source = source;
+            if (country) variables.countryOfOrigin = country;
             if (episodes) {
                 if (episodes === '1-12') { variables.episodes_greater = 0; variables.episodes_lesser = 13; }
                 else if (episodes === '13-26') { variables.episodes_greater = 12; variables.episodes_lesser = 27; }
@@ -5062,49 +5598,405 @@
                 else if (episodes === '100-') { variables.episodes_greater = 100; }
             }
 
-            const q = `query ($type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$episodes_greater:Int,$episodes_lesser:Int) { 
-        Page(page:1,perPage:24) { 
-            media(type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,format:$format,status:$status,genre:$genre,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser) { 
-                id title { english romaji } coverImage { large } status averageScore 
+            const q = `query ($type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$seasonYear_lesser:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$episodes_greater:Int,$episodes_lesser:Int,$page:Int,$averageScore_greater:Int,$source:MediaSource,$countryOfOrigin:CountryCode) { 
+        Page(page:$page,perPage:24) { 
+            pageInfo { hasNextPage }
+            media(type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,seasonYear_lesser:$seasonYear_lesser,format:$format,status:$status,genre:$genre,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser,averageScore_greater:$averageScore_greater,source:$source,countryOfOrigin:$countryOfOrigin) { 
+                id title { english romaji } coverImage { large } status averageScore isAdult chapters episodes
             } 
         } 
     }`;
 
-            const data = await fetchAPI(q, variables);
-            renderSearchResults(data.Page.media);
+            try {
+                const data = await fetchAPI(q, variables);
+                if(!append) el.innerHTML = '';
+                searchHasNextPage = data.Page.pageInfo.hasNextPage;
+                renderSearchResults(data.Page.media, append);
+                btn.style.display = searchHasNextPage ? 'block' : 'none';
+            } catch(e) {
+                 if(!append) el.innerHTML = '<div style="color:var(--text-dim);">loading failed.</div>';
+            }
         }
-        function renderSearchResults(media) {
-            const el = document.getElementById('search-results'); el.innerHTML = '';
-            if (!media.length) { el.innerHTML = '<div style="color:var(--text-dim);">no results.</div>'; return; }
+        
+        function loadMoreSearch() {
+            searchPage++;
+            const term = document.getElementById('search-input').value.trim();
+            if (term.length >= 2) doSearch(term, true);
+            else doSortedBrowse(true);
+        }
+
+        function renderSearchResults(media, append = false) {
+            const el = document.getElementById('search-results');
+            if(!append) el.innerHTML = '';
+            if (!media.length && !append) { el.innerHTML = '<div style="color:var(--text-dim);">no results.</div>'; return; }
             media.forEach(m => {
                 const title = m.title.english || m.title.romaji;
                 const score = m.averageScore ? (m.averageScore / 10).toFixed(1) : '';
                 const isAdult = m.isAdult || false;
-                el.innerHTML += createFlipTile(m.id, searchType, m.coverImage.large, title, title, score, (m.status || '').toLowerCase(), null, isAdult);
+                const total = searchType === 'ANIME' ? m.episodes : m.chapters;
+                const progressStr = total ? (searchType === 'ANIME' ? `ep ${total}` : `ch ${total}`) : '';
+                el.innerHTML += createFlipTile(m.id, searchType, m.coverImage.large, title, title, score, (m.status || '').toLowerCase(), progressStr, isAdult);
             });
         }
+        function updateSearchView() {
+            const term = document.getElementById('search-input').value.trim();
+            const advancedFilters = document.getElementById('advanced-filters');
+            const sortFilters = document.getElementById('search-sort-filters');
+            const placeholderMap = {
+                ANIME: 'search anime...',
+                MANGA: 'search manga...',
+                CHARACTER: 'search character...',
+                STAFF: 'search staff...',
+                STUDIO: 'search studio...',
+                USER: 'search user...'
+            };
+            document.getElementById('search-input').placeholder = placeholderMap[searchType] || 'search...';
+            if (['ANIME', 'MANGA'].includes(searchType)) {
+                advancedFilters.style.display = 'flex';
+                sortFilters.style.display = 'flex';
+            } else {
+                advancedFilters.style.display = 'none';
+                sortFilters.style.display = 'none';
+            }
+            if (term.length >= 2) doSearch(term);
+            else doSortedBrowse();
+        }
+
         function setSearchType(type, el) {
             searchType = type; document.querySelectorAll('.filter-chip[data-type]').forEach(c => c.classList.remove('active')); el.classList.add('active');
-            const term = document.getElementById('search-input').value.trim();
-            if (term.length >= 2) doSearch(term); else if (searchSort) doSortedBrowse();
+            updateSearchView();
         }
         function setSort(sort, el) {
             searchSort = sort; document.querySelectorAll('.filter-chip[data-sort]').forEach(c => c.classList.remove('active')); el.classList.add('active');
             doSortedBrowse();
         }
 
+        function toggleYearCalendar(event) {
+            event.stopPropagation();
+            const popup = document.getElementById('filter-year-calendar');
+            if (!popup) return;
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function buildYearCalendar() {
+            const grid = document.getElementById('filter-year-grid');
+            const selected = document.getElementById('filter-year')?.value || '';
+            const currentYear = dateFns?.getYear(new Date()) || new Date().getFullYear();
+            const minYear = searchYearRange.minYear || Math.max(currentYear - 30, 1900);
+            const startDate = new Date(minYear, 0, 1);
+            const endDate = new Date(currentYear, 0, 1);
+            const yearDates = dateFns?.eachYearOfInterval ? dateFns.eachYearOfInterval({ start: startDate, end: endDate }) : [];
+            const yearItems = yearDates
+                .map(d => {
+                    const year = dateFns?.getYear ? dateFns.getYear(d) : d.getFullYear();
+                    return { value: year.toString(), label: year.toString() };
+                })
+                .reverse();
+            grid.innerHTML = yearItems.map(item => `
+                <div class="year-item ${item.value === selected ? 'active' : ''}" onclick="selectFilterYear('${item.value}')">${item.label}</div>
+            `).join('');
+        }
+
+        function populateSelect(selectId, values, placeholder) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            const options = (values || [])
+                .filter(v => v && typeof v === 'string')
+                .sort((a, b) => a.localeCompare(b))
+                .map(v => `<option value="${v}">${v.toLowerCase()}</option>`)
+                .join('');
+            select.innerHTML = `<option value="">${placeholder}</option>${options}`;
+        }
+
+        function initializeSearchFilters() {
+            buildYearCalendar();
+            loadSearchFilterMetadata();
+        }
+
+        async function loadSearchFilterMetadata() {
+            try {
+                const q = `query {
+                    GenreCollection
+                    MediaFormat: __type(name:"MediaFormat") { enumValues { name } }
+                    MediaStatus: __type(name:"MediaStatus") { enumValues { name } }
+                    MediaSource: __type(name:"MediaSource") { enumValues { name } }
+                    CountryCode: __type(name:"CountryCode") { enumValues { name } }
+                    anime: Page(page:1,perPage:1,sort:START_DATE,type:ANIME) { media { startDate { year } } }
+                    manga: Page(page:1,perPage:1,sort:START_DATE,type:MANGA) { media { startDate { year } } }
+                }`;
+                const data = await fetchAPI(q);
+                if (data) {
+                    if (data.GenreCollection) populateSelect('filter-genre', data.GenreCollection, 'all genres');
+                    if (data.MediaFormat?.enumValues) populateSelect('filter-format', data.MediaFormat.enumValues.map(v => v.name), 'all formats');
+                    if (data.MediaStatus?.enumValues) populateSelect('filter-status', data.MediaStatus.enumValues.map(v => v.name), 'all status');
+                    if (data.MediaSource?.enumValues) populateSelect('filter-source', data.MediaSource.enumValues.map(v => v.name), 'all sources');
+                    if (data.CountryCode?.enumValues) populateSelect('filter-country', data.CountryCode.enumValues.map(v => v.name), 'all countries');
+
+                    const animeYear = data.anime?.media?.[0]?.startDate?.year;
+                    const mangaYear = data.manga?.media?.[0]?.startDate?.year;
+                    const years = [animeYear, mangaYear].filter(Boolean);
+                    if (years.length) {
+                        const computedMin = Math.min(...years);
+                        searchYearRange.minYear = Math.min(searchYearRange.minYear || computedMin, computedMin);
+                    }
+                }
+            } catch (e) {
+                console.warn('search filter metadata load failed', e);
+            } finally {
+                searchYearRange.maxYear = dateFns?.getYear(new Date()) || new Date().getFullYear();
+                buildYearCalendar();
+                initSeasonalBrowseYearSelect();
+            }
+        }
+
+        function initSeasonalBrowseYearSelect() {
+            const ySelect = document.getElementById('seasonal-year-select');
+            if (!ySelect) return;
+            const maxYear = searchYearRange.maxYear || dateFns?.getYear(new Date()) || new Date().getFullYear();
+            const minYear = Math.max(searchYearRange.minYear || 1990, 1990);
+            const selected = parseInt(ySelect.value, 10) || maxYear;
+            const startDate = new Date(minYear, 0, 1);
+            const endDate = new Date(maxYear, 0, 1);
+            const yearDates = dateFns?.eachYearOfInterval ? dateFns.eachYearOfInterval({ start: startDate, end: endDate }) : [];
+            ySelect.innerHTML = yearDates
+                .map(d => dateFns?.getYear ? dateFns.getYear(d) : d.getFullYear())
+                .reverse()
+                .map(y => `<option value="${y}">${y}</option>`)
+                .join('');
+            ySelect.value = selected;
+        }
+
+        function selectFilterYear(year) {
+            document.getElementById('filter-year').value = year;
+            document.getElementById('filter-year-label').textContent = year;
+            buildYearCalendar();
+            applySearchFilters();
+            document.getElementById('filter-year-calendar').style.display = 'none';
+        }
+
+        function clearFilterYear() {
+            document.getElementById('filter-year').value = '';
+            document.getElementById('filter-year-label').textContent = 'all years';
+            buildYearCalendar();
+            applySearchFilters();
+            document.getElementById('filter-year-calendar').style.display = 'none';
+        }
+
+        document.addEventListener('click', e => {
+            const popup = document.getElementById('filter-year-calendar');
+            const control = document.getElementById('filter-year-control');
+            if (!popup || !control) return;
+            if (popup.style.display === 'block' && !popup.contains(e.target) && !control.contains(e.target)) {
+                popup.style.display = 'none';
+            }
+        });
+
         function switchDiscoverMode(mode, el) {
             if (typeof Sfx !== 'undefined') Sfx.play('pan');
             document.querySelectorAll('#discover-pivots .pivot-item').forEach(p => p.classList.remove('active'));
             if (el) el.classList.add('active');
-            document.getElementById('discover-trending').style.display = mode === 'trending' ? 'block' : 'none';
-            document.getElementById('discover-search').style.display = mode === 'search' ? 'block' : 'none';
-            document.getElementById('discover-discussions').style.display = mode === 'discussions' ? 'block' : 'none';
+            
+            ['trending', 'search', 'discussions', 'seasonal', 'top', 'popular', 'upcoming', 'genre', 'studio'].forEach(id => {
+                const dom = document.getElementById(`discover-${id}`);
+                if(dom) dom.style.display = mode === id ? 'block' : 'none';
+            });
 
-            if (mode === 'discussions') {
-                loadDiscussionsContent();
+            if (mode === 'discussions') loadDiscussionsContent();
+            else if (mode === 'seasonal') initSeasonalBrowse();
+            else if (mode === 'top') loadTop100Grid();
+            else if (mode === 'popular') loadPopularGrid();
+            else if (mode === 'upcoming') loadUpcomingGrid();
+            else if (mode === 'genre') initGenreBrowse();
+            else if (mode === 'studio') initStudioBrowse();
+            else if (mode === 'search') updateSearchView();
+        }
+
+        // ==========================================
+        // NEW BROWSE TABS (SEASONAL, TOP, POPULAR, UPCOMING, GENRE, STUDIO)
+        // ==========================================
+
+        let seasonalPage = 1, seasonalSeason = 'WINTER', seasonalYear = new Date().getFullYear();
+        let topPage = 1, topType = 'ANIME';
+        let popularPage = 1, popularType = 'ANIME';
+        let upcomingPage = 1;
+        let genreBrowsePage = 1, genreBrowseType = 'ANIME', genreBrowseSelected = '';
+        let studioBrowsePage = 1, studioBrowseId = null;
+
+        function initSeasonalBrowse() {
+            initSeasonalBrowseYearSelect();
+            const currentMonth = new Date().getMonth();
+            if(currentMonth < 3) seasonalSeason = 'WINTER';
+            else if(currentMonth < 6) seasonalSeason = 'SPRING';
+            else if(currentMonth < 9) seasonalSeason = 'SUMMER';
+            else seasonalSeason = 'FALL';
+
+            document.querySelectorAll('#discover-seasonal .filter-chip').forEach(c => {
+                c.classList.remove('active');
+                if(c.dataset.season === seasonalSeason) c.classList.add('active');
+            });
+            loadSeasonalGrid();
+        }
+
+        function setSeasonFilter(season, el) {
+            seasonalSeason = season;
+            document.querySelectorAll('#discover-seasonal .filter-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            loadSeasonalGrid();
+        }
+
+        async function loadSeasonalGrid(append = false) {
+            seasonalYear = parseInt(document.getElementById('seasonal-year-select').value);
+            const el = document.getElementById('seasonal-grid');
+            const btn = document.getElementById('seasonal-load-more');
+            if(!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading season...</div>'; seasonalPage = 1; }
+            
+            const q = `query($season:MediaSeason,$year:Int,$page:Int){ Page(page:$page,perPage:20){ pageInfo{hasNextPage} media(season:$season,seasonYear:$year,type:ANIME,sort:POPULARITY_DESC){ id title{english romaji} coverImage{large} averageScore status isAdult episodes } } }`;
+            try {
+                const data = await fetchAPI(q, { season: seasonalSeason, year: seasonalYear, page: seasonalPage });
+                if(!append) el.innerHTML = '';
+                btn.style.display = data.Page.pageInfo.hasNextPage ? 'block' : 'none';
+                data.Page.media.forEach(m => {
+                    const title = m.title.english || m.title.romaji;
+                    el.innerHTML += createFlipTile(m.id, 'ANIME', m.coverImage.large, title, title, m.averageScore?(m.averageScore/10).toFixed(1):'', m.status.toLowerCase(), `ep ${m.episodes||'?'}`, m.isAdult);
+                });
+            } catch(e) { if(!append) el.innerHTML = '<div style="color:var(--text-dim);">failed to load.</div>'; }
+        }
+        function loadMoreSeasonal() { seasonalPage++; loadSeasonalGrid(true); }
+
+        function setTopType(type, el) { topType = type; document.querySelectorAll('button[data-toptype]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); loadTop100Grid(); }
+        async function loadTop100Grid(append = false) {
+            const el = document.getElementById('top100-grid');
+            const btn = document.getElementById('top100-load-more');
+            if(!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; topPage = 1; }
+            
+            const q = `query($type:MediaType,$page:Int){ Page(page:$page,perPage:20){ pageInfo{hasNextPage} media(type:$type,sort:SCORE_DESC){ id title{english romaji} coverImage{large} averageScore status isAdult episodes chapters } } }`;
+            try {
+                const data = await fetchAPI(q, { type: topType, page: topPage });
+                if(!append) el.innerHTML = '';
+                // Limit to 100
+                if(topPage >= 5) data.Page.pageInfo.hasNextPage = false;
+                btn.style.display = data.Page.pageInfo.hasNextPage ? 'block' : 'none';
+                data.Page.media.forEach((m, i) => {
+                    const title = m.title.english || m.title.romaji;
+                    const total = topType === 'ANIME' ? m.episodes : m.chapters;
+                    el.innerHTML += createFlipTile(m.id, topType, m.coverImage.large, title, title, m.averageScore?(m.averageScore/10).toFixed(1):'', `#${(topPage-1)*20 + i + 1}`, total?`${topType==='ANIME'?'ep':'ch'} ${total}`:'', m.isAdult);
+                });
+            } catch(e) { if(!append) el.innerHTML = '<div style="color:var(--text-dim);">failed to load.</div>'; }
+        }
+        function loadMoreTop100() { topPage++; loadTop100Grid(true); }
+
+        function setPopularType(type, el) { popularType = type; document.querySelectorAll('button[data-poptype]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); loadPopularGrid(); }
+        async function loadPopularGrid(append = false) {
+            const el = document.getElementById('popular-grid');
+            const btn = document.getElementById('popular-load-more');
+            if(!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; popularPage = 1; }
+            const q = `query($type:MediaType,$page:Int){ Page(page:$page,perPage:20){ pageInfo{hasNextPage} media(type:$type,sort:POPULARITY_DESC){ id title{english romaji} coverImage{large} averageScore status isAdult } } }`;
+            try {
+                const data = await fetchAPI(q, { type: popularType, page: popularPage });
+                if(!append) el.innerHTML = '';
+                btn.style.display = data.Page.pageInfo.hasNextPage ? 'block' : 'none';
+                data.Page.media.forEach(m => {
+                    const title = m.title.english || m.title.romaji;
+                    el.innerHTML += createFlipTile(m.id, popularType, m.coverImage.large, title, title, m.averageScore?(m.averageScore/10).toFixed(1):'', '', '', m.isAdult);
+                });
+            } catch(e) { if(!append) el.innerHTML = '<div style="color:var(--text-dim);">failed to load.</div>'; }
+        }
+        function loadMorePopular() { popularPage++; loadPopularGrid(true); }
+
+        async function loadUpcomingGrid(append = false) {
+            const el = document.getElementById('upcoming-grid');
+            const btn = document.getElementById('upcoming-load-more');
+            if(!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; upcomingPage = 1; }
+            const q = `query($page:Int){ Page(page:$page,perPage:20){ pageInfo{hasNextPage} media(type:ANIME,status:NOT_YET_RELEASED,sort:POPULARITY_DESC){ id title{english romaji} coverImage{large} averageScore status isAdult } } }`;
+            try {
+                const data = await fetchAPI(q, { page: upcomingPage });
+                if(!append) el.innerHTML = '';
+                btn.style.display = data.Page.pageInfo.hasNextPage ? 'block' : 'none';
+                data.Page.media.forEach(m => {
+                    const title = m.title.english || m.title.romaji;
+                    el.innerHTML += createFlipTile(m.id, 'ANIME', m.coverImage.large, title, title, m.averageScore?(m.averageScore/10).toFixed(1):'', 'upcoming', '', m.isAdult);
+                });
+            } catch(e) { if(!append) el.innerHTML = '<div style="color:var(--text-dim);">failed to load.</div>'; }
+        }
+        function loadMoreUpcoming() { upcomingPage++; loadUpcomingGrid(true); }
+
+        async function initGenreBrowse() {
+            const chipContainer = document.getElementById('genre-browse-chips');
+            if(chipContainer.innerHTML === '') {
+                try {
+                    const q = `query { GenreCollection }`;
+                    const data = await fetchAPI(q);
+                    chipContainer.innerHTML = data.GenreCollection.map(g => `<button class="filter-chip" onclick="clickGenreChip('${g}', this)">${g.toLowerCase()}</button>`).join('');
+                } catch(e) { chipContainer.innerHTML = 'failed to load genres'; }
             }
         }
+        function setGenreType(type, el) { genreBrowseType = type; document.querySelectorAll('button[data-genretype]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); if(genreBrowseSelected) loadGenreBrowseGrid(); }
+        function clickGenreChip(genre, el) { 
+            genreBrowseSelected = genre; 
+            document.querySelectorAll('#genre-browse-chips .filter-chip').forEach(b=>b.classList.remove('active')); 
+            el.classList.add('active'); 
+            loadGenreBrowseGrid(); 
+        }
+        async function loadGenreBrowseGrid(append = false) {
+            if(!genreBrowseSelected) return;
+            const el = document.getElementById('genre-browse-grid');
+            const btn = document.getElementById('genre-browse-load-more');
+            if(!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; genreBrowsePage = 1; }
+            const q = `query($genre:String,$type:MediaType,$page:Int){ Page(page:$page,perPage:20){ pageInfo{hasNextPage} media(genre:$genre,type:$type,sort:SCORE_DESC){ id title{english romaji} coverImage{large} averageScore status isAdult } } }`;
+            try {
+                const data = await fetchAPI(q, { genre: genreBrowseSelected, type: genreBrowseType, page: genreBrowsePage });
+                if(!append) el.innerHTML = '';
+                btn.style.display = data.Page.pageInfo.hasNextPage ? 'block' : 'none';
+                data.Page.media.forEach(m => {
+                    const title = m.title.english || m.title.romaji;
+                    el.innerHTML += createFlipTile(m.id, genreBrowseType, m.coverImage.large, title, title, m.averageScore?(m.averageScore/10).toFixed(1):'', '', '', m.isAdult);
+                });
+            } catch(e) { if(!append) el.innerHTML = '<div style="color:var(--text-dim);">failed to load.</div>'; }
+        }
+        function loadMoreGenreBrowse() { genreBrowsePage++; loadGenreBrowseGrid(true); }
+
+        let studioSearchTimeout = null;
+        function initStudioBrowse() {
+            document.getElementById('studio-search-input').addEventListener('input', e => {
+                clearTimeout(studioSearchTimeout);
+                const term = e.target.value.trim();
+                if(term.length < 2) return;
+                studioSearchTimeout = setTimeout(() => searchStudios(term), 500);
+            });
+        }
+        async function searchStudios(term) {
+            const chips = document.getElementById('studio-list-chips');
+            chips.innerHTML = '<div style="color:var(--text-dim);">searching...</div>';
+            const q = `query($search:String){ Page(page:1,perPage:15){ studios(search:$search,sort:SEARCH_MATCH){ id name } } }`;
+            try {
+                const data = await fetchAPI(q, { search: term });
+                if(!data.Page.studios.length) chips.innerHTML = '<div style="color:var(--text-dim);">no studios found</div>';
+                else chips.innerHTML = data.Page.studios.map(s => `<button class="filter-chip" onclick="clickStudioChip(${s.id}, this)">${s.name.toLowerCase()}</button>`).join('');
+            } catch(e) { chips.innerHTML = 'error'; }
+        }
+        function clickStudioChip(id, el) {
+            studioBrowseId = id;
+            document.querySelectorAll('#studio-list-chips .filter-chip').forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            loadStudioBrowseGrid();
+        }
+        async function loadStudioBrowseGrid(append = false) {
+            if(!studioBrowseId) return;
+            const el = document.getElementById('studio-media-grid');
+            const btn = document.getElementById('studio-load-more');
+            if(!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; studioBrowsePage = 1; }
+            const q = `query($id:Int,$page:Int){ Studio(id:$id){ media(page:$page,perPage:20,sort:START_DATE_DESC){ pageInfo{hasNextPage} nodes{ id title{english romaji} coverImage{large} averageScore status isAdult } } } }`;
+            try {
+                const data = await fetchAPI(q, { id: studioBrowseId, page: studioBrowsePage });
+                if(!append) el.innerHTML = '';
+                btn.style.display = data.Studio.media.pageInfo.hasNextPage ? 'block' : 'none';
+                data.Studio.media.nodes.forEach(m => {
+                    const title = m.title.english || m.title.romaji;
+                    el.innerHTML += createFlipTile(m.id, 'ANIME', m.coverImage.large, title, title, m.averageScore?(m.averageScore/10).toFixed(1):'', '', '', m.isAdult);
+                });
+            } catch(e) { if(!append) el.innerHTML = '<div style="color:var(--text-dim);">failed to load.</div>'; }
+        }
+        function loadMoreStudioMedia() { studioBrowsePage++; loadStudioBrowseGrid(true); }
 
         async function openFullGrid(type) {
             const subview = document.createElement('div');
@@ -5329,6 +6221,9 @@
                 <div style="position:relative; z-index:1; padding-bottom:5px; flex:1;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
                         <div style="font-size: 4rem; font-weight:100; color:var(--accent); line-height:0.8; letter-spacing:-2px;">${u.name.toLowerCase()}</div>
+                        <div style="font-size: 14px; color:var(--text-dim); margin-top: 5px;">
+                            id: ${u.id} • <a href="https://anilist.co/user/${u.name}" target="_blank" style="color:var(--accent);">anilist.co/user/${u.name.toLowerCase()}</a>
+                        </div>
                         <div style="display:flex; gap:10px;">
                             ${!isGuest && u.id !== currentUserId ? `<button class="metro-btn ${u.isFollowing ? '' : 'primary'}" id="follow-btn" onclick="toggleFollow(${u.id})">${u.isFollowing ? 'unfollow' : 'follow'}</button>` : ''}
                             <button class="metro-btn" onclick="openUserLibrary(${u.id}, 'ANIME')">anime list</button>
@@ -5767,7 +6662,7 @@
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading...</div>'; panel.style.display = 'block';
             const q = `query ($id:Int) {
         Media(id:$id) {
-            id title { english romaji } coverImage { extraLarge large } bannerImage description(asHtml:false) format status episodes chapters averageScore isAdult genres startDate { year }
+            id title { english romaji native } coverImage { extraLarge large } bannerImage description(asHtml:false) format status episodes chapters averageScore meanScore isAdult genres startDate { year } endDate { year } season duration source
             trailer { id site thumbnail }
             studios(isMain: true) { nodes { name } }
             relations { edges { relationType(version:2) node { id title { english romaji } type coverImage { large } } } }
@@ -5783,7 +6678,16 @@
                 pageInfo { total }
                 nodes { id summary rating score user { name avatar { large } } }
             }
-            mediaListEntry { id status score progress repeat private notes }
+            tags { id name rank isMediaSpoiler }
+            externalLinks { site url icon color }
+            streamingEpisodes { title thumbnail url site }
+            rankings { rank type format year season allTime context }
+            stats { scoreDistribution { score amount } statusDistribution { status amount } }
+            recommendations(sort: [RATING_DESC, ID], perPage: 10) { nodes { id rating mediaRecommendation { id title { english romaji } type coverImage { large } } } }
+            airingSchedule(notYetAired: true, perPage: 5) { nodes { episode airingAt timeUntilAiring } }
+            isFavourite
+            favourites
+            mediaListEntry { id status score progress repeat private notes startedAt { year month day } completedAt { year month day } }
             popularity
             trending
             siteUrl
@@ -5846,17 +6750,33 @@
                     <div class="status-btn full ${entryStatus === 'DROPPED' ? 'active' : ''}" onclick="addToList(${m.id},'${type}','DROPPED')">dropped</div>
                 </div>
                 ${progressStepperHtml}
-                <button class="metro-btn" style="margin-top: 15px;" onclick="openMediaEditor(${m.id}, '${type}')"><i class="fa-solid fa-edit"></i> edit entry</button>
+                <div style="display:flex; gap:10px; margin-top: 15px;">
+                    <button class="metro-btn" style="flex:1;" onclick="openMediaEditor(${m.id}, '${type}')"><i class="fa-solid fa-edit"></i> edit</button>
+                    <button class="metro-btn" style="flex:1;" onclick="toggleFavourite(${m.id}, '${type}', this)"><i class="fa-${m.isFavourite ? 'solid' : 'regular'} fa-heart"></i> fav</button>
+                </div>
             </div>` : '';
+
+                let rankText = '';
+                if(m.rankings && m.rankings.length > 0) {
+                    const topRank = m.rankings.find(r => r.allTime) || m.rankings[0];
+                    rankText = `<div style="font-size:18px; color:var(--accent); margin-bottom:10px; font-weight:400;"><i class="fa-solid fa-trophy"></i> #${topRank.rank} ${topRank.context.toLowerCase()}</div>`;
+                }
+
+                let bannerHtml = m.bannerImage ? `
+            <div style="height: 300px; background: url('${m.bannerImage}') center/cover; position: relative; margin: -20px -20px 30px -20px;">
+                <div style="position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,0.2), var(--bg));"></div>
+            </div>` : '';
+
                 content.innerHTML = `
-            ${m.bannerImage ? `<div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:url('${m.bannerImage}') center/cover; opacity:0.08; filter:blur(20px); z-index:-1;"></div>` : ''}
-            <div style="display:flex; flex-wrap:wrap; gap:30px; margin-top:50px;">
+            ${bannerHtml}
+            <div style="display:flex; flex-wrap:wrap; gap:30px; ${!m.bannerImage ? 'margin-top:50px;' : 'position:relative; z-index:2; margin-top:-100px; padding:0 20px;'}">
                 <div style="flex: 0 0 300px;">
-                    <img src="${m.coverImage.extraLarge}" style="width:100%; border:4px solid var(--surface-hover);">
+                    <img src="${m.coverImage.extraLarge}" style="width:100%; border:4px solid var(--surface-hover); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                     ${listManagementHtml}
                 </div>
                 <div style="flex:1; min-width:300px;">
-                    <div style="font-size:4rem; font-weight:100; color:var(--accent); margin-bottom:10px; white-space:normal; line-height:0.9; letter-spacing:-2px;">${title.toLowerCase()}</div>
+                    <div style="font-size:4rem; font-weight:100; color:var(--text-main); margin-bottom:10px; white-space:normal; line-height:0.9; letter-spacing:-2px;">${title.toLowerCase()}</div>
+                    ${rankText}
                     <div style="font-size:24px; color:var(--text-dim); margin-bottom:20px;">
                         ${year} // ${(m.format || 'tv').toLowerCase()} // ${(m.status || 'releasing').replace(/_/g, ' ').toLowerCase()} // ${type === 'ANIME' ? 'eps: ' + (m.episodes || '?') : 'ch: ' + (m.chapters || '?')} // score: ${m.averageScore ? m.averageScore + '%' : 'n/a'}
                     </div>
@@ -5881,9 +6801,13 @@
                             <div class="metro-tile-title"><i class="fa-solid fa-star"></i> reviews</div>
                             <div class="metro-tile-subtitle">${m.reviews?.pageInfo?.total || 0} community reviews</div>
                         </div>
+                        <div class="metro-tile wide" style="background:var(--surface);" onclick="showSubview('recommendations')">
+                            <div class="metro-tile-title"><i class="fa-solid fa-thumbs-up"></i> recommendations</div>
+                            <div class="metro-tile-subtitle">similar media</div>
+                        </div>
                         ${relationsHtml}
                         <div class="metro-tile wide" style="background: var(--surface);" onclick="showSubview('info')">
-                            <div class="metro-tile-title"><i class="fa-solid fa-circle-info"></i> info</div>
+                            <div class="metro-tile-title"><i class="fa-solid fa-circle-info"></i> info & stats</div>
                             <div class="metro-tile-subtitle">studio, stats & details</div>
                         </div>
                     </div>
@@ -5962,13 +6886,67 @@
             </div>`).join('');
                 contentHtml = bannerBase.replace('{SUBTITLE}', 'community reviews') + `<div>${reviews || '<div style="color:var(--text-dim);">no reviews found.</div>'}</div>`;
             } else if (type === 'info') {
-                title = 'media info';
+                title = 'media info & stats';
                 const studios = m.studios?.nodes?.map(s => s.name).join(', ') || 'unknown';
+                
+                let tagsHtml = (m.tags || []).filter(t => !t.isMediaSpoiler || !showSpoilers).map(t => 
+                    `<span class="filter-chip" style="margin-bottom:5px; pointer-events:none;">${t.name.toLowerCase()} ${t.rank}%</span>`
+                ).join(' ');
+
+                let extLinksHtml = (m.externalLinks || []).map(l => 
+                    `<a href="${l.url}" target="_blank" class="metro-btn small" style="background:${l.color || 'var(--surface-hover)'}; color:#fff;">${l.site.toLowerCase()}</a>`
+                ).join(' ');
+
+                let scheduleHtml = '';
+                if(m.airingSchedule?.nodes?.length) {
+                    scheduleHtml = m.airingSchedule.nodes.map(ep => {
+                        const date = new Date(ep.airingAt * 1000).toLocaleString();
+                        return `<div style="font-size:16px; margin-bottom:5px; color:var(--text-main);">ep ${ep.episode}: ${date}</div>`;
+                    }).join('');
+                }
+
+                let streamsHtml = '';
+                if(m.streamingEpisodes?.length) {
+                    streamsHtml = m.streamingEpisodes.map(ep => 
+                        `<a href="${ep.url}" target="_blank" class="metro-btn small" style="display:flex; align-items:center; gap:10px; margin-bottom:10px; width:100%; justify-content:flex-start; height:auto; padding:5px; background:var(--surface);">
+                            <img src="${ep.thumbnail}" style="width:100px; height:auto; object-fit:cover;">
+                            <div style="flex:1; white-space:normal; text-align:left;">
+                                <div style="font-size:14px; font-weight:400; color:var(--text-main);">${ep.title.toLowerCase()}</div>
+                                <div style="font-size:12px; color:var(--accent);">${ep.site.toLowerCase()}</div>
+                            </div>
+                        </a>`
+                    ).join('');
+                }
+
+                let scoreDistHtml = '';
+                if(m.stats?.scoreDistribution?.length) {
+                    const maxAmount = Math.max(...m.stats.scoreDistribution.map(s => s.amount));
+                    scoreDistHtml = `<div style="display:flex; align-items:flex-end; gap:2px; height:100px; border-bottom:1px solid var(--text-dim); padding-bottom:5px; margin-top:20px;">` + 
+                        m.stats.scoreDistribution.map(s => {
+                            const h = maxAmount ? (s.amount / maxAmount * 100) : 0;
+                            return `<div style="flex:1; background:var(--accent); height:${h}%; min-height:1px; position:relative;" title="score ${s.score}: ${s.amount} votes"></div>`;
+                        }).join('') + `</div><div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-top:5px;"><span>10</span><span>100</span></div>`;
+                }
+
+                let statusDistHtml = '';
+                if(m.stats?.statusDistribution?.length) {
+                    const statusColors = {'CURRENT': '#1ba1e2', 'PLANNING': '#f39c12', 'COMPLETED': '#60a917', 'DROPPED': '#d80073', 'PAUSED': '#8a2be2'};
+                    const totalVotes = m.stats.statusDistribution.reduce((sum, s) => sum + s.amount, 0);
+                    statusDistHtml = m.stats.statusDistribution.map(s => {
+                        const pct = totalVotes ? Math.round(s.amount / totalVotes * 100) : 0;
+                        const c = statusColors[s.status] || 'var(--accent)';
+                        return `<div style="margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:2px;"><span>${s.status.toLowerCase()}</span><span>${pct}%</span></div>
+                            <div style="width:100%; height:8px; background:var(--surface-hover);"><div style="width:${pct}%; height:100%; background:${c};"></div></div>
+                        </div>`;
+                    }).join('');
+                }
+
                 contentHtml = `
             <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:15px; margin-top:20px;">
                 <div class="panel" style="background-color: #1ba1e2; color: #fff; border: none;">
                     <h4 style="color:rgba(255,255,255,0.7); margin-bottom:10px; font-weight:300;">studio</h4>
-                    <div style="font-size:18px;">${studios}</div>
+                    <div style="font-size:18px;">${studios.toLowerCase()}</div>
                 </div>
                 <div class="panel" style="background-color: #d80073; color: #fff; border: none;">
                     <h4 style="color:rgba(255,255,255,0.7); margin-bottom:10px; font-weight:300;">average score</h4>
@@ -5983,28 +6961,64 @@
                     <div style="font-size:24px; font-weight:200;">#${m.trending || '?'}</div>
                 </div>
                 <div class="panel">
-                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">format</h4>
-                    <div style="font-size:18px;">${(m.format || 'tv').toLowerCase()}</div>
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">source</h4>
+                    <div style="font-size:18px;">${(m.source || 'unknown').replace(/_/g, ' ').toLowerCase()}</div>
                 </div>
                 <div class="panel">
-                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">status</h4>
-                    <div style="font-size:18px;">${(m.status || 'unknown').toLowerCase().replace('_', ' ')}</div>
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">duration</h4>
+                    <div style="font-size:18px;">${m.duration ? m.duration + ' mins' : 'n/a'}</div>
+                </div>
+                <div class="panel">
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">favorites</h4>
+                    <div style="font-size:18px;">${m.favourites || 0}</div>
                 </div>
                 <div class="panel">
                     <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">${(m.type || 'ANIME') === 'ANIME' ? 'episodes' : 'chapters'}</h4>
                     <div style="font-size:32px; font-weight:100;">${(m.type || 'ANIME') === 'ANIME' ? (m.episodes || '?') : (m.chapters || '?')}</div>
                 </div>
+                ${scheduleHtml ? `
                 <div class="panel" style="grid-column: 1 / -1;">
-                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">genres</h4>
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">airing schedule</h4>
+                    <div>${scheduleHtml}</div>
+                </div>` : ''}
+                ${streamsHtml ? `
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">watch</h4>
+                    <div>${streamsHtml}</div>
+                </div>` : ''}
+                ${scoreDistHtml ? `
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">score distribution</h4>
+                    <div>${scoreDistHtml}</div>
+                </div>` : ''}
+                ${statusDistHtml ? `
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">status distribution</h4>
+                    <div>${statusDistHtml}</div>
+                </div>` : ''}
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">tags</h4>
                     <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                        ${(m.genres || []).map(g => `<span style="background:var(--surface); padding:8px 16px; font-size:14px;">${g.toLowerCase()}</span>`).join('')}
+                        ${tagsHtml || '<div style="color:var(--text-dim);">none</div>'}
                     </div>
                 </div>
                 <div class="panel" style="grid-column: 1 / -1;">
-                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">anilist link</h4>
-                    <a href="${m.siteUrl}" target="_blank" class="metro-btn" style="display:inline-block; margin-top:10px;">open on anilist <i class="fa-solid fa-external-link"></i></a>
+                    <h4 style="color:var(--accent); margin-bottom:10px; font-weight:300;">links</h4>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom: 10px;">
+                        <a href="${m.siteUrl}" target="_blank" class="metro-btn small">anilist <i class="fa-solid fa-external-link"></i></a>
+                        ${extLinksHtml}
+                    </div>
                 </div>
             </div>`;
+            } else if (type === 'recommendations') {
+                title = 'recommendations';
+                let recs = (m.recommendations?.nodes || []).map(r => {
+                    const rm = r.mediaRecommendation;
+                    if(!rm) return '';
+                    const rt = rm.title.english || rm.title.romaji;
+                    return createFlipTile(rm.id, rm.type, rm.coverImage.large, rt, rt, '', '', null);
+                }).join('');
+                contentHtml = bannerBase.replace('{SUBTITLE}', 'similar media') + `<div class="tile-grid" style="margin-top:20px;">${recs || '<div style="color:var(--text-dim);">no recommendations found.</div>'}</div>`;
             }
 
             sub.innerHTML = `
@@ -6211,6 +7225,35 @@
             openVideoSubview(`https://www.youtube.com/embed/${youtubeId}?autoplay=1`);
         }
 
+        async function openStudioDetail(studioId, studioName) {
+            document.getElementById('main-nav').classList.add('ui-hidden');
+            document.getElementById('top-right-nav').classList.add('ui-hidden');
+            const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading studio...</div>'; panel.style.display = 'block';
+
+            const q = `query ($id: Int, $page: Int) { Studio(id: $id) { name media(page:$page,perPage:20,sort:START_DATE_DESC) { pageInfo { hasNextPage } nodes { id title { english romaji } coverImage { large } averageScore isAdult status } } } }`;
+            try {
+                const data = await fetchAPI(q, { id: studioId, page: 1 });
+                if (!data || !data.Studio) {
+                    content.innerHTML = '<div style="color:var(--text-dim);">studio not found.</div>';
+                    return;
+                }
+                const studio = data.Studio;
+                content.innerHTML = `
+            <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
+            <h1 class="metro-huge-title" style="margin-top:50px; color:var(--accent);">${(studio.name || studioName).toLowerCase()}</h1>
+            <div class="tile-grid" style="margin-top:40px;" id="studio-detail-grid"></div>`;
+                const grid = document.getElementById('studio-detail-grid');
+                studio.media.nodes.forEach(m => {
+                    const title = m.title.english || m.title.romaji || 'unknown';
+                    grid.innerHTML += createFlipTile(m.id, 'ANIME', m.coverImage.large, title, title, m.averageScore ? (m.averageScore / 10).toFixed(1) : '', (m.status || '').toLowerCase(), '', m.isAdult);
+                });
+            } catch (e) {
+                content.innerHTML = '<div style="color:var(--text-dim);">error loading studio.</div>';
+                console.error(e);
+            }
+        }
+
         async function openGenreOverview(genre, type) {
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
@@ -6243,6 +7286,18 @@
                 const idx = btnMap[status];
                 if (idx !== undefined) document.querySelectorAll('.status-btn')[idx].classList.add('active');
             } catch (e) { showToast('error saving list entry'); console.error(e); }
+        }
+
+        async function toggleFavourite(id, type, btn) {
+            if(isGuest) { showToast('sign in to favorite'); return; }
+            const typeStr = type === 'ANIME' ? 'animeId' : 'mangaId';
+            const q = `mutation ($id:Int) { ToggleFavourite(${typeStr}: $id) { ${type.toLowerCase()} { pageInfo { total } } } }`;
+            try {
+                await fetchAPI(q, { id });
+                currentMediaCache.isFavourite = !currentMediaCache.isFavourite;
+                btn.innerHTML = `<i class="fa-${currentMediaCache.isFavourite ? 'solid' : 'regular'} fa-heart"></i> fav`;
+                showToast(currentMediaCache.isFavourite ? 'added to favorites' : 'removed from favorites');
+            } catch(e) { console.error(e); showToast('error toggling favorite'); }
         }
 
         // ==========================================
@@ -6293,6 +7348,16 @@
                     <label class="form-label">repeat count</label>
                     <input class="editor-input" type="number" name="repeat" min="0" value="${entry.repeat || 0}">
                 </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div class="form-group">
+                        <label class="form-label">started (yyyy-mm-dd)</label>
+                        <input class="editor-input" type="text" name="startedAt" placeholder="e.g. 2026-05-12" value="${entry.startedAt?.year ? `${entry.startedAt.year}-${String(entry.startedAt.month||1).padStart(2,'0')}-${String(entry.startedAt.day||1).padStart(2,'0')}` : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">completed (yyyy-mm-dd)</label>
+                        <input class="editor-input" type="text" name="completedAt" placeholder="e.g. 2026-05-12" value="${entry.completedAt?.year ? `${entry.completedAt.year}-${String(entry.completedAt.month||1).padStart(2,'0')}-${String(entry.completedAt.day||1).padStart(2,'0')}` : ''}">
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="form-label">notes</label>
                     <textarea class="editor-input" name="notes" rows="3" style="resize: vertical;">${entry.notes || ''}</textarea>
@@ -6301,9 +7366,12 @@
                     <label class="form-label">private</label>
                     <input type="checkbox" class="metro-checkbox" name="private" ${entry.private ? 'checked' : ''}>
                 </div>
-                <div class="editor-actions">
-                    <button type="button" class="metro-btn" onclick="closeMediaEditor()">cancel</button>
-                    <button type="submit" class="metro-btn primary">save</button>
+                <div class="editor-actions" style="justify-content: space-between;">
+                    ${entry.id ? `<button type="button" class="metro-btn" style="color:var(--accent-red);" onclick="deleteMediaEntry(${entry.id}, ${mediaId}, '${type}')"><i class="fa-solid fa-trash"></i> delete</button>` : '<div></div>'}
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" class="metro-btn" onclick="closeMediaEditor()">cancel</button>
+                        <button type="submit" class="metro-btn primary">save</button>
+                    </div>
                 </div>
             </form>`;
             } catch (e) { content.innerHTML = '<div style="color:var(--text-dim);">error loading editor.</div>'; console.error(e); }
@@ -6315,9 +7383,29 @@
             document.getElementById('top-right-nav').classList.remove('ui-hidden');
         }
 
+        async function deleteMediaEntry(entryId, mediaId, type) {
+            if(!confirm('delete this list entry?')) return;
+            const q = `mutation ($id:Int) { DeleteMediaListEntry(id:$id) { deleted } }`;
+            try {
+                await fetchAPI(q, { id: entryId });
+                showToast('entry deleted');
+                closeMediaEditor();
+                loadLibrary(type);
+                if (currentMediaCache && currentMediaCache.id === mediaId) {
+                    openDetailById(mediaId, type);
+                }
+            } catch(e) { showToast('error deleting'); }
+        }
+
         async function saveMediaEntry(event, mediaId, type) {
             event.preventDefault();
             const form = event.target;
+            const parseDate = (val) => {
+                if(!val) return undefined;
+                const p = val.split('-');
+                if(p.length === 3) return { year: parseInt(p[0]), month: parseInt(p[1]), day: parseInt(p[2]) };
+                return undefined;
+            };
             const data = {
                 mediaId,
                 status: form.status.value,
@@ -6325,10 +7413,12 @@
                 progress: parseInt(form.progress.value) || 0,
                 repeat: parseInt(form.repeat.value) || 0,
                 notes: form.notes.value,
-                private: form.private.checked
+                private: form.private.checked,
+                startedAt: parseDate(form.startedAt.value),
+                completedAt: parseDate(form.completedAt.value)
             };
-            const q = `mutation ($mediaId:Int,$status:MediaListStatus,$score:Float,$progress:Int,$repeat:Int,$notes:String,$private:Boolean) {
-        SaveMediaListEntry(mediaId:$mediaId,status:$status,score:$score,progress:$progress,repeat:$repeat,notes:$notes,private:$private) {
+            const q = `mutation ($mediaId:Int,$status:MediaListStatus,$score:Float,$progress:Int,$repeat:Int,$notes:String,$private:Boolean,$startedAt:FuzzyDateInput,$completedAt:FuzzyDateInput) {
+        SaveMediaListEntry(mediaId:$mediaId,status:$status,score:$score,progress:$progress,repeat:$repeat,notes:$notes,private:$private,startedAt:$startedAt,completedAt:$completedAt) {
             id status score progress repeat notes private
         }
     }`;
@@ -6543,6 +7633,7 @@
                     showToast(on ? 'blur effect enabled' : 'blur effect disabled');
                 });
             }
+            buildYearCalendar();
         });
     </script>
 </body>
