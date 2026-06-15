@@ -4860,12 +4860,18 @@
             const entry = currentMediaCache?.mediaListEntry || {};
             let nextProgress = (entry.progress || 0) + delta;
             if (nextProgress < 0) nextProgress = 0;
-            if (total && nextProgress > total) nextProgress = total;
-            const status = entry.status || 'CURRENT';
-            const q = `mutation ($mediaId:Int,$status:MediaListStatus,$progress:Int) { SaveMediaListEntry(mediaId:$mediaId,status:$status,progress:$progress) { id status progress } }`;
-            fetchAPI(q, { mediaId, status, progress: nextProgress })
+            let nextStatus = entry.status || 'CURRENT';
+            if (total && nextProgress >= total && total > 0) {
+                nextProgress = total;
+                nextStatus = 'COMPLETED';
+            } else if (entry.status === 'COMPLETED' && total && nextProgress < total) {
+                nextStatus = 'CURRENT';
+            }
+            const autoDates = getAutoDatesForStatus(nextStatus, entry);
+            const q = `mutation ($mediaId:Int,$status:MediaListStatus,$progress:Int,$startedAt:FuzzyDateInput,$completedAt:FuzzyDateInput) { SaveMediaListEntry(mediaId:$mediaId,status:$status,progress:$progress,startedAt:$startedAt,completedAt:$completedAt) { id status progress } }`;
+            fetchAPI(q, { mediaId, status: nextStatus, progress: nextProgress, ...autoDates })
                 .then(data => {
-                    showToast('progress updated');
+                    showToast(nextStatus === 'COMPLETED' ? 'progress completed' : 'progress updated');
                     if (currentMediaCache && currentMediaCache.id === mediaId) {
                         currentMediaCache.mediaListEntry = data.SaveMediaListEntry;
                         openDetailById(mediaId, type);
@@ -4873,6 +4879,49 @@
                     loadLibrary(type);
                 })
                 .catch(e => { console.error(e); showToast('could not update progress'); });
+        }
+
+        function getAutoDatesForStatus(status, entry) {
+            const result = {};
+            const hasStarted = entry?.startedAt?.year;
+            const hasCompleted = entry?.completedAt?.year;
+            if (status === 'CURRENT' && !hasStarted) {
+                result.startedAt = getTodayFuzzyDate();
+            }
+            if (status === 'COMPLETED') {
+                if (!hasStarted) result.startedAt = getTodayFuzzyDate();
+                if (!hasCompleted) result.completedAt = getTodayFuzzyDate();
+            }
+            return result;
+        }
+
+        function getTodayFuzzyDate() {
+            const now = new Date();
+            return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
+        }
+
+        async function incrementLibraryProgress(mediaId, total) {
+            if (isGuest) { showToast('sign in to track progress'); return; }
+            const listEntries = (allListsData[currentMediaType] || {})[currentLibStatus] || [];
+            const entry = listEntries.find(e => e.media?.id === mediaId);
+            if (!entry) return;
+            let nextProgress = (entry.progress || 0) + 1;
+            let nextStatus = entry.status || 'CURRENT';
+            if (total && nextProgress >= total && total > 0) {
+                nextProgress = total;
+                nextStatus = 'COMPLETED';
+            }
+            const autoDates = getAutoDatesForStatus(nextStatus, entry);
+            const q = `mutation ($mediaId:Int,$status:MediaListStatus,$progress:Int,$startedAt:FuzzyDateInput,$completedAt:FuzzyDateInput) { SaveMediaListEntry(mediaId:$mediaId,status:$status,progress:$progress,startedAt:$startedAt,completedAt:$completedAt) { id status progress } }`;
+            try {
+                await fetchAPI(q, { mediaId, status: nextStatus, progress: nextProgress, ...autoDates });
+                showToast(nextStatus === 'COMPLETED' ? 'marked completed' : 'progress +1');
+                loadLibrary(currentMediaType);
+                if (currentMediaCache && currentMediaCache.id === mediaId) openDetailById(mediaId, currentMediaType);
+            } catch (e) {
+                console.error(e);
+                showToast('could not update progress');
+            }
         }
 
         // ==========================================
@@ -5123,7 +5172,7 @@
         async function loadLibrary(mediaType) {
             if (isGuest) return;
             try {
-                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status entries { score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
+                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status entries { id score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
                 const data = await fetchAPI(q, { userId: currentUserId, type: mediaType });
                 allListsData[mediaType] = {};
                 libraryLoaded[mediaType] = true;
@@ -5193,6 +5242,7 @@
                 else if (status === 'CURRENT') badge = displayProgress + (total !== '?' ? '/' + total : '');
 
                 // Custom render for tile vs list view
+                const totalCount = (currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters) || 0;
                 const viewMode = document.getElementById('lib-view-select')?.value || 'grid';
                 if (viewMode === 'list') {
                     const isBulk = isBulkMode ? `<input type="checkbox" class="metro-checkbox bulk-check" data-id="${entry.media.id}" onclick="event.stopPropagation()">` : '';
@@ -5202,7 +5252,10 @@
                         <img src="${entry.media.coverImage?.large || ''}" style="width:36px; height:48px; object-fit:cover;">
                         <div style="flex:1; overflow:hidden;">
                             <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${title.toLowerCase()}</div>
-                            <div style="font-size:12px; color:var(--text-dim);">${progressStr}</div>
+                            <div style="display:flex; gap:8px; align-items:center; margin-top:4px;">
+                                <div style="font-size:12px; color:var(--text-dim);">${progressStr}</div>
+                                <button class="metro-btn small" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); incrementLibraryProgress(${entry.media.id}, ${totalCount})"><i class="fa-solid fa-plus"></i></button>
+                            </div>
                         </div>
                         <div style="color:var(--accent); font-weight:bold; margin-right:10px;"><i class="fa-solid fa-star"></i> ${entry.score || '-'}</div>
                     </div>`;
@@ -7276,9 +7329,10 @@
         }
 
         async function addToList(mediaId, type, status) {
-            const q = `mutation ($mediaId:Int,$status:MediaListStatus) { SaveMediaListEntry(mediaId:$mediaId,status:$status) { id status } }`;
+            const autoDates = getAutoDatesForStatus(status, currentMediaCache?.mediaListEntry || {});
+            const q = `mutation ($mediaId:Int,$status:MediaListStatus,$startedAt:FuzzyDateInput,$completedAt:FuzzyDateInput) { SaveMediaListEntry(mediaId:$mediaId,status:$status,startedAt:$startedAt,completedAt:$completedAt) { id status } }`;
             try {
-                await fetchAPI(q, { mediaId, status });
+                await fetchAPI(q, { mediaId, status, ...autoDates });
                 showToast('saved: ' + status.toLowerCase());
                 loadLibrary(type);
                 document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
@@ -7417,6 +7471,12 @@
                 startedAt: parseDate(form.startedAt.value),
                 completedAt: parseDate(form.completedAt.value)
             };
+            const autoDates = getAutoDatesForStatus(data.status, entry);
+            const totalCount = currentMediaCache && currentMediaCache.id === mediaId ? (type === 'ANIME' ? currentMediaCache.episodes : currentMediaCache.chapters) : 0;
+            if (data.status !== 'COMPLETED' && totalCount && data.progress >= totalCount) {
+                data.status = 'COMPLETED';
+            }
+            Object.assign(data, autoDates);
             const q = `mutation ($mediaId:Int,$status:MediaListStatus,$score:Float,$progress:Int,$repeat:Int,$notes:String,$private:Boolean,$startedAt:FuzzyDateInput,$completedAt:FuzzyDateInput) {
         SaveMediaListEntry(mediaId:$mediaId,status:$status,score:$score,progress:$progress,repeat:$repeat,notes:$notes,private:$private,startedAt:$startedAt,completedAt:$completedAt) {
             id status score progress repeat notes private
