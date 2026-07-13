@@ -69,6 +69,7 @@
             font-family: "Segoe UI Light", "Segoe WP Light", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif !important;
             font-weight: 300;
             overflow: hidden;
+            max-width: 100vw;
             text-transform: lowercase;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -411,15 +412,15 @@
         }
 
         .nav-arrow-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            width: 56px;
+            height: 44px;
+            border-radius: 0;
             border: 2px solid var(--text-dim);
             background: transparent;
             color: var(--text-dim);
             font-size: 20px;
             cursor: pointer;
-            transition: transform 0.1s, border-color 0.2s, color 0.2s;
+            transition: transform 0.2s var(--metro-easing), border-color 0.2s var(--metro-easing), color 0.2s var(--metro-easing);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -638,7 +639,7 @@
             width: 28px;
             height: 28px;
             margin: 0 auto;
-            border-radius: 50%;
+            border-radius: 0;
             border: 3px solid rgba(255,255,255,0.12);
             border-top-color: var(--accent);
             animation: spin 1s linear infinite;
@@ -1033,10 +1034,9 @@
             width: 10px;
             min-width: 10px;
             height: 10px;
-            border-radius: 50%;
+            border-radius: 0;
             background: var(--accent);
             margin-top: 8px;
-            box-shadow: 0 0 0 4px rgba(27,161,226,0.06);
         }
 
         .timeline-content {
@@ -2854,8 +2854,8 @@
         }
 
         /* MOBILE BOTTOM NAVIGATION (Metro UI v4 Style) */
-        .mobile-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--surface-hover); display: flex; justify-content: space-around; align-items: center; z-index: 999; }
-        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--text-dim); flex: 1; height: 100%; transition: all 0.2s; font-size: 11px; font-weight: 400; text-transform: lowercase; }
+        .mobile-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--surface-hover); display: none; justify-content: flex-start; align-items: center; z-index: 999; overflow-x: auto; overflow-y: hidden; padding-bottom: env(safe-area-inset-bottom, 0); }
+        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--text-dim); min-width: 76px; height: 100%; transition: all 0.2s; font-size: 11px; font-weight: 400; text-transform: lowercase; padding: 0 8px; flex: 0 0 auto; }
         .mobile-nav-item i { font-size: 20px; }
         .mobile-nav-item.active { color: var(--accent); background: rgba(27,161,226,0.1); }
         .mobile-nav-item:active { transform: scale(0.9); }
@@ -2902,12 +2902,19 @@
             }
 
             .top-right-nav {
-                top: 15px;
-                right: 15px;
+                display: none !important;
             }
 
             .nav-arrows {
                 display: none;
+            }
+
+            .xbox-nav {
+                display: none !important;
+            }
+
+            .mobile-bottom-nav {
+                display: flex;
             }
 
             #detail-panel {
@@ -3059,7 +3066,7 @@
         <div
             style="width:100%; height:calc(100vh - 120px); background: #000; display:flex; align-items:center; justify-content:center; padding: 20px;">
             <div
-                style="width:100%; max-width: 1200px; aspect-ratio: 16/9; box-shadow: 0 0 50px rgba(0,0,0,0.8); position:relative;">
+                style="width:100%; max-width: 1200px; aspect-ratio: 16/9; position:relative;">
                 <iframe id="video-iframe" src="" frameborder="0" allowfullscreen
                     style="width:100%; height:100%;"></iframe>
             </div>
@@ -3955,7 +3962,11 @@
         const container = document.getElementById('app-container');
         const bgHero = document.getElementById('dynamic-header');
         const topNav = document.getElementById('main-nav');
+        const topRightNav = document.getElementById('top-right-nav');
+        const arrowNav = document.getElementById('main-arrows');
+        const mobileBottomNav = document.getElementById('mobile-bottom-nav');
         const navItems = document.querySelectorAll('.nav-item');
+        const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
         let activeNavIndex = -1;
         let isDown = false, startX, scrollLeft;
 
@@ -4001,11 +4012,49 @@
         function scrollToSection(index) {
             const width = getSectionWidth();
             if (container) container.scrollTo({ left: width * index, behavior: 'smooth' });
+            setActiveNavState(index, false);
         }
 
         function scrollPanorama(dir) {
             const w = getSectionWidth();
             if (container) container.scrollBy({ left: dir * w, behavior: 'smooth' });
+        }
+
+        function isMobileViewport() {
+            return window.innerWidth <= 768;
+        }
+
+        function setActiveNavState(index, playSound = true) {
+            const clampedIndex = Math.max(0, Math.min(index, navItems.length - 1));
+            if (activeNavIndex !== clampedIndex) {
+                if (playSound && activeNavIndex !== -1 && typeof Sfx !== 'undefined') Sfx.play('pan');
+                activeNavIndex = clampedIndex;
+            }
+
+            navItems.forEach((n, i) => n.classList.toggle('active', i === clampedIndex));
+            mobileNavItems.forEach((n, i) => n.classList.toggle('active', i === clampedIndex));
+
+            if (!isMobileViewport() && navItems[clampedIndex]) {
+                const offset = navItems[clampedIndex].offsetLeft;
+                topNav.style.transform = `translateX(-${offset}px)`;
+            } else {
+                topNav.style.transform = 'translateX(0)';
+            }
+        }
+
+        function syncNavigationVisibility() {
+            const appVisible = document.getElementById('app-container').style.display === 'flex';
+            if (!appVisible) return;
+
+            const mobile = isMobileViewport();
+            topNav.style.display = mobile ? 'none' : 'flex';
+            topRightNav.style.display = mobile ? 'none' : 'flex';
+            arrowNav.style.display = mobile ? 'none' : 'flex';
+            mobileBottomNav.style.display = mobile ? 'flex' : 'none';
+        }
+
+        function scrollToSectionMobile(index) {
+            scrollToSection(index);
         }
 
         container.addEventListener('scroll', () => {
@@ -4016,15 +4065,12 @@
             if (bgHero) bgHero.style.transform = `translateX(-${container.scrollLeft * 0.3}px)`;
 
             const idx = Math.round(scrollRatio);
-            if (activeNavIndex !== idx) {
-                if (activeNavIndex !== -1 && typeof Sfx !== 'undefined') Sfx.play('pan');
-                activeNavIndex = idx;
-                navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
-                if (navItems[idx]) {
-                    const offset = navItems[idx].offsetLeft;
-                    topNav.style.transform = `translateX(-${offset}px)`;
-                }
-            }
+            setActiveNavState(idx);
+        });
+
+        window.addEventListener('resize', () => {
+            syncNavigationVisibility();
+            setActiveNavState(Math.round(container.scrollLeft / getSectionWidth()), false);
         });
 
         // ==========================================
@@ -4253,14 +4299,13 @@
             if (accessToken) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
-                document.getElementById('main-nav').style.display = 'flex';
-                document.getElementById('top-right-nav').style.display = 'flex';
-                if (window.innerWidth > 768) document.getElementById('main-arrows').style.display = 'flex';
+                syncNavigationVisibility();
 
                 try {
                     const firstNav = navItems[0];
                     if (firstNav) topNav.style.transform = `translateX(-${firstNav.offsetLeft}px)`;
                 } catch (e) { }
+                setActiveNavState(0, false);
 
                 loadUserData().catch(err => {
                     console.error('User data load failed:', err);
@@ -4273,12 +4318,11 @@
             isGuest = true;
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('app-container').style.display = 'flex';
-            document.getElementById('main-nav').style.display = 'flex';
-            document.getElementById('top-right-nav').style.display = 'flex';
-            if (window.innerWidth > 768) document.getElementById('main-arrows').style.display = 'flex';
+            syncNavigationVisibility();
 
             const firstNav = navItems[0];
             if (firstNav) topNav.style.transform = `translateX(-${firstNav.offsetLeft}px)`;
+            setActiveNavState(0, false);
 
             document.getElementById('user-page-name').innerText = 'guest';
             document.getElementById('start-tile-user').innerText = 'guest';
@@ -6824,7 +6868,7 @@
             ${bannerHtml}
             <div style="display:flex; flex-wrap:wrap; gap:30px; ${!m.bannerImage ? 'margin-top:50px;' : 'position:relative; z-index:2; margin-top:-100px; padding:0 20px;'}">
                 <div style="flex: 0 0 300px;">
-                    <img src="${m.coverImage.extraLarge}" style="width:100%; border:4px solid var(--surface-hover); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <img src="${m.coverImage.extraLarge}" style="width:100%; border:4px solid var(--surface-hover); margin-bottom: 20px;">
                     ${listManagementHtml}
                 </div>
                 <div style="flex:1; min-width:300px;">
