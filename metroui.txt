@@ -1,0 +1,95 @@
+# METRO UI v4 TECHNICAL IMPLEMENTATION GUIDE
+# Project: AniList Metro Web App
+
+## PART 1: CORE INSTALLATION & SETUP
+### 1.1 Required CDN Links
+Place these in <head> before all other styles:
+- CSS: https://cdn.metroui.org.ua/4.5.12/metro.css
+- Icons: https://cdn.metroui.org.ua/4.5.12/icons.css
+Place this before </body>:
+- JS: https://cdn.metroui.org.ua/4.5.12/metro.js
+
+### 1.2 Required Meta Tags
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+---
+
+## PART 2: COMPONENT ENCYCLOPEDIA
+
+### 2.1 TILES (data-role="tile")
+Used for the "Discover" and "Start" sections.
+- Sizes: data-size="small" (1x1), "medium" (2x2), "wide" (4x2), "large" (4x4).
+- Anatomy:
+    - .icon: Inside tile for identification.
+    - .branding-bar: Label at the bottom.
+    - .badge-top / .badge-bottom: Notification counts.
+    - data-cover="url": Full background image.
+- Effects (data-effect):
+    - Hover: "hover-zoom-up", "hover-slide-left", etc. (Requires .slide-front and .slide-back).
+    - Live: "animate-slide-up", "animate-fade" (Requires multiple .slide elements).
+    - Image-Set: "image-set" (Cycles through <img> tags inside tile).
+- Layout: Use .tiles-grid container. Use .col-N .row-M for absolute positioning.
+
+### 2.2 CARDS (class="card")
+Used for User Profiles and Media details.
+- Types:
+    - Simple: .card -> .card-header, .card-content, .card-footer.
+    - Image Header: .card.image-header (header uses background-image).
+    - Likes Card: .card -> .card-header (avatar, name, date), .card-content (image/text), .card-footer (.flat-button).
+    - Skill Box: .skill-box -> .header (avatar, title, subtitle), .skills (ul list with progress bars).
+    - Social Box: .social-box -> .header, .skills (stats with bold numbers).
+    - More Info Box: .more-info-box (Big number, label, .more link).
+
+### 2.3 NAVIGATION VIEW (data-role="navview")
+Used for the mobile view navigation menu.
+- Structure:
+    - .navview-pane: The side menu.
+        - .pull-button: Hamburger toggle.
+        - .suggest-box: Search input area.
+        - .navview-menu (ul): The actual links.
+    - .navview-content: The main page content.
+- Display Modes: data-expand="lg", data-compact="md" (Control when it collapses).
+- JS Methods: nv.open(), nv.close(), nv.toggle().
+
+### 2.4 STREAMER (data-role="streamer")
+Used for the "Airing" anime list timeline.
+- Setup: Requires id and data-source (JSON) or data-data (Object).
+- JSON Structure:
+    - actions: [{html, cls, onclick}]
+    - timeline: {start, stop, step}
+    - streams: [{title, secondary, icon, events: [...]}]
+- Events: {time, title, subtitle, desc, size, target, cls}.
+- Responsive: Add .streamer-expand-sm/md/lg to force expanded view.
+
+### 2.5 MATERIAL TABS (data-role="materialtabs")
+Used for mobile view tab navigation.
+- Structure: <ul> with <li><a href="#target">caption</a></li>.
+- Options:
+    - data-fixed-tabs="true": Equal width tabs.
+    - data-deep="true": Integrates with .head-bar.
+- Customization: data-cls-tab, data-cls-tab-active, data-cls-marker.
+
+### 2.6 DIALOGS (data-role="dialog")
+Used for confirmation and settings alerts.
+- Logic: Triggered via JS or data-role on a button.
+
+---
+
+## PART 3: THE JS ENGINE & API
+### 3.1 Global Metro Object
+- Metro.init(): Initializes all components.
+- Event Callbacks: use data-on-menu-item-click, data-on-tab, etc.
+
+### 3.2 Programmatic Control
+- NavView: $("#id").data("navview").open();
+- Streamer: streamer.slideTo("HH:MI");
+
+---
+
+## PART 4: AMOLED THEME BRIDGE (Project Overrides)
+To maintain the "Zune" aesthetic while using Metro UI:
+1. Backgrounds: Force .bg-black or #000000 on all .card, .navview-pane, and .tiles-grid.
+2. Text: Use .fg-white for main text, .fg-gray or rgba(255,255,255,0.4) for dim text.
+3. Accent: Map --accent to .bg-cyan or .bg-blue equivalents in Metro UI.
+4. Geometry: Global CSS rule: * { border-radius: 0 !important; box-shadow: none !important; text-transform: lowercase; }

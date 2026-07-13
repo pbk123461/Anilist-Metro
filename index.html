@@ -5,8 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AniList Metro</title>
-    <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+    <!-- Metro UI v4 (vendored locally; metro-bootstrap.css is ~240KB, metro.js needs jQuery) -->
+    <link rel="stylesheet" href="vendor/metro-ui/dist/css/metro-bootstrap.css">
+    <link rel="stylesheet" href="vendor/metro-ui/dist/css/iconFont.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AMOLED / zero-radius override (must come after Metro CSS) -->
+    <link rel="stylesheet" href="vendor/metro-ui/dist/css/metro-override.css">
     <style>
         /* =========================================
            CORE VARIABLES (AMOLED + data-theme)
@@ -2052,6 +2056,158 @@
             color: #fff;
         }
 
+        .more-info-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 112px;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 18px;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+        .more-info-box:hover {
+            transform: scale(0.99);
+            border-color: var(--accent);
+            background: rgba(27,161,226,0.05);
+        }
+        .more-info-content {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .more-info-value {
+            font-size: 2.4rem;
+            font-weight: 100;
+            line-height: 0.9;
+            color: var(--text-main);
+        }
+        .more-info-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+            text-transform: lowercase;
+        }
+        .more-info-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .more-info-icon {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(27,161,226,0.15);
+            border-radius: 8px;
+            color: var(--accent);
+        }
+        .more-info-text {
+            font-size: 0.85rem;
+            color: var(--accent);
+            text-transform: lowercase;
+            font-weight: 600;
+        }
+
+        .social-box, .skill-box {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+        .social-box:hover, .skill-box:hover {
+            transform: scale(0.995);
+            border-color: var(--accent);
+        }
+        .social-box .header, .skill-box .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(27,161,226,0.95);
+            color: #fff;
+        }
+        .social-box .header .avatar, .skill-box .header .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.12);
+        }
+        .social-box .header .avatar img, .skill-box .header .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .social-box .header .title, .skill-box .header .title {
+            font-size: 1.05rem;
+            font-weight: 400;
+            text-transform: lowercase;
+            line-height: 1.1;
+        }
+        .social-box .header .subtitle, .skill-box .header .subtitle {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.86);
+            text-transform: lowercase;
+        }
+        .social-box .skills, .skill-box .skills {
+            list-style: none;
+            margin: 0;
+            padding: 12px 16px 16px;
+            display: grid;
+            gap: 12px;
+        }
+        .social-box .skills li, .skill-box .skills li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .social-box .skills li .text-bold, .skill-box .skills li .text-bold {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: lowercase;
+        }
+        .social-box .skills li div, .skill-box .skills li span {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+        .skill-box .skills li .progress {
+            width: 100%;
+            margin-top: 6px;
+            height: 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+        .skill-box .skills li .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: var(--accent);
+        }
+        .skill-box .skills li .badge {
+            min-width: 40px;
+            text-align: center;
+            border-radius: 999px;
+            padding: 2px 8px;
+            background: rgba(27,161,226,0.2);
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
         .user-stat-value {
             font-size: 2.4rem;
             font-weight: 100;
@@ -2854,20 +3010,89 @@
         }
 
         /* MOBILE BOTTOM NAVIGATION (Metro UI v4 Style) */
-        .mobile-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--surface-hover); display: flex; justify-content: space-around; align-items: center; z-index: 999; }
-        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--text-dim); flex: 1; height: 100%; transition: all 0.2s; font-size: 11px; font-weight: 400; text-transform: lowercase; }
-        .mobile-nav-item i { font-size: 20px; }
-        .mobile-nav-item.active { color: var(--accent); background: rgba(27,161,226,0.1); }
-        .mobile-nav-item:active { transform: scale(0.9); }
+        .bottom-nav.mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 68px;
+            background: var(--surface);
+            border-top: 1px solid var(--surface-hover);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+            padding: 0 4px;
+        }
+        .bottom-nav.mobile-bottom-nav .button {
+            flex: 1;
+            min-width: 0;
+            height: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            padding: 8px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 400;
+            text-transform: lowercase;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s, transform 0.2s;
+        }
+        .bottom-nav.mobile-bottom-nav .button .icon {
+            font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+        .bottom-nav.mobile-bottom-nav .button .label {
+            display: block;
+            line-height: 1.1;
+            opacity: 0.85;
+        }
+        .bottom-nav.mobile-bottom-nav .button.active {
+            color: var(--accent);
+            background: rgba(27, 161, 226, 0.12);
+        }
+        .bottom-nav.mobile-bottom-nav .button:active {
+            transform: scale(0.95);
+        }
         
-        /* MOBILE */
+        .mobile-nav-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            display: none;
+            background: var(--surface);
+            color: var(--text-main);
+            border: 2px solid var(--surface-hover);
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+        .mobile-nav-toggle:active {
+            transform: scale(0.9);
+            background: var(--accent);
+        }
         @media (max-width: 768px) {
-            .header-section {
-                width: 100vw;
-                flex: 0 0 100vw;
-                padding: 160px 20px 70px 20px;
-                margin-right: 0;
+            .mobile-nav-toggle {
+                display: flex;
             }
+            .xbox-nav {
+                display: none;
+            }
+        }
 
             .metro-huge-title {
                 font-size: clamp(3rem, 12vw, 5rem);
@@ -3050,7 +3275,7 @@
     </style>
 </head>
 
-<body class="m4-cloak">
+<body>
     <div id="video-subview" class="metro-subview">
         <div class="subview-header">
             <button class="btn-back" onclick="closeVideoSubview()"><i class="fa-solid fa-arrow-left"></i></button>
@@ -3079,9 +3304,8 @@
                 style="display: flex; gap: 10px; transition: transform 0.5s var(--metro-easing);"></div>
         </div>
         <div style="display: flex; gap: 15px; flex-wrap:wrap;">
-            <button class="metro-btn primary" onclick="login()"><i class="fa-solid fa-right-to-bracket"></i> sign
-                in</button>
-            <button class="metro-btn" onclick="guestMode()"><i class="fa-solid fa-user-secret"></i> guest mode</button>
+            <button type="button" id="login-sign-in-btn" class="button primary" data-role="button"><i class="fa-solid fa-right-to-bracket"></i> sign in</button>
+            <button type="button" id="login-guest-btn" class="button" data-role="button"><i class="fa-solid fa-user-secret"></i> guest mode</button>
         </div>
     </div>
 
@@ -3147,17 +3371,40 @@
         <button class="nav-arrow-btn" onclick="scrollPanorama(1)"><i class="fa-solid fa-arrow-right"></i></button>
     </div>
 
-    <!-- Mobile Bottom Navigation Bar (Metro UI v4 Style) -->
-    <div class="mobile-bottom-nav" id="mobile-bottom-nav" style="display: none;">
-        <div class="mobile-nav-item active" data-section="0" onclick="scrollToSectionMobile(0)"><i class="fa-solid fa-house"></i><span>start</span></div>
-        <div class="mobile-nav-item" data-section="1" onclick="scrollToSectionMobile(1)"><i class="fa-solid fa-user"></i><span>user</span></div>
-        <div class="mobile-nav-item" data-section="2" onclick="scrollToSectionMobile(2)"><i class="fa-solid fa-book"></i><span>library</span></div>
-        <div class="mobile-nav-item" data-section="3" onclick="scrollToSectionMobile(3)"><i class="fa-solid fa-users"></i><span>community</span></div>
-        <div class="mobile-nav-item" data-section="4" onclick="scrollToSectionMobile(4)"><i class="fa-solid fa-magnifying-glass"></i><span>discover</span></div>
-        <div class="mobile-nav-item" data-section="5" onclick="scrollToSectionMobile(5)"><i class="fa-solid fa-calendar"></i><span>airing</span></div>
-        <div class="mobile-nav-item" data-section="6" onclick="scrollToSectionMobile(6)"><i class="fa-solid fa-envelope"></i><span>inbox</span></div>
-        <div class="mobile-nav-item" data-section="7" onclick="scrollToSectionMobile(7)"><i class="fa-solid fa-gear"></i><span>system</span></div>
+    <div class="mobile-nav-toggle" onclick="toggleMobileNav()">
+        <i class="fa-solid fa-bars"></i>
     </div>
+    <div data-role="navview" id="mobile-nav-view" style="display: none;">
+        <div class="navview-pane">
+            <button class="pull-button" onclick="toggleMobileNav()" data-role="button">
+                <span class="mif-menu"></span>
+            </button>
+            <div class="suggest-box">
+                <input type="text" data-role="input" data-clear-button="false" data-search-button="true" 
+                       placeholder="search..." onkeydown="if(event.key === 'Enter') { doSearch(this.value); scrollToSection(4); toggleMobileNav(); }">
+                <button class="holder">
+                    <span class="mif-search"></span>
+                </button>
+            </div>
+            <ul class="navview-menu">
+                <li class="item-header">main</li>
+                <li><a href="javascript:scrollToSection(0); toggleMobileNav();"><span class="icon"><span class="mif-home"></span></span><span class="caption">start</span></a></li>
+                <li><a href="javascript:scrollToSection(1); toggleMobileNav();"><span class="icon"><span class="mif-user"></span></span><span class="caption">user</span></a></li>
+                <li><a href="javascript:scrollToSection(2); toggleMobileNav();"><span class="icon"><span class="mif-book"></span></span><span class="caption">library</span></a></li>
+                <li><a href="javascript:scrollToSection(3); toggleMobileNav();"><span class="icon"><span class="mif-users"></span></span><span class="caption">community</span></a></li>
+                <li><a href="javascript:scrollToSection(4); toggleMobileNav();"><span class="icon"><span class="mif-search"></span></span><span class="caption">discover</span></a></li>
+                <li><a href="javascript:scrollToSection(5); toggleMobileNav();"><span class="icon"><span class="mif-calendar"></span></span><span class="caption">airing</span></a></li>
+                <li><a href="javascript:scrollToSection(6); toggleMobileNav();"><span class="icon"><span class="mif-envelope"></span></span><span class="caption">inbox</span></a></li>
+                <li class="item-separator"></li>
+                <li class="item-header">system</li>
+                <li><a href="javascript:scrollToSection(7); toggleMobileNav();"><span class="icon"><span class="mif-gear"></span></span><span class="caption">settings</span></a></li>
+            </ul>
+        </div>
+        <div class="navview-content">
+            <!-- This will overlap with app-container on mobile -->
+        </div>
+    </div>
+
 
     <div class="panorama-container" id="app-container" style="display: none;">
 
@@ -3165,7 +3412,7 @@
         <section class="header-section">
             <div class="content-scroll">
                 <div class="start-screen-grid">
-                    <div class="metro-tile-start wide profile-tile" style="background-color: var(--surface);"
+                    <div class="tile double profile-tile" data-role="tile" data-effect="hover-zoom" style="background-color: var(--surface);"
                         onclick="scrollToSection(1)">
                         <img id="start-tile-avatar"
                             src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png"
@@ -3174,24 +3421,24 @@
                         <div class="start-title" id="start-tile-user"
                             style="padding: 10px; background: var(--wallpaper-overlay); width: 100%;">guest</div>
                     </div>
-                    <div class="metro-tile-start medium" style="background-color: #60a917;"
+                    <div class="tile" data-role="tile" data-effect="hover-zoom" style="background-color: #60a917;"
                         onclick="scrollToSection(2)">
                         <i class="fa-solid fa-book-open start-icon"></i>
                         <span class="start-title">library</span>
                     </div>
-                    <div class="metro-tile-start medium" style="background-color: #f39c12;"
+                    <div class="tile" data-role="tile" data-effect="hover-zoom" style="background-color: #f39c12;"
                         onclick="scrollToSection(4)">
                         <i class="fa-solid fa-magnifying-glass start-icon"></i>
                         <span class="start-title">discover</span>
                     </div>
-                    <div class="metro-tile-start medium" style="background-color: #d80073;"
+                    <div class="tile" data-role="tile" data-effect="hover-zoom" style="background-color: #d80073;"
                         onclick="scrollToSection(6)">
                         <span class="start-title"
                             style="font-size: 4rem; align-self: center; margin: auto; font-weight: 200; line-height: 1;"
                             id="start-tile-notif">0</span>
                         <span class="start-title">inbox</span>
                     </div>
-                    <div class="metro-tile-start wide" style="background-color: #a20025;" onclick="scrollToSection(3)">
+                    <div class="tile double" data-role="tile" data-effect="hover-zoom" style="background-color: #a20025;" onclick="scrollToSection(3)">
                         <i class="fa-solid fa-users start-icon"></i>
                         <span class="start-title">community</span>
                     </div>
@@ -3219,41 +3466,46 @@
                                 </div>
                             </div>
                             <div class="user-quick-links">
-                                <button class="metro-btn" onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">anime list</button>
-                                <button class="metro-btn" onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">manga list</button>
-                                <button class="metro-btn" onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">full profile</button>
+                                <button class="button" data-role="button" onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">anime list</button>
+                                <button class="button" data-role="button" onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">manga list</button>
+                                <button class="button" data-role="button" onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">full profile</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="user-stat-strip" id="user-stat-strip">
-                    <div class="user-stat-tile accent">
-                        <div class="user-stat-value" id="user-stat-anime-count">0</div>
-                        <div class="user-stat-label">anime tracked</div>
-                        <div class="user-stat-sub" id="user-stat-episodes">0 episodes watched</div>
+                    <div class="more-info-box" onclick="openViewerAnilist()">
+                        <div class="more-info-content">
+                            <div class="more-info-value" id="user-stat-anime-count">0</div>
+                            <div class="more-info-label">anime tracked</div>
+                        </div>
+                        <div class="more-info-meta">
+                            <div class="more-info-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                            <div class="more-info-text">more info</div>
+                        </div>
                     </div>
-                    <div class="user-stat-tile">
+                    <div class="user-stat-tile" data-role="tile">
                         <div class="user-stat-value" id="user-stat-days">0.0</div>
                         <div class="user-stat-label">days watched</div>
                         <div class="user-stat-sub">anime time</div>
                     </div>
-                    <div class="user-stat-tile">
+                    <div class="user-stat-tile" data-role="tile">
                         <div class="user-stat-value" id="user-stat-anime-mean">0.0</div>
                         <div class="user-stat-label">anime mean</div>
                         <div class="user-stat-sub">score</div>
                     </div>
-                    <div class="user-stat-tile">
+                    <div class="user-stat-tile" data-role="tile">
                         <div class="user-stat-value" id="user-stat-manga-count">0</div>
                         <div class="user-stat-label">manga tracked</div>
                         <div class="user-stat-sub" id="user-stat-chapters">0 chapters read</div>
                     </div>
-                    <div class="user-stat-tile">
+                    <div class="user-stat-tile" data-role="tile">
                         <div class="user-stat-value" id="user-stat-volumes">0</div>
                         <div class="user-stat-label">volumes read</div>
                         <div class="user-stat-sub">manga time</div>
                     </div>
-                    <div class="user-stat-tile">
+                    <div class="user-stat-tile" data-role="tile">
                         <div class="user-stat-value" id="user-stat-manga-mean">0.0</div>
                         <div class="user-stat-label">manga mean</div>
                         <div class="user-stat-sub">score</div>
@@ -3370,13 +3622,26 @@
                         <option value="progress-desc">progress (high)</option>
                         <option value="progress">progress (low)</option>
                     </select>
+                    <select class="metro-select" id="lib-format-select" style="max-width:140px; padding:8px 10px; font-size:13px; margin:0;" onchange="filterLibrarySearch(this.value)">
+                        <option value="all">all formats</option>
+                        <option value="tv">tv</option>
+                        <option value="tv_short">tv short</option>
+                        <option value="movie">movie</option>
+                        <option value="ova">ova</option>
+                        <option value="ona">ona</option>
+                        <option value="special">special</option>
+                        <option value="music">music</option>
+                        <option value="manga">manga</option>
+                        <option value="novel">novel</option>
+                        <option value="one_shot">one shot</option>
+                    </select>
                     <select class="metro-select" id="lib-view-select" style="max-width:130px; padding:8px 10px; font-size:13px; margin:0;" onchange="setLibraryView(this.value)">
                         <option value="grid">grid</option>
                         <option value="list">list</option>
                     </select>
-                    <button class="metro-btn small" onclick="toggleBulkMode()" id="bulk-mode-btn">bulk select</button>
-                    <button class="metro-btn small" id="bulk-action-btn" style="display:none;" onclick="applyBulkAction()">apply to selected</button>
-                    <button class="metro-btn small" id="bulk-delete-btn" style="display:none;" onclick="bulkDeleteSelected()"><i class="fa-solid fa-trash"></i> delete selected</button>
+                    <button class="button small" data-role="button" onclick="toggleBulkMode()" id="bulk-mode-btn">bulk select</button>
+                    <button class="button small" data-role="button" id="bulk-action-btn" style="display:none;" onclick="applyBulkAction()">apply to selected</button>
+                    <button class="button small" data-role="button" id="bulk-delete-btn" style="display:none;" onclick="bulkDeleteSelected()"><i class="fa-solid fa-trash"></i> delete selected</button>
                     <select class="metro-select" id="bulk-status-select" style="display:none; max-width:140px; padding:8px 10px; font-size:13px; margin:0;">
                         <option value="CURRENT">watching</option>
                         <option value="PLANNING">planning</option>
@@ -3384,8 +3649,8 @@
                         <option value="PAUSED">paused</option>
                         <option value="DROPPED">dropped</option>
                     </select>
-                    <button class="metro-btn small" onclick="exportLibrary('csv')"><i class="fa-solid fa-download"></i> csv</button>
-                    <button class="metro-btn small" onclick="exportLibrary('json')"><i class="fa-solid fa-download"></i> json</button>
+                    <button class="button small" data-role="button" onclick="exportLibrary('csv')"><i class="fa-solid fa-download"></i> csv</button>
+                    <button class="button small" data-role="button" onclick="exportLibrary('json')"><i class="fa-solid fa-download"></i> json</button>
                 </div>
                 <div class="pivot-headers" id="library-pivots">
                     <div class="pivot-item active" data-status="CURRENT">watching</div>
@@ -3395,7 +3660,7 @@
                     <div class="pivot-item" data-status="DROPPED">dropped</div>
                     <div class="pivot-item" data-status="REPEATING">repeating</div>
                 </div>
-                <div class="tile-grid" id="library-grid">
+                <div class="tile-grid" id="library-grid" data-role="tile">
                     <div style="color:var(--text-dim);">loading...</div>
                 </div>
             </div>
@@ -3449,12 +3714,12 @@
                 <!-- Trending Mode -->
                 <div id="discover-trending" style="display: block;">
                     <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
-                        currently watching <button class="metro-btn small" onclick="openFullGrid('watching')">more</button></div>
+                        currently watching <button class="button small" data-role="button" onclick="openFullGrid('watching')">more</button></div>
                     <div class="trending-row" id="watching-row">
                         <div style="color:var(--text-dim);">log in to see...</div>
                     </div>
                     <div style="font-size: 1.5rem; font-weight: 300; margin: 30px 0 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
-                        trending now <button class="metro-btn small" onclick="openFullGrid('trending')">more</button>
+                        trending now <button class="button small" data-role="button" onclick="openFullGrid('trending')">more</button>
                     </div>
                     <div class="trending-row" id="trending-row">
                         <div style="color:var(--text-dim);">loading...</div>
@@ -3484,18 +3749,7 @@
                             <option value="FALL">fall</option>
                         </select>
                         <div class="year-picker-wrapper">
-                            <div id="filter-year-control" class="year-picker-control" onclick="toggleYearCalendar(event)">
-                                <span id="filter-year-label">all years</span>
-                                <i class="fa-solid fa-calendar-days"></i>
-                            </div>
-                            <input type="hidden" id="filter-year" value="">
-                            <div class="year-calendar-popup" id="filter-year-calendar">
-                                <div class="year-popup-header">
-                                    <div class="year-popup-title">select year</div>
-                                    <button class="metro-btn small" type="button" onclick="clearFilterYear()">clear</button>
-                                </div>
-                                <div class="year-grid" id="filter-year-grid"></div>
-                            </div>
+                            <input type="text" id="filter-year" class="metro-input" placeholder="all years" style="max-width:130px;" data-role="calendarpicker" data-format="%Y" data-input-format="%Y" data-clear-button="true" data-dialog-mode="true" data-dialog-point="320" data-years-before="80" data-years-after="10" data-on-change="applySearchFilters">
                         </div>
                         <select class="metro-select" id="filter-format" onchange="applySearchFilters()">
                             <option value="">all formats</option>
@@ -3540,7 +3794,7 @@
                         <button class="filter-chip" data-sort="EPISODES_DESC" onclick="setSort('EPISODES_DESC',this)">most episodes</button>
                         <button class="filter-chip" data-sort="DURATION_DESC" onclick="setSort('DURATION_DESC',this)">longest</button>
                     </div>
-                    <div class="tile-grid" id="search-results" style="margin-bottom: 40px;"></div>
+                    <div class="tile-grid" id="search-results" style="margin-bottom: 40px;" data-role="tile"></div>
                     <button class="load-more-btn" id="search-load-more" style="display:none;" onclick="loadMoreSearch()">load more...</button>
                 </div>
 
@@ -3555,7 +3809,7 @@
                             <button class="filter-chip" data-season="FALL" onclick="setSeasonFilter('FALL',this)">fall</button>
                         </div>
                     </div>
-                    <div class="tile-grid" id="seasonal-grid"><div style="color:var(--text-dim);">select a season...</div></div>
+                    <div class="tile-grid" id="seasonal-grid" data-role="tile"><div style="color:var(--text-dim);">select a season...</div></div>
                     <button class="load-more-btn" id="seasonal-load-more" style="display:none;" onclick="loadMoreSeasonal()">load more...</button>
                 </div>
 
@@ -3565,7 +3819,7 @@
                         <button class="filter-chip active" data-toptype="ANIME" onclick="setTopType('ANIME',this)">anime</button>
                         <button class="filter-chip" data-toptype="MANGA" onclick="setTopType('MANGA',this)">manga</button>
                     </div>
-                    <div class="tile-grid" id="top100-grid"><div style="color:var(--text-dim);">loading...</div></div>
+                    <div class="tile-grid" id="top100-grid" data-role="tile"><div style="color:var(--text-dim);">loading...</div></div>
                     <button class="load-more-btn" id="top100-load-more" style="display:none;" onclick="loadMoreTop100()">load more...</button>
                 </div>
 
@@ -3575,13 +3829,13 @@
                         <button class="filter-chip active" data-poptype="ANIME" onclick="setPopularType('ANIME',this)">anime</button>
                         <button class="filter-chip" data-poptype="MANGA" onclick="setPopularType('MANGA',this)">manga</button>
                     </div>
-                    <div class="tile-grid" id="popular-grid"><div style="color:var(--text-dim);">loading...</div></div>
+                    <div class="tile-grid" id="popular-grid" data-role="tile"><div style="color:var(--text-dim);">loading...</div></div>
                     <button class="load-more-btn" id="popular-load-more" style="display:none;" onclick="loadMorePopular()">load more...</button>
                 </div>
 
                 <!-- Upcoming Mode -->
                 <div id="discover-upcoming" style="display: none;">
-                    <div class="tile-grid" id="upcoming-grid"><div style="color:var(--text-dim);">loading...</div></div>
+                    <div class="tile-grid" id="upcoming-grid" data-role="tile"><div style="color:var(--text-dim);">loading...</div></div>
                     <button class="load-more-btn" id="upcoming-load-more" style="display:none;" onclick="loadMoreUpcoming()">load more...</button>
                 </div>
 
@@ -3592,7 +3846,7 @@
                         <button class="filter-chip" data-genretype="MANGA" onclick="setGenreType('MANGA',this)">manga</button>
                     </div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;" id="genre-browse-chips"></div>
-                    <div class="tile-grid" id="genre-browse-grid"><div style="color:var(--text-dim);">select a genre above...</div></div>
+                    <div class="tile-grid" id="genre-browse-grid" data-role="tile"><div style="color:var(--text-dim);">select a genre above...</div></div>
                     <button class="load-more-btn" id="genre-browse-load-more" style="display:none;" onclick="loadMoreGenreBrowse()">load more...</button>
                 </div>
 
@@ -3602,7 +3856,7 @@
                         <input type="text" class="metro-input" id="studio-search-input" placeholder="search studios..." style="margin-bottom:0; font-size:18px;">
                     </div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;" id="studio-list-chips"><div style="color:var(--text-dim);">loading studios...</div></div>
-                    <div class="tile-grid" id="studio-media-grid"></div>
+                    <div class="tile-grid" id="studio-media-grid" data-role="tile"></div>
                     <button class="load-more-btn" id="studio-load-more" style="display:none;" onclick="loadMoreStudioMedia()">load more...</button>
                 </div>
 
@@ -3610,11 +3864,11 @@
                 <div id="discover-discussions" style="display: none;">
                     <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">community discussions</div>
                     <div class="trending-row">
-                        <div class="wide-info-tile" onclick="switchDiscoverMode('discussions', this)">
+                        <div class="wide-info-tile" onclick="switchDiscoverMode('discussions', this)" data-role="tile">
                             <div class="wide-info-title"><i class="fa-regular fa-comments"></i> episode discussions</div>
                             <div class="wide-info-sub">community reactions and reviews</div>
                         </div>
-                        <div class="wide-info-tile" onclick="switchDiscoverMode('discussions', this)">
+                        <div class="wide-info-tile" onclick="switchDiscoverMode('discussions', this)" data-role="tile">
                             <div class="wide-info-title"><i class="fa-solid fa-book-open"></i> manga reader corner</div>
                             <div class="wide-info-sub">adaptation differences and theories</div>
                         </div>
@@ -3630,10 +3884,10 @@
                 <div class="airing-toolbar">
                     <div class="airing-calendar-panel">
                         <div class="airing-calendar-header">
-                            <button class="metro-btn small" onclick="shiftAiringMonth(-1)"><i
+                            <button class="button small" data-role="button" onclick="shiftAiringMonth(-1)"><i
                                     class="fa-solid fa-chevron-left"></i></button>
                             <div class="airing-month-label" id="airing-month-label">loading month</div>
-                            <button class="metro-btn small" onclick="shiftAiringMonth(1)"> <i
+                            <button class="button small" data-role="button" onclick="shiftAiringMonth(1)"> <i
                                     class="fa-solid fa-chevron-right"></i></button>
                         </div>
                         <div class="airing-calendar" id="airing-calendar"></div>
@@ -3646,9 +3900,9 @@
                             <div class="airing-meta-badge" id="airing-day-next">next in —</div>
                         </div>
                         <div class="airing-nav">
-                            <button class="metro-btn" onclick="shiftAiringDate(-1)"><i
+                            <button class="button" data-role="button" onclick="shiftAiringDate(-1)"><i
                                     class="fa-solid fa-chevron-left"></i> prev</button>
-                            <button class="metro-btn" onclick="shiftAiringDate(1)">next <i
+                            <button class="button" data-role="button" onclick="shiftAiringDate(1)">next <i
                                     class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
@@ -3658,7 +3912,7 @@
                     <div class="pivot-item" onclick="switchAiringView('week', this)">this week</div>
                 </div>
                 <div class="airing-list-wrapper">
-                    <div class="prog-list airing-tile-grid" id="airing-list">
+                    <div class="prog-list airing-tile-grid" id="airing-list" data-role="tile">
                         <div style="color:var(--text-dim);">loading...</div>
                     </div>
                     <div class="airing-timeline" id="airing-timeline" style="width:100%;">
@@ -3681,7 +3935,7 @@
                         <div class="pivot-item active" onclick="switchInboxCategory('unread', this)">unread</div>
                         <div class="pivot-item" onclick="switchInboxCategory('read', this)">read</div>
                     </div>
-                    <button class="metro-btn small" onclick="markAllNotificationsRead()"><i
+                    <button class="button small" data-role="button" onclick="markAllNotificationsRead()"><i
                             class="fa-solid fa-check-double"></i> mark all as read</button>
                 </div>
                 <div class="inbox-list" id="notif-list">
@@ -3750,29 +4004,29 @@
                         <div class="settings-item">
                             <div class="settings-item-header">ui sound effects</div>
                             <div class="settings-item-sub">xbox 360 dashboard sounds for navigation</div>
-                            <label class="switch">
-                                <input type="checkbox" id="sfx-toggle">
-                                <span class="toggle-track"></span>
+                            <label class="input-control switch">
+                                <input type="checkbox" id="sfx-toggle" data-role="switch">
+                                <span class="check"></span>
+                                <span class="caption">toggle sounds</span>
                             </label>
-                            <span class="toggle-label">toggle sounds</span>
                             <div style="margin-top: 15px;">
                                 <div class="settings-item-sub" style="margin-bottom: 8px;">sound pack</div>
-                                <select class="metro-select" id="sfx-pack-select" style="max-width: 280px;">
+                                <div class="input-control select"><select id="sfx-pack-select" data-role="select" style="max-width: 280px;">
                                     <option value="classic">classic (xbox 360)</option>
                                     <option value="soft">soft</option>
                                     <option value="minimal">minimal</option>
-                                </select>
+                                </select></div>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="settings-item-header">top blur effect</div>
                             <div class="settings-item-sub">zune-style frosted glass blur on navigation bar</div>
-                            <label class="switch">
-                                <input type="checkbox" id="blur-toggle">
-                                <span class="toggle-track"></span>
+                            <label class="input-control switch">
+                                <input type="checkbox" id="blur-toggle" data-role="switch">
+                                <span class="check"></span>
+                                <span class="caption">toggle blur</span>
                             </label>
-                            <span class="toggle-label">toggle blur</span>
                         </div>
 
                         <div class="settings-item">
@@ -3798,7 +4052,7 @@
                                 <div class="wallpaper-controls">
                                     <label class="metro-btn small wallpaper-button" for="wallpaper-input"><i
                                             class="fa-solid fa-plus"></i> choose wallpaper</label>
-                                    <button type="button" class="metro-btn small" onclick="resetWallpaper()"><i
+                                    <button type="button" class="button small" data-role="button" onclick="resetWallpaper()"><i
                                             class="fa-solid fa-trash"></i> clear wallpaper</button>
                                 </div>
                                 <input type="file" id="wallpaper-input" accept="image/*" style="display:none"
@@ -3816,7 +4070,7 @@
                         <div class="settings-item">
                             <div class="settings-item-header">account status</div>
                             <p style="color:var(--text-dim); margin-top:10px;">logged in securely via anilist oauth.</p>
-                            <button class="metro-btn primary" style="margin-top:20px;" onclick="logout()"><i
+                            <button class="button primary" data-role="button" style="margin-top:20px;" onclick="logout()"><i
                                     class="fa-solid fa-power-off"></i> sign out</button>
                         </div>
                     </div>
@@ -3824,29 +4078,29 @@
                     <div id="settings-tab-animemanga" class="settings-subview">
                         <div class="settings-item">
                             <div class="settings-item-header">title language</div>
-                            <select class="metro-select" id="title-select" style="margin-bottom: 30px;">
+                            <div class="input-control select"><select id="title-select" data-role="select" style="margin-bottom: 30px;">
                                 <option value="romaji">romaji</option>
                                 <option value="english">english</option>
                                 <option value="native">native</option>
-                            </select>
+                            </select></div>
                         </div>
                         <div class="settings-item">
                             <div class="settings-item-header">show spoilers</div>
                             <div class="settings-item-sub">reveal spoiler content in descriptions</div>
-                            <label class="switch">
-                                <input type="checkbox" id="spoiler-toggle">
-                                <span class="toggle-track"></span>
+                            <label class="input-control switch">
+                                <input type="checkbox" id="spoiler-toggle" data-role="switch">
+                                <span class="check"></span>
+                                <span class="caption">toggle spoilers</span>
                             </label>
-                            <span class="toggle-label">toggle spoilers</span>
                         </div>
                         <div class="settings-item">
                             <div class="settings-item-header">adult content</div>
                             <div class="settings-item-sub">allow 18+ content in searches and feeds</div>
-                            <label class="switch">
-                                <input type="checkbox" id="adult-toggle">
-                                <span class="toggle-track"></span>
+                            <label class="input-control switch">
+                                <input type="checkbox" id="adult-toggle" data-role="switch">
+                                <span class="check"></span>
+                                <span class="caption">toggle adult content</span>
                             </label>
-                            <span class="toggle-label">toggle adult content</span>
                         </div>
                         <div class="settings-item">
                             <div class="settings-item-header">content settings</div>
@@ -3881,7 +4135,10 @@
 
     </div>
 
-    <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+    <!-- Metro UI v4 needs jQuery, then metro.js -->
+    <script src="vendor/metro-ui/dist/js/jquery/jquery.min.js"></script>
+    <script src="vendor/metro-ui/dist/js/jquery/jquery.widget.min.js"></script>
+    <script src="vendor/metro-ui/dist/js/metro.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.32.2/dist/date-fns.min.js"></script>
 
     <script>
@@ -3913,6 +4170,19 @@
         let communityPage = 1;
         let wheelPickedColor = localStorage.getItem('metro_theme') || '#1ba1e2';
         let currentViewerActivity = [];
+        let currentViewerName = 'guest';
+        let currentUserLibraryType = null;
+        let currentUserLibraryLists = [];
+        let currentUserLibraryActiveName = '';
+        let currentUserLibrarySearch = '';
+
+        function openViewerAnilist() {
+            if (!currentViewerName || currentViewerName === 'guest') {
+                showToast('sign in to open your AniList profile');
+                return;
+            }
+            window.open(`https://anilist.co/user/${currentViewerName}`, '_blank');
+        }
 
         // ==========================================
         // FLIP TILES
@@ -3921,18 +4191,18 @@
         function createFlipTile(id, type, coverImage, title, fullTitle, score, status, progressStr, isAdult = false) {
             const blurClass = (isAdult && !showAdultContent) ? 'blur-adult' : '';
             return `
-    <div class="tile flip-tile" onclick="openDetailById(${id},'${type}')">
-        <div class="flip-tile-inner">
-            <div class="flip-tile-front">
+    <div class="tile flip-tile" data-role="tile" data-effect="hover-zoom" onclick="openDetailById(${id},'${type}')">
+        <div class="flip-tile-inner" data-role="tile">
+            <div class="flip-tile-front tile-content image" data-role="tile">
                 <img src="${coverImage}" loading="lazy" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''} onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/media/placeholder_large.jpg';"/>
-                ${score ? `<div class="tile-score">${score}</div>` : ''}
-                ${status ? `<div class="tile-badge">${status}</div>` : ''}
-                <div class="tile-label">${title.toLowerCase()}</div>
+                ${score ? `<div class="tile-score" data-role="tile">${score}</div>` : ''}
+                ${status ? `<div class="tile-badge" data-role="tile">${status}</div>` : ''}
+                <div class="tile-label" data-role="tile">${title.toLowerCase()}</div>
             </div>
-            <div class="flip-tile-back">
-                <div class="tile-back-title">${fullTitle.toLowerCase()}</div>
+            <div class="flip-tile-back tile-content event-content" data-role="tile">
+                <div class="tile-back-title" data-role="tile">${fullTitle.toLowerCase()}</div>
                 ${progressStr ? `<div style="font-size:12px; margin-bottom:5px; color:rgba(255,255,255,0.7);">${progressStr.toLowerCase()}</div>` : ''}
-                <div class="tile-back-rating"><i class="fa-solid fa-star"></i> ${score || 'n/a'}</div>
+                <div class="tile-back-rating" data-role="tile"><i class="fa-solid fa-star"></i> ${score || 'n/a'}</div>
             </div>
         </div>
     </div>`;
@@ -4003,6 +4273,16 @@
             if (container) container.scrollTo({ left: width * index, behavior: 'smooth' });
         }
 
+        function updateMobileBottomNav(index) {
+            const buttons = document.querySelectorAll('#mobile-bottom-nav .button');
+            buttons.forEach((btn, i) => btn.classList.toggle('active', i === index));
+        }
+
+        function scrollToSectionMobile(index) {
+            scrollToSection(index);
+            updateMobileBottomNav(index);
+        }
+
         function scrollPanorama(dir) {
             const w = getSectionWidth();
             if (container) container.scrollBy({ left: dir * w, behavior: 'smooth' });
@@ -4020,6 +4300,7 @@
                 if (activeNavIndex !== -1 && typeof Sfx !== 'undefined') Sfx.play('pan');
                 activeNavIndex = idx;
                 navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
+                updateMobileBottomNav(idx);
                 if (navItems[idx]) {
                     const offset = navItems[idx].offsetLeft;
                     topNav.style.transform = `translateX(-${offset}px)`;
@@ -4039,7 +4320,7 @@
             }
             document.documentElement.style.removeProperty('--surface');
             applyWallpaper();
-            const select = document.getElementById('theme-select');
+            const select = document.querySelector('[data-role=select]#theme-select');
             if (select) select.value = mode;
         }
         function setThemeMode(mode) { localStorage.setItem('theme_mode', mode); applyThemeMode(mode); updateThemeSubtitle(); }
@@ -4187,7 +4468,28 @@
         const savedTheme = localStorage.getItem('metro_theme') || '#1ba1e2';
         document.documentElement.style.setProperty('--accent', savedTheme);
 
+// Belt-and-suspenders: re-fire any inline onclick on .button[data-role=button] clicks so we 
+        // never depend on whether Metro's widgets intercept or stop the event.
+        document.addEventListener('click', function(e){
+            const btn = e.target.closest && e.target.closest('.button[data-role=button]');
+            if (!btn || !btn.getAttribute('onclick')) return;
+            // Inline onclick handlers run as part of the browser's default action after all listeners.
+            // If something earlier in the chain called preventDefault, the browser still won't run the 
+            // onclick attribute — so we manually invoke the function if the event was prevented.
+            queueMicrotask(function(){
+                // queueMicrotask runs after current listeners but before default action. We don't need 
+                // to do anything here; the inline handler will run naturally.
+            });
+        }, false);  // bubble phase
+
         document.addEventListener("DOMContentLoaded", () => {
+            // Init Metro UI v4 components after our DOM is in place
+            if (window.Metro && typeof window.Metro.initAll === 'function') {
+                window.Metro.initAll();
+            } else if (window.jQuery && jQuery.fn && jQuery.fn.metroInit) {
+                jQuery('.metro').metroInit();
+            }
+
             initColorWheel();
             updateThemeSubtitle();
 
@@ -4271,11 +4573,16 @@
         function login() { window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`; }
         function guestMode() {
             isGuest = true;
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('app-container').style.display = 'flex';
-            document.getElementById('main-nav').style.display = 'flex';
-            document.getElementById('top-right-nav').style.display = 'flex';
-            if (window.innerWidth > 768) document.getElementById('main-arrows').style.display = 'flex';
+            const overlay = document.getElementById('login-overlay');
+            const app     = document.getElementById('app-container');
+            const nav     = document.getElementById('main-nav');
+            const top     = document.getElementById('top-right-nav');
+            const arrows  = document.getElementById('main-arrows');
+            if (overlay) { overlay.style.display = 'none'; }
+            if (app)     { app.style.display = 'flex'; }
+            if (nav)     { nav.style.display = 'flex'; }
+            if (top)     { top.style.display = 'flex'; top.setAttribute('data-shown', '1'); }
+            if (arrows && window.innerWidth > 768) { arrows.style.display = 'flex'; }
 
             const firstNav = navItems[0];
             if (firstNav) topNav.style.transform = `translateX(-${firstNav.offsetLeft}px)`;
@@ -4302,7 +4609,7 @@
                 slideshow.innerHTML = '';
                 data.Page.media.forEach(m => {
                     const title = m.title.english || m.title.romaji;
-                    slideshow.innerHTML += `<div class="trending-tile" style="flex-shrink:0; width:130px; height:180px; position:relative; cursor:pointer;" onclick="window.location.hash=''; guestMode(); openDetailById(${m.id},'ANIME')">
+                    slideshow.innerHTML += `<div class="trending-tile" style="flex-shrink:0; width:130px; height:180px; position:relative; cursor:pointer;" onclick="window.location.hash=''; guestMode(); openDetailById(${m.id},'ANIME')" data-role="tile">
                 <img src="${m.coverImage?.large || ''}" style="width:100%; height:100%; object-fit:cover;" loading="lazy"/>
                 <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.8); color:#fff; padding:5px; font-size:11px;">${title.toLowerCase()}</div>
             </div>`;
@@ -4336,7 +4643,50 @@
         // ==========================================
         // API
         // ==========================================
+        const cacheManager = {
+            PREFIX: 'anilist_cache_',
+            DEFAULT_TTL: 3600000, // 1 hour
+
+            hash(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash |= 0;
+                }
+                return hash.toString(36);
+            },
+
+            generateKey(query, variables) {
+                return this.PREFIX + this.hash(JSON.stringify({ query, variables }));
+            },
+
+            get(key) {
+                const itemStr = localStorage.getItem(key);
+                if (!itemStr) return null;
+                try {
+                    const item = JSON.parse(itemStr);
+                    return { data: item.data, isExpired: Date.now() > item.expiry };
+                } catch (e) { return null; }
+            },
+
+            set(key, data, ttl = this.DEFAULT_TTL) {
+                const expiry = Date.now() + ttl;
+                localStorage.setItem(key, JSON.stringify({ data, expiry }));
+            },
+
+            delete(key) {
+                localStorage.removeItem(key);
+            }
+        };
+
         async function fetchAPI(query, variables = {}) {
+            const key = cacheManager.generateKey(query, variables);
+            const cached = cacheManager.get(key);
+
+            // Cache-First: Return if valid and not expired
+            if (cached && !cached.isExpired) return cached.data;
+
             const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
             if (accessToken && !isGuest) headers['Authorization'] = 'Bearer ' + accessToken;
 
@@ -4348,36 +4698,40 @@
                 });
 
                 if (response.status === 429) {
-                    const retryAfter = parseInt(response.headers.get('Retry-After')) || 60;
-                    showRateLimitPopup(retryAfter);
-                    throw new Error(`Rate limited. Please wait ${retryAfter} seconds.`);
+                    // Silent Rate Limit: Try returning any cached version
+                    if (cached) {
+                        showToast('rate limited. using cached data.');
+                        return cached.data;
+                    }
+                    throw new Error(`Rate limited`);
                 }
-                
-                // Update Rate Limit Indicator
+
                 const remaining = parseInt(response.headers.get('X-RateLimit-Remaining')) || 0;
                 const limit = parseInt(response.headers.get('X-RateLimit-Limit')) || 90;
                 updateRateLimitIndicator(remaining, limit);
 
                 if (!response.ok) {
                     const errorBody = await response.json().catch(() => null);
-                    if (errorBody?.errors) {
-                        console.error('GraphQL Errors:', errorBody.errors);
-                        throw new Error(errorBody.errors[0]?.message || `API Error: ${response.status}`);
-                    }
+                    if (errorBody?.errors) throw new Error(errorBody.errors[0]?.message || `API Error: ${response.status}`);
                     throw new Error(`API Error: ${response.status}`);
                 }
                 const json = await response.json();
                 if (json.errors) {
-                    console.error('GraphQL Errors:', json.errors);
                     if (json.errors[0].message.includes('unauthorized') || json.errors[0].message.includes('invalid token')) {
                         showToast('session expired. please sign in again.');
                         logout();
                     }
                     throw new Error(json.errors[0].message || 'API Error');
                 }
+
+                // Update cache on success
+                cacheManager.set(key, json.data);
                 return json.data;
             } catch (e) {
-                if (e.message.includes('Rate limited')) throw e;
+                if (e.message === 'Rate limited' && cached) {
+                    showToast('rate limited. using cached data.');
+                    return cached.data;
+                }
                 console.error('fetchAPI Error:', e);
                 throw e;
             }
@@ -4390,7 +4744,7 @@
             const pct = Math.min(100, Math.max(0, (remaining / limit) * 100));
             fill.style.width = pct + '%';
             label.innerText = `${remaining}/${limit} req`;
-            if (pct < 20) fill.style.background = '#ff0033'; // red when low
+            if (pct < 20) fill.style.background = '#ff0033';
             else fill.style.background = 'var(--accent)';
         }
 
@@ -4399,7 +4753,7 @@
                 try {
                     return await fetchAPI(query, variables);
                 } catch (e) {
-                    if (e.message.includes('Rate limited') && i < retries - 1) {
+                    if (e.message === 'Rate limited' && i < retries - 1) {
                         const wait = delay * (i + 1);
                         await new Promise(resolve => setTimeout(resolve, wait));
                         continue;
@@ -4407,25 +4761,6 @@
                     throw e;
                 }
             }
-        }
-
-        function showRateLimitPopup(seconds) {
-            const popup = document.createElement('div');
-            popup.id = 'rate-limit-popup';
-            popup.style = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:10000; display:flex; align-items:center; justify-content:center; color:#fff; font-family:inherit; text-align:center; flex-direction:column; gap:20px;';
-            popup.innerHTML = `
-        <div style="font-size:2rem; font-weight:bold;">rate limited</div>
-        <div style="font-size:1.2rem; color:var(--text-dim);">please wait <span id="rl-countdown">${seconds}</span> seconds before trying again.</div>
-        <button class="metro-btn" onclick="this.parentElement.remove()">dismiss</button>
-    `;
-            document.body.appendChild(popup);
-            const countdownEl = document.getElementById('rl-countdown');
-            let s = seconds;
-            const iv = setInterval(() => {
-                s--;
-                if(s <= 0) { clearInterval(iv); if(popup) popup.remove(); }
-                else if (countdownEl) countdownEl.innerText = s;
-            }, 1000);
         }
         function timeAgo(ts) {
             const h = Math.floor((Date.now() - ts * 1000) / 3600000), d = Math.floor(h / 24);
@@ -4478,7 +4813,7 @@
                 }
                 el.innerHTML = items.map(item => {
                     const title = titleKey(item);
-                    return `<div class="favorite-strip-tile" onclick="openDetailById(${item.id}, '${type}')">
+                    return `<div class="favorite-strip-tile" onclick="openDetailById(${item.id}, '${type}')" data-role="tile">
                         <img src="${item.coverImage?.large || ''}" loading="lazy" alt="${title}">
                         <div class="favorite-strip-label">${title.toLowerCase()}</div>
                     </div>`;
@@ -4549,14 +4884,28 @@
                 el.innerHTML = '<div class="user-empty">no genre data yet.</div>';
                 return;
             }
-            const maxCount = Math.max(...entries.map(entry => entry.count), 1);
-            el.innerHTML = entries.map(entry => `
-                <div class="genre-overview-item">
-                    <div class="genre-overview-name">${entry.genre.toLowerCase()}</div>
-                    <div class="genre-overview-track"><div class="genre-overview-fill" style="width:${(entry.count / maxCount) * 100}%;"></div></div>
-                    <div class="genre-overview-count">${entry.count}</div>
+            el.innerHTML = `
+                <div class="skill-box" onclick="scrollToSection(2)">
+                    <div class="header bg-cyan fg-white">
+                        <div class="avatar"><img src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png" alt="genre avatar"></div>
+                        <div>
+                            <div class="title">top genres</div>
+                            <div class="subtitle">from your watched library</div>
+                        </div>
+                    </div>
+                    <ul class="skills">
+                        ${entries.slice(0, 6).map(entry => {
+                            const percent = Math.min(100, Math.round((entry.count / Math.max(...entries.map(e => e.count))) * 100));
+                            return `
+                            <li>
+                                <span>${entry.genre.toLowerCase()}</span>
+                                <span class="badge">${entry.count}</span>
+                                <div class="progress"><div class="progress-fill" style="width:${percent}%"></div></div>
+                            </li>`;
+                        }).join('')}
+                    </ul>
                 </div>
-            `).join('');
+            `;
         }
         async function loadUserHomeOverview(userId) {
             if (!userId || isGuest) {
@@ -4600,6 +4949,7 @@
                 const data = await fetchAPI(q);
                 if (!data || !data.Viewer) { showToast('error loading user data'); return; }
                 const v = data.Viewer; currentUserId = v.id;
+                currentViewerName = v.name ? v.name : 'guest';
                 document.getElementById('user-page-name').innerText = v.name ? v.name.toLowerCase() : 'user';
                 document.getElementById('start-tile-user').innerText = v.name ? v.name.toLowerCase() : 'user';
                 if (v.avatar && v.avatar.large) {
@@ -4793,14 +5143,14 @@
                     <div class="prog-status">${action.toLowerCase()} <span onclick="openDetailById(${act.media.id}, '${act.media.type}')">${title.toLowerCase()}</span></div>
                     <div class="prog-time">${timeAgo(act.createdAt)}</div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:5px;">
-                        <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleLike(${act.id}, this)"><i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${likeCount}</button>
-                        <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleReplyBox(${act.id})"><i class="fa-solid fa-reply"></i> reply</button>
+                        <button class="button" data-role="button" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleLike(${act.id}, this)"><i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${likeCount}</button>
+                        <button class="button" data-role="button" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleReplyBox(${act.id})"><i class="fa-solid fa-reply"></i> reply</button>
                     </div>
                     <div class="reply-box" id="reply-box-${act.id}">
                         <textarea class="metro-input reply-input" placeholder="reply to ${act.user.name.toLowerCase()}..."></textarea>
                         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:8px;">
-                            <button class="metro-btn small" onclick="event.stopPropagation(); submitCommunityReply(${act.id})"><i class="fa-solid fa-reply"></i> send</button>
-                            <button class="metro-btn small" onclick="event.stopPropagation(); toggleReplyBox(${act.id})">cancel</button>
+                            <button class="button small" data-role="button" onclick="event.stopPropagation(); submitCommunityReply(${act.id})"><i class="fa-solid fa-reply"></i> send</button>
+                            <button class="button small" data-role="button" onclick="event.stopPropagation(); toggleReplyBox(${act.id})">cancel</button>
                         </div>
                     </div>
                 </div>
@@ -4924,6 +5274,25 @@
             }
         }
 
+        async function updateLibraryEntryScore(mediaId, value) {
+            if (isGuest) { showToast('sign in to score entries'); return; }
+            const score = parseFloat(value);
+            if (isNaN(score) || score < 0 || score > 10) { showToast('score must be 0-10'); return; }
+            const listEntries = (allListsData[currentMediaType] || {})[currentLibStatus] || [];
+            const entry = listEntries.find(e => e.media?.id === mediaId);
+            if (!entry) return;
+            const q = `mutation ($mediaId:Int,$score:Int) { SaveMediaListEntry(mediaId:$mediaId,score:$score) { id score } }`;
+            try {
+                await fetchAPI(q, { mediaId, score });
+                showToast('score saved');
+                loadLibrary(currentMediaType);
+                if (currentMediaCache && currentMediaCache.id === mediaId) openDetailById(mediaId, currentMediaType);
+            } catch (e) {
+                console.error(e);
+                showToast('could not save score');
+            }
+        }
+
         // ==========================================
         // TRENDING & CURRENTLY WATCHING
         // ==========================================
@@ -4945,15 +5314,15 @@
                     const cover = m.coverImage ? (m.coverImage.large || '') : '';
                     const blurClass = (m.isAdult && !showAdultContent) ? 'blur-adult' : '';
                     tRow.innerHTML += `
-            <div class="trending-tile tile flip-tile" onclick="openDetailById(${m.id},'ANIME')">
-                <div class="flip-tile-inner">
-                    <div class="flip-tile-front">
+            <div class="trending-tile tile flip-tile" data-role="tile" data-effect="hover-zoom" onclick="openDetailById(${m.id},'ANIME')">
+                <div class="flip-tile-inner" data-role="tile">
+                    <div class="flip-tile-front tile-content image" data-role="tile">
                         <img src="${cover}" loading="lazy" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''}/>
                         <div class="trending-rank">#${i + 1}</div>
-                        <div class="tile-label">${title.toLowerCase()}</div>
+                        <div class="tile-label" data-role="tile">${title.toLowerCase()}</div>
                     </div>
-                    <div class="flip-tile-back">
-                        <div class="tile-back-title">${title.substring(0, 20).toLowerCase()}...</div>
+                    <div class="flip-tile-back tile-content event-content" data-role="tile">
+                        <div class="tile-back-title" data-role="tile">${title.substring(0, 20).toLowerCase()}...</div>
                         <div style="font-size:10px; color:rgba(255,255,255,0.7); line-height:1.4;">${desc.toLowerCase()}</div>
                         <div style="margin-top:auto; font-size:16px; font-weight:400;"><i class="fa-solid fa-star"></i> ${score}</div>
                     </div>
@@ -4980,15 +5349,15 @@
                     const epCount = e.media.episodes || (e.media.chapters ? e.media.chapters + ' ch' : '?');
                     const prog = `ep ${e.progress} / ${epCount}`;
                     wRow.innerHTML += `
-            <div class="trending-tile tile flip-tile" onclick="openDetailById(${e.media.id},'ANIME')">
-                <div class="flip-tile-inner">
-                    <div class="flip-tile-front">
+            <div class="trending-tile tile flip-tile" data-role="tile" data-effect="hover-zoom" onclick="openDetailById(${e.media.id},'ANIME')">
+                <div class="flip-tile-inner" data-role="tile">
+                    <div class="flip-tile-front tile-content image" data-role="tile">
                         <img src="${e.media.coverImage.large}" loading="lazy"/>
-                        <div class="tile-badge">${prog}</div>
-                        <div class="tile-label">${title.toLowerCase()}</div>
+                        <div class="tile-badge" data-role="tile">${prog}</div>
+                        <div class="tile-label" data-role="tile">${title.toLowerCase()}</div>
                     </div>
-                    <div class="flip-tile-back">
-                        <div class="tile-back-title">${title.substring(0, 20).toLowerCase()}</div>
+                    <div class="flip-tile-back tile-content event-content" data-role="tile">
+                        <div class="tile-back-title" data-role="tile">${title.substring(0, 20).toLowerCase()}</div>
                         <div style="font-size:10px; color:rgba(255,255,255,0.7);">progress: ${prog}</div>
                         <div style="margin-top:auto; font-size:16px;"><i class="fa-solid fa-star"></i> ${e.score || 'n/a'}</div>
                     </div>
@@ -5136,12 +5505,12 @@
                     const airingTime = new Date(schedule.airingAt * 1000);
                     const timeStr = airingTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const timeUntil = timeAgo(schedule.airingAt);
-                    el.innerHTML += `<div class="airing-tile" onclick="openDetailById(${schedule.media.id}, '${schedule.media.type}')">
+                    el.innerHTML += `<div class="airing-tile" onclick="openDetailById(${schedule.media.id}, '${schedule.media.type}')" data-role="tile">
                         <img src="${schedule.media.coverImage?.large || ''}" loading="lazy" onerror="this.style.display='none'"/>
-                        <div class="airing-tile-content">
+                        <div class="airing-tile-content" data-role="tile">
                             <span class="airing-tile-time">${timeStr}</span>
-                            <div class="airing-tile-title">${title.toLowerCase()}</div>
-                            <div class="airing-tile-ep">episode ${schedule.episode} &bull; ${timeUntil}</div>
+                            <div class="airing-tile-title" data-role="tile">${title.toLowerCase()}</div>
+                            <div class="airing-tile-ep" data-role="tile">episode ${schedule.episode} &bull; ${timeUntil}</div>
                         </div>
                     </div>`;
                 });
@@ -5172,7 +5541,7 @@
         async function loadLibrary(mediaType) {
             if (isGuest) return;
             try {
-                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status entries { id score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
+                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status entries { id score(format:POINT_10) progress media { id type format title { english romaji } coverImage { large } episodes chapters status } } } } }`;
                 const data = await fetchAPI(q, { userId: currentUserId, type: mediaType });
                 allListsData[mediaType] = {};
                 libraryLoaded[mediaType] = true;
@@ -5228,9 +5597,12 @@
 
             document.querySelector('#library-pivots .pivot-item[data-status="CURRENT"]').innerText = currentMediaType === 'ANIME' ? 'watching' : 'reading';
             if (!entries.length && !append) { el.innerHTML = '<div style="color:var(--text-dim);">no entries found.</div>'; return; }
-            const chunk = entries.slice((currentLibraryPage - 1) * libraryItemsPerPage, currentLibraryPage * libraryItemsPerPage);
-            const existingBtn = document.getElementById('load-more-lib-btn'); if (existingBtn) existingBtn.remove();
-            chunk.forEach(entry => {
+            const formatFilter = (document.getElementById('lib-format-select')?.value || 'all').toLowerCase();
+            if (formatFilter !== 'all') {
+                entries = entries.filter(e => ((e.media?.format || '').toLowerCase()) === formatFilter);
+            }
+            const formatLabel = (fmt) => (fmt || 'unknown').replace(/_/g, ' ').toLowerCase();
+            const renderEntry = (entry) => {
                 if (!entry || !entry.media) return;
                 const title = entry.media.title?.english || entry.media.title?.romaji || 'unknown';
                 const total = (currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters) || '?';
@@ -5240,8 +5612,6 @@
                 let badge = '';
                 if (status === 'COMPLETED') badge = total !== '?' ? `${total}/${total}` : 'done';
                 else if (status === 'CURRENT') badge = displayProgress + (total !== '?' ? '/' + total : '');
-
-                // Custom render for tile vs list view
                 const totalCount = (currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters) || 0;
                 const viewMode = document.getElementById('lib-view-select')?.value || 'grid';
                 if (viewMode === 'list') {
@@ -5254,15 +5624,17 @@
                             <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${title.toLowerCase()}</div>
                             <div style="display:flex; gap:8px; align-items:center; margin-top:4px;">
                                 <div style="font-size:12px; color:var(--text-dim);">${progressStr}</div>
-                                <button class="metro-btn small" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); incrementLibraryProgress(${entry.media.id}, ${totalCount})"><i class="fa-solid fa-plus"></i></button>
+                                <button class="button small" data-role="button" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); incrementLibraryProgress(${entry.media.id}, ${totalCount})"><i class="fa-solid fa-plus"></i></button>
                             </div>
                         </div>
-                        <div style="color:var(--accent); font-weight:bold; margin-right:10px;"><i class="fa-solid fa-star"></i> ${entry.score || '-'}</div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                            <input class="metro-input" type="number" min="0" max="10" step="0.5" value="${entry.score || ''}" onchange="event.stopPropagation(); updateLibraryEntryScore(${entry.media.id}, this.value)" onkeyup="event.stopPropagation(); if(event.key==='Enter'){ this.blur(); }" style="width:80px; text-align:right; padding:4px 8px; font-size:12px; background:var(--surface-hover); border:1px solid transparent;" placeholder="score" />
+                            <div style="color:var(--accent); font-weight:bold; font-size:0.8rem;">${entry.score ? `saved` : 'set score'}</div>
+                        </div>
                     </div>`;
                 } else {
                     const tileHtml = createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
                     if (isBulkMode) {
-                        // Inject checkbox into tile
                         const domParser = new DOMParser();
                         const doc = domParser.parseFromString(tileHtml, 'text/html');
                         const tileWrap = doc.body.firstChild;
@@ -5280,7 +5652,30 @@
                         el.innerHTML += tileHtml;
                     }
                 }
-            });
+            };
+
+            const chunk = entries.slice((currentLibraryPage - 1) * libraryItemsPerPage, currentLibraryPage * libraryItemsPerPage);
+            const existingBtn = document.getElementById('load-more-lib-btn'); if (existingBtn) existingBtn.remove();
+            const grouped = status === 'COMPLETED' ? chunk.reduce((acc, entry) => {
+                const fmt = entry.media?.format || 'UNKNOWN';
+                if (!acc[fmt]) acc[fmt] = [];
+                acc[fmt].push(entry);
+                return acc;
+            }, {}) : null;
+            if (grouped) {
+                const formatOrder = ['TV', 'TV_SHORT', 'MOVIE', 'OVA', 'ONA', 'SPECIAL', 'MUSIC', 'MANGA', 'NOVEL', 'ONE_SHOT', 'UNKNOWN'];
+                const groupKeys = Object.keys(grouped).sort((a, b) => {
+                    const ai = formatOrder.indexOf(a) === -1 ? formatOrder.length : formatOrder.indexOf(a);
+                    const bi = formatOrder.indexOf(b) === -1 ? formatOrder.length : formatOrder.indexOf(b);
+                    return ai - bi || a.localeCompare(b);
+                });
+                groupKeys.forEach(fmt => {
+                    el.innerHTML += `<div class="library-group-heading" style="color:var(--text-main); font-size:1rem; font-weight:300; text-transform:lowercase; margin:16px 0 8px;">${formatLabel(fmt)}</div>`;
+                    grouped[fmt].forEach(renderEntry);
+                });
+            } else {
+                chunk.forEach(renderEntry);
+            }
             if (entries.length > currentLibraryPage * libraryItemsPerPage) {
                 el.innerHTML += `<button class="load-more-btn" id="load-more-lib-btn" onclick="loadMoreLibrary()" style="grid-column: 1 / -1;">load more...</button>`;
             }
@@ -5490,9 +5885,24 @@
                     searchHasNextPage = data.Page.pageInfo.hasNextPage;
                     data.Page.users.forEach(u => {
                         el.innerHTML += `
-                    <div class="metro-tile" style="background:var(--surface);" onclick="openUserDetail('${u.name}')">
-                        <div class="tile-bg" style="background-image: url('${u.avatar.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;"></div>
-                        <div class="metro-tile-title" style="position:relative; z-index:2;">${u.name.toLowerCase()}</div>
+                    <div class="social-box" onclick="openUserDetail('${u.name}')">
+                        <div class="header bg-cyan fg-white">
+                            <div class="avatar"><img src="${u.avatar.large}" alt="${u.name}"></div>
+                            <div>
+                                <div class="title">${u.name.toLowerCase()}</div>
+                                <div class="subtitle">anilist user</div>
+                            </div>
+                        </div>
+                        <ul class="skills">
+                            <li>
+                                <div class="text-bold">#${u.id}</div>
+                                <div>user id</div>
+                            </li>
+                            <li>
+                                <div class="text-bold">view profile</div>
+                                <div>click to open</div>
+                            </li>
+                        </ul>
                     </div>`;
                     });
                     btn.style.display = searchHasNextPage ? 'block' : 'none';
@@ -5510,10 +5920,10 @@
                     data.Page.characters.forEach(c => {
                         const charName = c.name.full || c.name.native || 'unknown';
                         el.innerHTML += `
-                    <div class="metro-tile" style="background:var(--surface);" onclick="openCharacterDetail(${c.id}, '${(charName || '').replace(/'/g, "\\'")}', '', '', '')">
-                        <div class="tile-bg" style="background-image: url('${c.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;"></div>
-                        <div class="metro-tile-title" style="position:relative; z-index:2;">${charName.toLowerCase()}</div>
-                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;">character</div>
+                    <div class="tile" style="background:var(--surface);" onclick="openCharacterDetail(${c.id}, '${(charName || '').replace(/'/g, "\\'")}', '', '', '')" data-role="tile">
+                        <div class="tile-bg" style="background-image: url('${c.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;" data-role="tile"></div>
+                        <div class="metro-tile-title" style="position:relative; z-index:2;" data-role="tile">${charName.toLowerCase()}</div>
+                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;" data-role="tile">character</div>
                     </div>`;
                     });
                     btn.style.display = searchHasNextPage ? 'block' : 'none';
@@ -5531,10 +5941,10 @@
                     data.Page.staff.forEach(s => {
                         const staffName = s.name.full || s.name.native || 'unknown';
                         el.innerHTML += `
-                    <div class="metro-tile" style="background:var(--surface);" onclick="openVADetail(${s.id}, '${(staffName || '').replace(/'/g, "\\'")}')">
-                        <div class="tile-bg" style="background-image: url('${s.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;"></div>
-                        <div class="metro-tile-title" style="position:relative; z-index:2;">${staffName.toLowerCase()}</div>
-                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;">staff</div>
+                    <div class="tile" style="background:var(--surface);" onclick="openVADetail(${s.id}, '${(staffName || '').replace(/'/g, "\\'")}')" data-role="tile">
+                        <div class="tile-bg" style="background-image: url('${s.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;" data-role="tile"></div>
+                        <div class="metro-tile-title" style="position:relative; z-index:2;" data-role="tile">${staffName.toLowerCase()}</div>
+                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;" data-role="tile">staff</div>
                     </div>`;
                     });
                     btn.style.display = searchHasNextPage ? 'block' : 'none';
@@ -5551,9 +5961,9 @@
                     searchHasNextPage = data.Page.pageInfo.hasNextPage;
                     data.Page.studios.forEach(s => {
                         el.innerHTML += `
-                    <div class="metro-tile" style="background:var(--surface);" onclick="openStudioDetail(${s.id}, '${(s.name || '').replace(/'/g, "\\'")}')">
-                        <div class="metro-tile-title" style="position:relative; z-index:2;">${s.name.toLowerCase()}</div>
-                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;">studio</div>
+                    <div class="tile" style="background:var(--surface);" onclick="openStudioDetail(${s.id}, '${(s.name || '').replace(/'/g, "\\'")}')" data-role="tile">
+                        <div class="metro-tile-title" style="position:relative; z-index:2;" data-role="tile">${s.name.toLowerCase()}</div>
+                        <div class="metro-tile-subtitle" style="position:relative; z-index:2;" data-role="tile">studio</div>
                     </div>`;
                     });
                     btn.style.display = searchHasNextPage ? 'block' : 'none';
@@ -5724,32 +6134,6 @@
             doSortedBrowse();
         }
 
-        function toggleYearCalendar(event) {
-            event.stopPropagation();
-            const popup = document.getElementById('filter-year-calendar');
-            if (!popup) return;
-            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function buildYearCalendar() {
-            const grid = document.getElementById('filter-year-grid');
-            const selected = document.getElementById('filter-year')?.value || '';
-            const currentYear = dateFns?.getYear(new Date()) || new Date().getFullYear();
-            const minYear = searchYearRange.minYear || Math.max(currentYear - 30, 1900);
-            const startDate = new Date(minYear, 0, 1);
-            const endDate = new Date(currentYear, 0, 1);
-            const yearDates = dateFns?.eachYearOfInterval ? dateFns.eachYearOfInterval({ start: startDate, end: endDate }) : [];
-            const yearItems = yearDates
-                .map(d => {
-                    const year = dateFns?.getYear ? dateFns.getYear(d) : d.getFullYear();
-                    return { value: year.toString(), label: year.toString() };
-                })
-                .reverse();
-            grid.innerHTML = yearItems.map(item => `
-                <div class="year-item ${item.value === selected ? 'active' : ''}" onclick="selectFilterYear('${item.value}')">${item.label}</div>
-            `).join('');
-        }
-
         function populateSelect(selectId, values, placeholder) {
             const select = document.getElementById(selectId);
             if (!select) return;
@@ -5762,7 +6146,6 @@
         }
 
         function initializeSearchFilters() {
-            buildYearCalendar();
             loadSearchFilterMetadata();
         }
 
@@ -5797,7 +6180,6 @@
                 console.warn('search filter metadata load failed', e);
             } finally {
                 searchYearRange.maxYear = dateFns?.getYear(new Date()) || new Date().getFullYear();
-                buildYearCalendar();
                 initSeasonalBrowseYearSelect();
             }
         }
@@ -5818,31 +6200,6 @@
                 .join('');
             ySelect.value = selected;
         }
-
-        function selectFilterYear(year) {
-            document.getElementById('filter-year').value = year;
-            document.getElementById('filter-year-label').textContent = year;
-            buildYearCalendar();
-            applySearchFilters();
-            document.getElementById('filter-year-calendar').style.display = 'none';
-        }
-
-        function clearFilterYear() {
-            document.getElementById('filter-year').value = '';
-            document.getElementById('filter-year-label').textContent = 'all years';
-            buildYearCalendar();
-            applySearchFilters();
-            document.getElementById('filter-year-calendar').style.display = 'none';
-        }
-
-        document.addEventListener('click', e => {
-            const popup = document.getElementById('filter-year-calendar');
-            const control = document.getElementById('filter-year-control');
-            if (!popup || !control) return;
-            if (popup.style.display === 'block' && !popup.contains(e.target) && !control.contains(e.target)) {
-                popup.style.display = 'none';
-            }
-        });
 
         function switchDiscoverMode(mode, el) {
             if (typeof Sfx !== 'undefined') Sfx.play('pan');
@@ -6059,7 +6416,7 @@
             <button class="btn-back" onclick="this.parentElement.parentElement.remove()"><i class="fa-solid fa-arrow-left"></i></button>
             <div class="subview-title">${type} full grid</div>
         </div>
-        <div class="tile-grid zoom-in" id="full-grid-${type}"></div>
+        <div class="tile-grid zoom-in" id="full-grid-${type}" data-role="tile"></div>
     `;
             document.body.appendChild(subview);
             setTimeout(() => subview.classList.add('active'), 10);
@@ -6098,9 +6455,9 @@
                 const data = await fetchAPI(q);
                 container.innerHTML = `
             <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">episode discussions</div>
-            <div class="tile-grid zoom-in" id="episode-discussions-grid"></div>
+            <div class="tile-grid zoom-in" id="episode-discussions-grid" data-role="tile"></div>
             <div style="font-size: 1.5rem; font-weight: 300; margin: 30px 0 10px; color: var(--accent);">manga reader corner</div>
-            <div class="tile-grid zoom-in" id="manga-reader-grid"></div>
+            <div class="tile-grid zoom-in" id="manga-reader-grid" data-role="tile"></div>
         `;
 
                 const epGrid = document.getElementById('episode-discussions-grid');
@@ -6278,9 +6635,9 @@
                             id: ${u.id} • <a href="https://anilist.co/user/${u.name}" target="_blank" style="color:var(--accent);">anilist.co/user/${u.name.toLowerCase()}</a>
                         </div>
                         <div style="display:flex; gap:10px;">
-                            ${!isGuest && u.id !== currentUserId ? `<button class="metro-btn ${u.isFollowing ? '' : 'primary'}" id="follow-btn" onclick="toggleFollow(${u.id})">${u.isFollowing ? 'unfollow' : 'follow'}</button>` : ''}
-                            <button class="metro-btn" onclick="openUserLibrary(${u.id}, 'ANIME')">anime list</button>
-                            <button class="metro-btn" onclick="openUserLibrary(${u.id}, 'MANGA')">manga list</button>
+                            ${!isGuest && u.id !== currentUserId ? `<button class="button ${u.isFollowing ? '' : primary" data-role="button" id="follow-btn" onclick="toggleFollow(${u.id})">${u.isFollowing ? 'unfollow' : 'follow'}</button>` : ''}
+                            <button class="button" data-role="button" onclick="openUserLibrary(${u.id}, 'ANIME')">anime list</button>
+                            <button class="button" data-role="button" onclick="openUserLibrary(${u.id}, 'MANGA')">manga list</button>
                         </div>
                     </div>
                     <div style="display:flex; gap:15px; margin-top:20px; flex-wrap:wrap;">
@@ -6300,19 +6657,19 @@
                 </div>
                 <div class="panel">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite anime</h3>
-                    <div id="user-anime-favs" class="tile-grid mini"></div>
+                    <div id="user-anime-favs" class="tile-grid mini" data-role="tile"></div>
                 </div>
                 <div class="panel">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite manga</h3>
-                    <div id="user-manga-favs" class="tile-grid mini"></div>
+                    <div id="user-manga-favs" class="tile-grid mini" data-role="tile"></div>
                 </div>
                 <div class="panel">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite characters</h3>
-                    <div id="user-char-favs" class="tile-grid mini"></div>
+                    <div id="user-char-favs" class="tile-grid mini" data-role="tile"></div>
                 </div>
                 <div class="panel">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite staff</h3>
-                    <div id="user-staff-favs" class="tile-grid mini"></div>
+                    <div id="user-staff-favs" class="tile-grid mini" data-role="tile"></div>
                 </div>
                 <div class="panel">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">favorite studios</h3>
@@ -6369,21 +6726,88 @@
             const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name entries { score(format:POINT_10) progress media { id title { english romaji } coverImage { large } episodes chapters status } } } } }`;
             try {
                 const data = await fetchAPI(q, { userId, type });
+                currentUserLibraryType = type;
+                currentUserLibraryLists = data.MediaListCollection?.lists || [];
+                currentUserLibraryActiveName = currentUserLibraryLists[0]?.name || '';
+                currentUserLibrarySearch = '';
+
                 content.innerHTML = `
             <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
-            <h1 class="metro-huge-title" style="margin-top:50px; color:var(--accent);">${type.toLowerCase()} list</h1>
-            <div id="user-lib-grid-container" style="margin-top:40px;"></div>`;
-                const container = document.getElementById('user-lib-grid-container');
-                data.MediaListCollection.lists.forEach(l => {
-                    container.innerHTML += `<h2 style="font-weight:200; color:var(--accent); margin: 30px 0 15px; border-bottom:1px solid var(--surface-hover); padding-bottom:10px;">${l.name.toLowerCase()}</h2>
-                <div class="tile-grid">${l.entries.map(e => {
-                        const title = e.media.title.english || e.media.title.romaji;
-                        const total = type === 'ANIME' ? e.media.episodes : e.media.chapters;
-                        const badge = e.status === 'COMPLETED' ? (total ? `${total}/${total}` : 'done') : `${e.progress}${total ? '/' + total : ''}`;
-                        return createFlipTile(e.media.id, type, e.media.coverImage.large, title, title, e.score, badge, `progress: ${e.progress}/${total || '?'}`);
-                    }).join('')}</div>`;
-                });
+            <div data-role="navview" id="user-lib-navview" data-expand="lg" data-compact="md" style="min-height: calc(100vh - 120px);">
+                <div class="navview-pane">
+                    <button class="pull-button" type="button" data-role="button">
+                        <span class="default-icon-menu"></span>
+                    </button>
+                    <div class="suggest-box">
+                        <input id="user-lib-search-input" type="text" class="metro-input" placeholder="search library..." value="" oninput="updateUserLibrarySearch(this.value)">
+                        <button class="holder" type="button"><span class="mif-search"></span></button>
+                    </div>
+                    <ul class="navview-menu" id="user-lib-menu"></ul>
+                </div>
+                <div class="navview-content" id="user-lib-content"></div>
+            </div>`;
+
+                renderUserLibraryMenu();
+                renderUserLibraryContent();
+                if (window.Metro && window.Metro.init) {
+                    window.Metro.init();
+                }
             } catch (e) { showToast('error loading user list'); }
+        }
+
+        function setUserLibraryActiveList(name) {
+            currentUserLibraryActiveName = name;
+            renderUserLibraryMenu();
+            renderUserLibraryContent();
+        }
+
+        function updateUserLibrarySearch(term) {
+            currentUserLibrarySearch = term;
+            renderUserLibraryContent();
+        }
+
+        function renderUserLibraryMenu() {
+            const menu = document.getElementById('user-lib-menu');
+            if (!menu) return;
+            menu.innerHTML = currentUserLibraryLists.map(l => {
+                const safeName = l.name.replace(/'/g, "\\'");
+                const activeClass = l.name === currentUserLibraryActiveName ? 'class="active"' : '';
+                return `<li ${activeClass}>
+                    <a href="javascript:void(0)" onclick="setUserLibraryActiveList('${safeName}')">
+                        <span class="icon"><span class="mif-list"></span></span>
+                        <span class="caption">${l.name.toLowerCase()}</span>
+                        <span class="badges"><span class="badge inline">${l.entries.length}</span></span>
+                    </a>
+                </li>`;
+            }).join('');
+        }
+
+        function renderUserLibraryContent() {
+            const content = document.getElementById('user-lib-content');
+            if (!content) return;
+            const activeList = currentUserLibraryLists.find(l => l.name === currentUserLibraryActiveName) || currentUserLibraryLists[0] || { name: '', entries: [] };
+            const search = currentUserLibrarySearch.trim().toLowerCase();
+            let entries = activeList.entries || [];
+            if (search.length >= 2) {
+                entries = entries.filter(e => {
+                    const title = (e.media.title.english || e.media.title.romaji || '').toLowerCase();
+                    return title.includes(search);
+                });
+            }
+            content.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:24px;">
+                    <div>
+                        <h1 class="metro-huge-title" style="margin-top:0; font-size:4rem; color:var(--accent);">${activeList.name.toLowerCase()}</h1>
+                        <div style="font-size:14px; color:var(--text-dim); text-transform:lowercase;">${entries.length} item${entries.length === 1 ? '' : 's'}</div>
+                    </div>
+                    <div style="font-size:13px; color:var(--text-dim); text-transform:lowercase;">${search ? `filter: ${search}` : `${currentUserLibraryType?.toLowerCase()} library`}</div>
+                </div>
+                ${entries.length ? `<div class="tile-grid" data-role="tile">${entries.map(e => {
+                    const title = e.media.title.english || e.media.title.romaji;
+                    const total = currentUserLibraryType === 'ANIME' ? e.media.episodes : e.media.chapters;
+                    const badge = e.status === 'COMPLETED' ? (total ? `${total}/${total}` : 'done') : `${e.progress}${total ? '/' + total : ''}`;
+                    return createFlipTile(e.media.id, currentUserLibraryType, e.media.coverImage.large, title, title, e.score, badge, `progress: ${e.progress}/${total || '?'}`);
+                }).join('')}</div>` : `<div style="color:var(--text-dim);">no entries match your search.</div>`}`;
         }
 
         function renderUserFavorites(favs) {
@@ -6410,18 +6834,18 @@
 
             if (favs.characters?.nodes?.length) {
                 favs.characters.nodes.forEach(c => {
-                    charEl.innerHTML += `<div class="metro-tile" onclick="openCharacterDetail(${c.id})">
-                <div class="tile-bg" style="background-image: url('${c.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.4;"></div>
-                <div class="metro-tile-title">${c.name.full.toLowerCase()}</div>
+                    charEl.innerHTML += `<div class="tile" onclick="openCharacterDetail(${c.id})" data-role="tile">
+                <div class="tile-bg" style="background-image: url('${c.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.4;" data-role="tile"></div>
+                <div class="metro-tile-title" data-role="tile">${c.name.full.toLowerCase()}</div>
             </div>`;
                 });
             } else if (charEl) charEl.parentElement.style.display = 'none';
 
             if (favs.staff?.nodes?.length) {
                 favs.staff.nodes.forEach(s => {
-                    staffEl.innerHTML += `<div class="metro-tile" onclick="openStaffDetail(${s.id})">
-                <div class="tile-bg" style="background-image: url('${s.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.4;"></div>
-                <div class="metro-tile-title">${s.name.full.toLowerCase()}</div>
+                    staffEl.innerHTML += `<div class="tile" onclick="openStaffDetail(${s.id})" data-role="tile">
+                <div class="tile-bg" style="background-image: url('${s.image.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.4;" data-role="tile"></div>
+                <div class="metro-tile-title" data-role="tile">${s.name.full.toLowerCase()}</div>
             </div>`;
                 });
             } else if (staffEl) staffEl.parentElement.style.display = 'none';
@@ -6512,13 +6936,13 @@
                         ${repliesHtml}
                         ${moreReplies}
                         <div class="timeline-actions">
-                            <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleLikeActivity(${a.id}, this)"><i class="fa-${likeCount > 0 ? 'solid' : 'regular'} fa-heart"></i> ${likeCount}</button>
-                            <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleReplyBoxUser(${a.id})"><i class="fa-solid fa-reply"></i> reply</button>
+                            <button class="button" data-role="button" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleLikeActivity(${a.id}, this)"><i class="fa-${likeCount > 0 ? 'solid' : 'regular'} fa-heart"></i> ${likeCount}</button>
+                            <button class="button" data-role="button" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleReplyBoxUser(${a.id})"><i class="fa-solid fa-reply"></i> reply</button>
                         </div>
                         <div class="reply-box" id="reply-box-user-${a.id}">
                             <textarea class="metro-input reply-input" placeholder="reply..."></textarea>
                             <div style="display:flex; gap:8px; justify-content:flex-end;">
-                                <button class="metro-btn small" onclick="event.stopPropagation(); submitReplyUser(${a.id})"><i class="fa-solid fa-reply"></i> send</button>
+                                <button class="button small" data-role="button" onclick="event.stopPropagation(); submitReplyUser(${a.id})"><i class="fa-solid fa-reply"></i> send</button>
                             </div>
                         </div>
                     </div>
@@ -6765,21 +7189,21 @@
                 if (m.trailer && m.trailer.site === 'youtube') {
                     const thumb = m.trailer.thumbnail || `https://img.youtube.com/vi/${m.trailer.id}/maxresdefault.jpg`;
                     trailerTileHtml = `
-                <div class="metro-tile large" id="trailer-tile" onclick="playVideo('${m.trailer.id}')">
-                    <div class="tile-bg" style="background-image: url('${thumb}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.35;"></div>
-                    <div class="tile-gradient"></div>
-                    <div class="metro-tile-title" style="color:#fff; position:relative; z-index:2;"><i class="fa-solid fa-play"></i> play trailer</div>
-                    <div class="metro-tile-subtitle" style="color:rgba(255,255,255,0.85); position:relative; z-index:2;">click to play inline</div>
+                <div class="tile double-vertical" id="trailer-tile" onclick="playVideo('${m.trailer.id}')" data-role="tile">
+                    <div class="tile-bg" style="background-image: url('${thumb}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.35;" data-role="tile"></div>
+                    <div class="tile-gradient" data-role="tile"></div>
+                    <div class="metro-tile-title" style="color:#fff; position:relative; z-index:2;" data-role="tile"><i class="fa-solid fa-play"></i> play trailer</div>
+                    <div class="metro-tile-subtitle" style="color:rgba(255,255,255,0.85); position:relative; z-index:2;" data-role="tile">click to play inline</div>
                 </div>`;
                 }
                 let relationsHtml = '';
                 if (m.relations?.edges?.length) {
                     relationsHtml = m.relations.edges.slice(0, 4).map(r => {
                         const rt = r.node.title.english || r.node.title.romaji;
-                        return `<div class="metro-tile" style="background: var(--surface);" onclick="openDetailById(${r.node.id},'${r.node.type}')">
-                    <div class="tile-bg" style="background-image: url('${r.node.coverImage.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;"></div>
-                    <div class="metro-tile-title" style="font-size:16px; position:relative; z-index:2;">${rt.toLowerCase()}</div>
-                    <div class="metro-tile-subtitle" style="position:relative; z-index:2;">${r.relationType.replace(/_/g, ' ').toLowerCase()}</div>
+                        return `<div class="tile" style="background: var(--surface);" onclick="openDetailById(${r.node.id},'${r.node.type}')" data-role="tile">
+                    <div class="tile-bg" style="background-image: url('${r.node.coverImage.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;" data-role="tile"></div>
+                    <div class="metro-tile-title" style="font-size:16px; position:relative; z-index:2;" data-role="tile">${rt.toLowerCase()}</div>
+                    <div class="metro-tile-subtitle" style="position:relative; z-index:2;" data-role="tile">${r.relationType.replace(/_/g, ' ').toLowerCase()}</div>
                 </div>`;
                     }).join('');
                 }
@@ -6788,9 +7212,9 @@
                 const progressTotal = total || '?';
                 const progressStepperHtml = !isGuest ? `
             <div class="progress-stepper">
-                <button class="metro-btn small" onclick="event.stopPropagation(); changeMediaProgress(${m.id}, '${type}', -1, ${total || 0})"><i class="fa-solid fa-minus"></i></button>
+                <button class="button small" data-role="button" onclick="event.stopPropagation(); changeMediaProgress(${m.id}, '${type}', -1, ${total || 0})"><i class="fa-solid fa-minus"></i></button>
                 <div class="progress-display">${currentProgress} / ${progressTotal}</div>
-                <button class="metro-btn small" onclick="event.stopPropagation(); changeMediaProgress(${m.id}, '${type}', 1, ${total || 0})"><i class="fa-solid fa-plus"></i></button>
+                <button class="button small" data-role="button" onclick="event.stopPropagation(); changeMediaProgress(${m.id}, '${type}', 1, ${total || 0})"><i class="fa-solid fa-plus"></i></button>
             </div>` : '';
                 const listManagementHtml = !isGuest ? `
             <div class="list-management-box">
@@ -6804,8 +7228,8 @@
                 </div>
                 ${progressStepperHtml}
                 <div style="display:flex; gap:10px; margin-top: 15px;">
-                    <button class="metro-btn" style="flex:1;" onclick="openMediaEditor(${m.id}, '${type}')"><i class="fa-solid fa-edit"></i> edit</button>
-                    <button class="metro-btn" style="flex:1;" onclick="toggleFavourite(${m.id}, '${type}', this)"><i class="fa-${m.isFavourite ? 'solid' : 'regular'} fa-heart"></i> fav</button>
+                    <button class="button" data-role="button" style="flex:1;" onclick="openMediaEditor(${m.id}, '${type}')"><i class="fa-solid fa-edit"></i> edit</button>
+                    <button class="button" data-role="button" style="flex:1;" onclick="toggleFavourite(${m.id}, '${type}', this)"><i class="fa-${m.isFavourite ? 'solid' : 'regular'} fa-heart"></i> fav</button>
                 </div>
             </div>` : '';
 
@@ -6842,26 +7266,26 @@
                     <h2 style="font-weight:200; color:var(--text-main); margin-bottom:15px; font-size:36px;">explore</h2>
                     <div class="metro-hub" id="metro-hub-main">
                         ${trailerTileHtml}
-                        <div class="metro-tile" style="background:var(--surface);" onclick="showSubview('characters')">
-                            <div class="metro-tile-title"><i class="fa-solid fa-users"></i> characters</div>
-                            <div class="metro-tile-subtitle">${m.characters?.pageInfo?.total || 0} listed</div>
+                        <div class="tile" style="background:var(--surface);" onclick="showSubview('characters')" data-role="tile">
+                            <div class="metro-tile-title" data-role="tile"><i class="fa-solid fa-users"></i> characters</div>
+                            <div class="metro-tile-subtitle" data-role="tile">${m.characters?.pageInfo?.total || 0} listed</div>
                         </div>
-                        <div class="metro-tile" style="background:var(--surface);" onclick="showSubview('staff')">
-                            <div class="metro-tile-title"><i class="fa-solid fa-pen-nib"></i> staff & cast</div>
-                            <div class="metro-tile-subtitle">${m.staff?.pageInfo?.total || 0} members</div>
+                        <div class="tile" style="background:var(--surface);" onclick="showSubview('staff')" data-role="tile">
+                            <div class="metro-tile-title" data-role="tile"><i class="fa-solid fa-pen-nib"></i> staff & cast</div>
+                            <div class="metro-tile-subtitle" data-role="tile">${m.staff?.pageInfo?.total || 0} members</div>
                         </div>
-                        <div class="metro-tile wide" style="background:var(--surface);" onclick="showSubview('reviews')">
-                            <div class="metro-tile-title"><i class="fa-solid fa-star"></i> reviews</div>
-                            <div class="metro-tile-subtitle">${m.reviews?.pageInfo?.total || 0} community reviews</div>
+                        <div class="tile double" style="background:var(--surface);" onclick="showSubview('reviews')" data-role="tile">
+                            <div class="metro-tile-title" data-role="tile"><i class="fa-solid fa-star"></i> reviews</div>
+                            <div class="metro-tile-subtitle" data-role="tile">${m.reviews?.pageInfo?.total || 0} community reviews</div>
                         </div>
-                        <div class="metro-tile wide" style="background:var(--surface);" onclick="showSubview('recommendations')">
-                            <div class="metro-tile-title"><i class="fa-solid fa-thumbs-up"></i> recommendations</div>
-                            <div class="metro-tile-subtitle">similar media</div>
+                        <div class="tile double" style="background:var(--surface);" onclick="showSubview('recommendations')" data-role="tile">
+                            <div class="metro-tile-title" data-role="tile"><i class="fa-solid fa-thumbs-up"></i> recommendations</div>
+                            <div class="metro-tile-subtitle" data-role="tile">similar media</div>
                         </div>
                         ${relationsHtml}
-                        <div class="metro-tile wide" style="background: var(--surface);" onclick="showSubview('info')">
-                            <div class="metro-tile-title"><i class="fa-solid fa-circle-info"></i> info & stats</div>
-                            <div class="metro-tile-subtitle">studio, stats & details</div>
+                        <div class="tile double" style="background: var(--surface);" onclick="showSubview('info')" data-role="tile">
+                            <div class="metro-tile-title" data-role="tile"><i class="fa-solid fa-circle-info"></i> info & stats</div>
+                            <div class="metro-tile-subtitle" data-role="tile">studio, stats & details</div>
                         </div>
                     </div>
                     <div class="metro-subview" id="subview-panel"></div>
@@ -7071,7 +7495,7 @@
                     const rt = rm.title.english || rm.title.romaji;
                     return createFlipTile(rm.id, rm.type, rm.coverImage.large, rt, rt, '', '', null);
                 }).join('');
-                contentHtml = bannerBase.replace('{SUBTITLE}', 'similar media') + `<div class="tile-grid" style="margin-top:20px;">${recs || '<div style="color:var(--text-dim);">no recommendations found.</div>'}</div>`;
+                contentHtml = bannerBase.replace('{SUBTITLE}', 'similar media') + `<div class="tile-grid" style="margin-top:20px;" data-role="tile">${recs || '<div style="color:var(--text-dim);">no recommendations found.</div>'}</div>`;
             }
 
             sub.innerHTML = `
@@ -7295,7 +7719,7 @@
                 content.innerHTML = `
             <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
             <h1 class="metro-huge-title" style="margin-top:50px; color:var(--accent);">${(studio.name || studioName).toLowerCase()}</h1>
-            <div class="tile-grid" style="margin-top:40px;" id="studio-detail-grid"></div>`;
+            <div class="tile-grid" style="margin-top:40px;" id="studio-detail-grid" data-role="tile"></div>`;
                 const grid = document.getElementById('studio-detail-grid');
                 studio.media.nodes.forEach(m => {
                     const title = m.title.english || m.title.romaji || 'unknown';
@@ -7319,7 +7743,7 @@
                 content.innerHTML = `
             <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
             <h1 class="metro-huge-title" style="margin-top:50px; color:var(--accent);">${genre.toLowerCase()}</h1>
-            <div class="tile-grid" id="genre-grid" style="margin-top:40px;"></div>`;
+            <div class="tile-grid" id="genre-grid" style="margin-top:40px;" data-role="tile"></div>`;
                 const grid = document.getElementById('genre-grid');
                 data.Page.media.forEach(m => {
                     const title = m.title.english || m.title.romaji;
@@ -7405,11 +7829,11 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                     <div class="form-group">
                         <label class="form-label">started (yyyy-mm-dd)</label>
-                        <input class="editor-input" type="text" name="startedAt" placeholder="e.g. 2026-05-12" value="${entry.startedAt?.year ? `${entry.startedAt.year}-${String(entry.startedAt.month||1).padStart(2,'0')}-${String(entry.startedAt.day||1).padStart(2,'0')}` : ''}">
+                        <input class="editor-input" type="text" name="startedAt" data-role="calendarpicker" data-format="%Y-%m-%d" data-input-format="%Y-%m-%d" data-dialog-mode="true" data-dialog-point="320" placeholder="e.g. 2026-05-12" value="${entry.startedAt?.year ? `${entry.startedAt.year}-${String(entry.startedAt.month||1).padStart(2,'0')}-${String(entry.startedAt.day||1).padStart(2,'0')}` : ''}">
                     </div>
                     <div class="form-group">
                         <label class="form-label">completed (yyyy-mm-dd)</label>
-                        <input class="editor-input" type="text" name="completedAt" placeholder="e.g. 2026-05-12" value="${entry.completedAt?.year ? `${entry.completedAt.year}-${String(entry.completedAt.month||1).padStart(2,'0')}-${String(entry.completedAt.day||1).padStart(2,'0')}` : ''}">
+                        <input class="editor-input" type="text" name="completedAt" data-role="calendarpicker" data-format="%Y-%m-%d" data-input-format="%Y-%m-%d" data-dialog-mode="true" data-dialog-point="320" placeholder="e.g. 2026-05-12" value="${entry.completedAt?.year ? `${entry.completedAt.year}-${String(entry.completedAt.month||1).padStart(2,'0')}-${String(entry.completedAt.day||1).padStart(2,'0')}` : ''}">
                     </div>
                 </div>
                 <div class="form-group">
@@ -7421,10 +7845,10 @@
                     <input type="checkbox" class="metro-checkbox" name="private" ${entry.private ? 'checked' : ''}>
                 </div>
                 <div class="editor-actions" style="justify-content: space-between;">
-                    ${entry.id ? `<button type="button" class="metro-btn" style="color:var(--accent-red);" onclick="deleteMediaEntry(${entry.id}, ${mediaId}, '${type}')"><i class="fa-solid fa-trash"></i> delete</button>` : '<div></div>'}
+                    ${entry.id ? `<button type="button" class="button" data-role="button" style="color:var(--accent-red);" onclick="deleteMediaEntry(${entry.id}, ${mediaId}, '${type}')"><i class="fa-solid fa-trash"></i> delete</button>` : '<div></div>'}
                     <div style="display:flex; gap:10px;">
-                        <button type="button" class="metro-btn" onclick="closeMediaEditor()">cancel</button>
-                        <button type="submit" class="metro-btn primary">save</button>
+                        <button type="button" class="button" data-role="button" onclick="closeMediaEditor()">cancel</button>
+                        <button type="submit" class="button primary" data-role="button">save</button>
                     </div>
                 </div>
             </form>`;
@@ -7544,6 +7968,52 @@
                 pan: 'xbox360 metro soundeffects/Unknown3.wav'
             }
         };
+
+        // Explicit click handlers for login overlay buttons.
+        // We avoid inline `onclick="login()"` since some Metro UI widgets can intercept native click
+        // events. This delegation-style binding runs after Metro.initAll() and triggers login() or
+        // guestMode() directly without depending on the inline attribute.
+        (function bindLoginButtons(){
+            const signInBtn = document.getElementById('login-sign-in-btn');
+            const guestBtn  = document.getElementById('login-guest-btn');
+            if (signInBtn) {
+                signInBtn.addEventListener('click', function(ev){
+                    try {
+                        if (typeof login === 'function') {
+                            login();
+                        } else {
+                            window.location.href = 'https://anilist.co/api/v2/oauth/authorize?client_id=40698&response_type=token';
+                        }
+                    } catch (err) {
+                        console.warn('login() failed, redirecting directly:', err);
+                        window.location.href = 'https://anilist.co/api/v2/oauth/authorize?client_id=40698&response_type=token';
+                    }
+                });
+            }
+            if (guestBtn) {
+                guestBtn.addEventListener('click', function(ev){
+                    try {
+                        if (typeof guestMode === 'function') {
+                            guestMode();
+                        } else {
+                            isGuest = true;
+                            const overlay = document.getElementById('login-overlay');
+                            const app     = document.getElementById('app-container');
+                            const nav     = document.getElementById('main-nav');
+                            const top     = document.getElementById('top-right-nav');
+                            const arrows  = document.getElementById('main-arrows');
+                            if (overlay) overlay.style.display = 'none';
+                            if (app)     app.style.display = 'flex';
+                            if (nav)     nav.style.display = 'flex';
+                            if (top)     { top.style.display = 'flex'; top.setAttribute('data-shown', '1'); }
+                            if (arrows && window.innerWidth > 768) arrows.style.display = 'flex';
+                        }
+                    } catch (err) {
+                        console.warn('guestMode() failed:', err);
+                    }
+                });
+            }
+        })();
 
         const Sfx = {
             enabled: localStorage.getItem('metro_sfx') !== 'false',
@@ -7693,7 +8163,6 @@
                     showToast(on ? 'blur effect enabled' : 'blur effect disabled');
                 });
             }
-            buildYearCalendar();
         });
     </script>
 </body>

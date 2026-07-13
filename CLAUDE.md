@@ -11,7 +11,7 @@
 - **Main file:** `/Users/BrijeshKrishnan/BRIJESH KRISHNAN/projectgobrr/index.html`
 - **Stack:** Vanilla HTML5 + CSS3 + ES6+ JavaScript — **no build tools, no Node, no framework**
 - **API:** AniList GraphQL v2 — `https://graphql.anilist.co`
-- **External CDN:** FontAwesome 6.4.0, Metro UI CSS v4 (reference only)
+- **UI Framework:** Vendored Metro UI v4 (`vendor/metro-ui/dist/`) with custom AMOLED overrides
 - **Sounds:** `xbox360 metro soundeffects/` directory (`.wav` files via Web Audio API)
 
 ---
@@ -60,6 +60,7 @@ Optional Metro colors: `#60a917` green, `#f39c12` amber, `#e81123` red, `#d80073
 ### 2.5 Components
 
 **Tiles:** Square (1:1) or rectangular (2:1 / 4:2), solid `--accent` or Metro color, hover shifts color, click = `transform: scale(0.95)`
+- Use Metro v4 tile attributes where possible: `data-role="tile"`, `data-effect="hover-zoom"`, `tile-content`, and `event-content` for live-content semantics.
 
 **Inputs:** `background: #111111; border: 2px solid transparent;` → on focus: `border-color: var(--accent)`
 
@@ -103,10 +104,11 @@ No centered modal dialogs — ever.
 | `anilist_token` | OAuth access token |
 | `metro_theme` | Accent color hex |
 | `metro_theme_name` | Accent color name |
-| `theme_mode` | `dark` or `light` |
+| `theme_mode` | `system`, `dark`, or `light` |
 | `metro_wallpaper` | Wallpaper data URL |
 | `metro_wallpaper_name` | Wallpaper filename |
 | `show_adult` | Adult content toggle |
+| `show_spoilers` | Spoiler reveal toggle |
 | `title_language` | Title language preference |
 
 ### 3.2 Global JS Variables — DO NOT REMOVE
@@ -114,17 +116,29 @@ No centered modal dialogs — ever.
 accessToken          // AniList OAuth token
 currentUserId        // logged-in user's AniList ID
 isGuest              // boolean — guest mode flag
-feedMode             // UI state for community feed
-inboxMode            // UI state for inbox
-airingView           // airing section view state
+allListsData         // cached library data { ANIME: {}, MANGA: {} }
+currentMediaType     // 'ANIME' | 'MANGA'
+currentLibStatus     // current library status filter
+searchType           // 'ANIME' | 'MANGA' (discover search type)
+searchSort           // current search sorting key
+currentMediaCache    // active detail panel media
+libraryItemsPerPage  // pagination limit (default 50)
 showAdultContent     // boolean content filter
+showSpoilers         // boolean spoiler toggle
 wallpaperDataUrl     // current wallpaper
 wallpaperName        // wallpaper filename
-allListsData         // cached library data (anime/manga)
-currentMediaCache    // active detail panel media
-navigationHistoryAiringSelectedDate // airing calendar date
-communityPage        // pagination state
-notifPage            // notification pagination state
+currentLibraryPage   // current page index for library
+activityPage         // current page index for community activity
+notifPage            // current page index for notifications
+communityPage        // current page index for community feed
+wheelPickedColor     // current theme accent color
+airingView           // 'today' | 'week' view state
+airingSelectedDate   // current selected airing date object
+navigationHistoryAiringSelectedDate // current calendar date string
+activeNavIndex       // current panorama section index
+lastArrowPress       // timestamp for keyboard navigation throttle
+feedMode            // UI state for community feed ('feed', 'forums', etc.)
+inboxMode           // UI state for inbox ('unread', 'past')
 ```
 
 ### 3.3 Section Indexing
@@ -138,58 +152,82 @@ Do **not** invent new features, APIs, or CSS frameworks. Only modify existing se
 
 ---
 
-## 4. Code Structure (Approximate Line Ranges)
+## 4. Code Structure
 
-| Lines | Content |
-|-------|---------|
-| 1–450 | CSS variables, core layout, panorama engine, animations |
-| 450–900 | Component styles (tiles, buttons, inputs, toggles, calendar, etc.) |
-| 900–1100 | DOMContentLoaded, theme setup, wallpaper loader |
-| 1100–1300 | Auth, settings, logout, API fetch wrapper |
-| 1200–1400 | User data loader, community feed, social interactions |
-| 1300–1500 | Notifications, detail panel |
-| 1400–1600 | Airing calendar and schedule |
-| 1600–1800 | Library, media editor |
-| 1800–2100 | Search, detail rendering, video player |
-| 2100+ | Utility functions |
+- **Lines 1–4143**: HTML Markup and Embedded CSS (including Metro UI frameworks and the critical `metro-override.css` AMOLED layer).
+- **Lines 4144–End**: The main JavaScript application engine (`<script>` block).
 
 ---
 
-## 5. Architecture Notes (May 2026 Refactors)
+## 5. Architecture Notes
 
-### Audio Engine (`Sfx` object)
+### 5.1 Metro UI v4 Integration
+- **Framework**: The project uses a vendored copy of Metro UI v4 located in `vendor/metro-ui/dist/`.
+- **Styling Pipeline**: 
+  1. `metro-bootstrap.css` (Core framework styles)
+  2. `metro-override.css` (Enforces the AMOLED identity: zero border-radius, zero shadows, black backgrounds).
+- **Initialization**: `Metro.initAll()` is called within `DOMContentLoaded` to activate framework components.
+
+### 5.2 Audio Engine (`Sfx` object)
 - Uses **Web Audio API (`AudioContext`)** — NOT `new Audio()`
-- Volume calibrated to 4–12% gain ("Soft" levels)
-- Pitch randomization on navigation events for organic feel
-- Sound packs: `classic` (Xbox 360), `soft`, `minimal` — switchable in Settings
+- Volume calibrated to 4–12% gain ("Soft" levels) for organic integration.
+- Pitch randomization on navigation events to avoid repetitive mechanical sounds.
+- Sound packs: `classic` (Xbox 360), `soft`, `minimal` — switchable in Settings.
 - SFX source files: `xbox360 metro soundeffects/`
-- `AudioContext` must be resumed via a user gesture (handled in `DOMContentLoaded` and `Sfx.play()`)
 
-### Theme & Wallpaper Engine
-- `--wallpaper-overlay`: `65%` black (dark mode) / `85%` white (light mode)
-- All UI components use CSS variables — never hard-coded colors
-- Zune top-blur layer (`.top-blur-layer`) behind top nav, toggleable in Settings
-
-### UI Refinements Applied
-- Settings back button: `position: sticky` for long subview scrolling
-- Library GraphQL fix: list groups include `name` and `status` fields
-- Library progress: completed anime substitutes total episodes when progress = 0
-- Hero background: 'airing' label restored in parallax text
+### 5.3 Theme & Wallpaper Engine
+- `--wallpaper-overlay`: `65%` black (dark mode) / `85%` white (light mode).
+- All UI components use CSS variables — never hard-coded colors.
+- Zune top-blur layer (`.top-blur-layer`) behind top nav, toggleable in Settings.
 
 ---
 
-## 6. AniList GraphQL API Rules
+## 6. Metro UI Component Guide
 
-- Always use `window.fetch()` with GraphQL structure
-- Validate all query syntax before inserting
-- Variables must be correctly structured
-- Always include error handling **with token expiry detection**
-- Pagination: use `Page` with `pageInfo` for all list queries
+To maintain consistency when adding new components, use the following `data-role` mappings:
+
+### 6.1 Tiles (`data-role="tile"`)
+- **Sizes**: `data-size="small"` (1x1), `"medium"` (2x2), `"wide"` (4x2), `"large"` (4x4).
+- **Anatomy**: 
+  - `.icon`: Identification icon.
+  - `.branding-bar`: Label at the bottom.
+  - `.badge-top` / `.badge-bottom`: Notification counts.
+  - `data-cover="url"`: Full background image.
+- **Effects (`data-effect`)**:
+  - **Hover**: `"hover-zoom-up"`, `"hover-slide-left"`, etc. (Requires `.slide-front` and `.slide-back`).
+  - **Live**: `"animate-slide-up"`, `"animate-fade"` (Requires multiple `.slide` elements).
+
+### 6.2 Navigation View (`data-role="navview"`)
+- **Structure**:
+  - `.navview-pane`: The side menu container.
+  - `.pull-button`: Hamburger toggle.
+  - `.suggest-box`: Search input area.
+  - `.navview-menu`: The `<ul>` containing navigation links.
+  - `.navview-content`: The main page content area.
+
+### 6.3 Streamer (`data-role="streamer"`)
+- Used for the Airing anime list timeline.
+- Requires `id` and `data-source` (JSON) or `data-data` (Object).
+- Events use: `{time, title, subtitle, desc, size, target, cls}`.
+
+### 6.4 Other Components
+- **Material Tabs (`data-role="materialtabs"`)**: Used for mobile tab navigation.
+- **Dialogs (`data-role="dialog"`)**: Used for confirmations and alerts.
+
+---
+
+## 7. AniList GraphQL API Rules
+
+- Always use `window.fetch()` with GraphQL structure.
+- Validate all query syntax before inserting.
+- Variables must be correctly structured.
+- Always include error handling **with token expiry detection**.
+- Pagination: use `Page` with `pageInfo` for all list queries.
 - Rate limit: 90 req/min. Handle `X-RateLimit-*` headers. Retry with backoff on 429.
 
 ---
 
-## 7. Completed Tasks (as of May 2026)
+## 8. Completed Tasks (as of May 2026)
 
 1. ✅ Auth: `login()` and `guestMode()` correctly hide overlay and show `app-container`
 2. ✅ Airing: Selected day panel placed on right side of calendar
@@ -208,7 +246,7 @@ Do **not** invent new features, APIs, or CSS frameworks. Only modify existing se
 
 ---
 
-## 8. Feature Backlog (todo.txt — all uncompleted)
+## 9. Feature Backlog (todo.txt — all uncompleted)
 
 ### Media Browsing & Discovery
 - Search (full-text across anime/manga/characters/staff/studios/users)
@@ -280,7 +318,7 @@ Do **not** invent new features, APIs, or CSS frameworks. Only modify existing se
 - Theme (system/light/dark), accent colour (sync from profile or override)
 - Default home tab, preferred media type, image quality, NSFW thumbnail override
 - Spoiler tag reveal default, list display default, swipe gesture shortcuts
-- Calendar view, countdown format, notification polling interval, haptic feedback
+- Calendar view, countdown format, polling interval, haptic feedback
 - Clear image cache, export list to CSV/JSON
 - About (version, licenses), rate limit indicator
 - Logout / switch account
@@ -306,7 +344,7 @@ Do **not** invent new features, APIs, or CSS frameworks. Only modify existing se
 | File | Purpose |
 |------|---------|
 | `index.html` | Main application — all logic, styles, and markup |
-| `index_v2.html` | Extended version (may lag behind `index.html`) |
+| `index_v2.html` | Extended version (may lag behind `index.html`)
 | `CLAUDEREF3.html` | Layout structure reference |
 | `gemini-code-*.html` | Additional layout references |
 | `anilist_app_features_spec.html` | Full feature specification |
@@ -314,6 +352,8 @@ Do **not** invent new features, APIs, or CSS frameworks. Only modify existing se
 | `handoff.md` | May 2026 session state and architecture notes |
 | `todo.txt` | Task history and full feature backlog |
 | `restoresesh.txt` | Session state snapshot |
+| `metroui.txt` | Metro UI v4 Technical Implementation Guide |
+| `vendor/metro-ui/` | Vendored Metro UI framework files |
 | `xbox360 metro soundeffects/` | `.wav` SFX files |
 
 ---
@@ -327,7 +367,3 @@ Do **not** invent new features, APIs, or CSS frameworks. Only modify existing se
 5. Metro UI rules respected: zero radius, zero shadow, lowercase, flat
 6. No new external dependencies introduced without approval
 7. Update `handoff.md` with any major architecture changes
-
----
-
-*Generated: June 2026 — consolidates `rules.txt`, `handoff.md`, and `todo.txt`*

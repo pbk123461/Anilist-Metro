@@ -1,0 +1,456 @@
+/*
+ * AMOLED / zero-radius Metro UI v4 override
+ * Loaded AFTER metro-bootstrap.css so its styles win on equal specificity.
+ * Goal: keep Metro's component SHAPES (data-role semantics) but render with
+ * our AMOLED / zero-radius / lowercase design system.
+ */
+
+/* ---------- Hard reset for body and html to defeat Metro's white defaults ---------- */
+html, body, .metro {
+  background-color: var(--bg) !important;
+  color: var(--text-main) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+html { font-size: 100% !important; }
+body { font-size: 16px !important; }
+body { font-family: 'Segoe UI Light', 'Segoe UI Variable Display', system-ui, sans-serif; font-weight: 300; }
+
+/* ---------- Geometry & text defaults ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Metro UI's .button has margin:auto and aggressive defaults — nuke them.
+   We exclude elements inside .mobile-bottom-nav which has its own bespoke button styling. */
+.button { /* placeholder selector, real rules below use higher specificity to skip mobile-bottom-nav */ }
+
+/* Default Metro UI button (everywhere except inside .bottom-nav.mobile-bottom-nav) */
+body .button,
+body button.button,
+body a.button,
+body label.button {
+  margin: 0 !important;
+  font-family: inherit !important;
+  font-size: 24px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  color: #ffffff !important;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: var(--surface) !important;
+  border: 1px solid transparent !important;
+  border-radius: 0 !important;
+  outline: none;
+  text-transform: lowercase;
+  padding: 18px 36px !important;
+  transition: background-color 0.2s var(--metro-easing), transform 0.1s var(--metro-easing);
+}
+body .button:hover {
+  background-color: var(--surface-hover) !important;
+  box-shadow: inset 0 0 0 2px var(--accent) !important;
+}
+body .button:active,
+body .button:focus {
+  transform: scale(0.96);
+  outline: none;
+  border-color: var(--accent) !important;
+  background-color: var(--accent) !important;
+  color: #ffffff !important;
+}
+body .button.primary:active,
+body .button.primary:focus { background-color: var(--accent) !important; filter: brightness(1.4); }
+body .button:disabled,
+body .button.disabled { opacity: 0.5; cursor: not-allowed; }
+
+body .button.primary { background-color: var(--accent) !important; color: #ffffff !important; }
+body .button.primary:hover { filter: brightness(1.1); }
+body .button.info { background-color: var(--accent) !important; color: #ffffff !important; }
+body .button.success { background-color: #60a917 !important; color: #fff !important; }
+body .button.warning { background-color: #f0a30a !important; color: #000 !important; }
+body .button.danger { background-color: #a20025 !important; color: #fff !important; }
+body .button.inverse { background-color: transparent !important; color: var(--text-main) !important; border-color: var(--text-dim) !important; }
+
+/* ---------- Tiles: strip Metro's float/Metro default visuals (but respect app-specific sizes) ---------- */
+/* Note: Metro's .tile defaults to 120x120 float:left. We force 'none' for those defaults but do NOT 
+   set width/height !important, so .trending-tile / .flip-tile / .metro-tile etc retain their app sizes. */
+.tile {
+  position: relative !important;
+  display: block !important;
+  float: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: var(--surface);
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--text-main) !important;
+  outline: none !important;
+}
+.tile:hover {
+  outline: none !important;
+  box-shadow: inset 0 0 0 2px var(--accent) !important;
+}
+.tile:active,
+.tile.no-outline:active { outline: none !important; box-shadow: none !important; }
+
+/* kill Metro's hover "outline: #999 solid 3px" */
+.tile:hover { outline: 0 !important; }
+
+/* ---------- Tile content inner ---------- */
+.tile .tile-content {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+  background: transparent;
+}
+.tile .tile-content.padded { padding: 10px !important; }
+.tile .tile-content.image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  display: block;
+}
+.tile .tile-content.icon [class*="mif-"],
+.tile .tile-content.icon [class*="icon-"],
+.tile .tile-content.icon img {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56px; height: 56px;
+  font-size: 48px; line-height: 56px;
+  color: inherit; text-align: center;
+}
+
+/* ---------- Tile-area containers ---------- */
+.tile-area {
+  display: block !important;
+  background: var(--bg) !important;
+  border-radius: 0 !important;
+}
+.tile-area-dark, .tile-area-darkCrimson, .tile-area-darkViolet,
+.tile-area-darkMagenta, .tile-area-darkCyan, .tile-area-darkCobalt,
+.tile-area-darkTeal, .tile-area-darkEmerald, .tile-area-darkGreen,
+.tile-area-darkOrange, .tile-area-darkPink, .tile-area-darkRed,
+.tile-area-darkIndigo, .tile-area-darkBlue, .tile-area-darkSky,
+.tile-area-darkYellow, .tile-area-darkBrown, .tile-area-darkMauve,
+.tile-area-darkOlive, .tile-area-darkSteel, .tile-area-darkTaupe {
+  background: var(--bg) !important;
+  border: 0 !important;
+}
+.tile-area-dark:before, .tile-area-dark:after,
+.tile-area-darkCrimson:before, .tile-area-darkCrimson:after { display: none !important; }
+
+/* ---------- Forms ---------- */
+.input-control.text,
+.input-control.password,
+.input-control.select,
+.input-control.textarea,
+.input-control.file {
+  position: relative;
+  display: block;
+  vertical-align: middle;
+  background: transparent;
+}
+.input-control.checkbox,
+.input-control.radio,
+.input-control.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  background: transparent;
+}
+.input-control.text input,
+.input-control.password input,
+.input-control.select select,
+.input-control.textarea textarea {
+  background: var(--input-bg) !important;
+  color: var(--text-main) !important;
+  border: 2px solid transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: 36px;
+  padding: 0 10px !important;
+  line-height: 32px;
+  font-family: inherit;
+  font-weight: 300;
+  text-transform: lowercase;
+  outline: none;
+}
+.input-control.text input:focus,
+.input-control.password input:focus,
+.input-control.select select:focus,
+.input-control.textarea textarea:focus {
+  border-color: var(--accent) !important;
+  background: var(--input-bg) !important;
+  color: var(--text-main) !important;
+}
+.input-control.textarea textarea { height: auto; line-height: 1.4; padding: 10px !important; }
+.input-control.text input::placeholder,
+.input-control.password input::placeholder,
+.input-control.textarea textarea::placeholder {
+  color: var(--text-dim);
+}
+
+/* Checkbox & radio: flat square, accent fill on checked */
+.input-control.checkbox .check,
+.input-control.radio .check {
+  position: relative;
+  display: inline-block;
+  width: 18px; height: 18px;
+  background: var(--input-bg);
+  border: 2px solid var(--text-dim);
+  border-radius: 0 !important;
+  vertical-align: middle;
+  margin-right: 8px;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+.input-control.checkbox:hover .check,
+.input-control.radio:hover .check { border-color: var(--accent); }
+.input-control.checkbox .check:after,
+.input-control.radio .check:after {
+  content: "";
+  position: absolute;
+  top: 1px; left: 5px;
+  width: 4px; height: 9px;
+  border-right: 2px solid #000;
+  border-bottom: 2px solid #000;
+  transform: rotate(45deg);
+  display: none;
+}
+.input-control.checkbox input[type=checkbox]:checked ~ .check,
+.input-control.radio input[type=radio]:checked ~ .check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.input-control.checkbox input[type=checkbox]:checked ~ .check:after,
+.input-control.radio input[type=radio]:checked ~ .check:after { display: block; }
+
+/* Switch: flat rectangular, square thumb */
+.input-control.switch .check {
+  position: relative;
+  display: inline-block;
+  width: 44px; height: 22px;
+  background: var(--surface);
+  border: 2px solid var(--text-dim);
+  border-radius: 0 !important;
+  vertical-align: middle;
+  margin-right: 8px;
+  cursor: pointer;
+  box-shadow: none !important;
+  transition: background-color 200ms var(--metro-easing), border-color 200ms var(--metro-easing);
+}
+.input-control.switch .check::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 18px; height: 18px;
+  background: #fff;
+  transition: left 200ms var(--metro-easing), background 200ms var(--metro-easing);
+}
+.input-control.switch input:checked ~ .check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.input-control.switch input:checked ~ .check::before { left: 22px; }
+.input-control.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.input-control.switch .caption {
+  color: var(--text-main);
+  text-transform: lowercase;
+  font-weight: 300;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ---------- Tabs (pivot strip wrapper) ---------- */
+.tabs {
+  list-style: none;
+  margin: 0; padding: 0;
+  background: transparent !important;
+  border: 0 !important;
+  display: flex !important;
+  flex-direction: row;
+  align-items: stretch;
+}
+.tabs li { float: none !important; margin: 0 !important; padding: 0 !important; background: transparent !important; }
+.tabs li a {
+  display: inline-block;
+  color: var(--text-dim) !important;
+  font-weight: 300 !important;
+  font-size: 24px;
+  text-transform: lowercase;
+  padding: 10px 20px;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: color 200ms var(--metro-easing), background-color 200ms var(--metro-easing);
+}
+.tabs li.active a,
+.tabs li a.active {
+  color: var(--text-main) !important;
+  font-weight: 400;
+  background: transparent !important;
+  border-bottom: 2px solid var(--accent) !important;
+}
+.tabs li a:hover { color: var(--text-main); background: transparent !important; }
+.tabs .marker,
+.tabs .tabs-marker { display: none !important; }
+
+/* ---------- Navview (mobile side pane) ---------- */
+.navview { background: var(--bg) !important; color: var(--text-main) !important; }
+.navview .navview-pane { background: var(--bg) !important; color: var(--text-main) !important; }
+.navview .navview-content { background: var(--bg); color: var(--text-main); }
+.navview .navview-menu li a { color: var(--text-main) !important; text-transform: lowercase; }
+.navview .navview-menu li.active { background: var(--surface) !important; }
+.navview .navview-menu li a:hover { background: var(--surface-hover) !important; }
+.navview .suggest-box input { background: var(--surface) !important; color: var(--text-main) !important; border: 0 !important; }
+.navview .pull-button { background: var(--accent) !important; color: #000 !important; }
+
+/* ---------- Dialogs ---------- */
+.dialog { background: var(--bg) !important; color: var(--text-main) !important; border: 2px solid var(--accent) !important; }
+.dialog .dialog-title { background: var(--bg) !important; color: var(--text-main) !important; border-bottom: 2px solid var(--accent) !important; }
+.dialog .dialog-content { background: var(--bg) !important; color: var(--text-main) !important; padding: 20px !important; }
+
+/* ---------- Streamer ---------- */
+.streamer { background: var(--bg) !important; color: var(--text-main) !important; }
+.streamer .streams { background: var(--bg) !important; }
+.streamer .stream { color: var(--text-main) !important; border-bottom: 1px solid var(--border-color) !important; }
+.streamer .meter li em,
+.streamer .meter li { color: var(--text-dim) !important; background: transparent !important; }
+.streamer .event-stream .event { color: var(--text-main) !important; border: 0 !important; }
+.streamer .event-stream .event.selected { background: var(--surface-hover) !important; }
+.streamer .event-stream .event.selected:before,
+.streamer .event-stream .event.selected:after { background: var(--accent) !important; }
+
+/* ---------- Calendar ---------- */
+.calendar { background: var(--bg) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; }
+.calendar .calendar-row { background: var(--bg) !important; }
+.calendar .calendar-day,
+.calendar .day { color: var(--text-main) !important; border: 1px solid var(--border-color) !important; background: var(--bg) !important; }
+.calendar .calendar-day.today,
+.calendar .day.today { background: var(--accent) !important; color: #000 !important; }
+.calendar .calendar-day.selected,
+.calendar .day.selected { background: var(--surface-hover) !important; color: var(--text-main) !important; }
+
+/* ---------- Carousel slides ---------- */
+.carousel .slide { background: var(--bg) !important; }
+
+/* ---------- Dropdown ---------- */
+.dropdown-menu { background: var(--surface) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; }
+.dropdown-menu li a { color: var(--text-main) !important; }
+
+/* ---------- Live tile content (flip animations live here in our own .flip-tile markup) ---------- */
+.tile [class*="-content"]:not(:first-child) { display: none; }
+
+/* ---------- Generic reset on all Metro chrome ---------- */
+.tile,
+.button,
+.input-control,
+.tabs,
+.dialog,
+.streamer,
+.calendar,
+.carousel,
+.dropdown-menu,
+.panel,
+.listview,
+.tabs li a,
+.navview .navview-menu .caption,
+.dialog .dialog-title,
+.panel .panel-header,
+.dropdown-menu li a,
+.input-control .caption {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* ---------- Inline-style background wins over our override (start tiles stay colored) ---------- */
+.tile[style*="background-color"] { background-color: inherit !important; }
+.tile .tile-content { background-color: transparent; }
+
+/* ---------- Start-screen tiles: keep our grid layout (don't float) ---------- */
+.start-screen-grid .tile { float: none !important; margin: 0 !important; }
+
+/* ---------- Panorama must stay horizontal scroll (Metro carousel would steal it) ---------- */
+/* Respect the 85vw section + 15vw margin rhythm authored in the embedded stylesheet.
+   Force flex display on the container so the embedded flex-flow:row scrolls horizontally as intended. */
+.panorama-container { display: flex !important; flex-direction: row !important; }
+.panorama-container .header-section {
+  flex: 0 0 85vw !important;
+  width: 85vw !important;
+  min-width: 85vw !important;
+  max-width: 85vw !important;
+  margin-right: 15vw !important;
+}
+
+
+/* ---------- Start-screen tiles: enable Metro UI v4 size classes via grid span ---------- */
+.start-screen-grid .tile,
+.start-screen-grid .tile.double { grid-column: span 2; grid-row: span 2; }
+.start-screen-grid .tile.half { grid-column: span 1; grid-row: span 1; }
+.start-screen-grid .tile.double-vertical { grid-column: span 2; grid-row: span 2; }
+
+@media (max-width: 768px) {
+  .start-screen-grid .tile,
+  .start-screen-grid .tile.double { grid-column: span 1; grid-row: span 1; }
+}
+
+
+/* ---------- Tile size scale: 1/3 of original ---------- */
+.trending-tile {
+  width: 43px !important;
+  height: 60px !important;
+}
+.trending-tile .tile-label,
+.trending-tile .tile-score,
+.trending-tile .tile-badge,
+.trending-tile .trending-rank {
+  font-size: 6px !important;
+  padding: 0 2px !important;
+}
+.flip-tile-front img,
+.flip-tile-back { transform: scale(0.33); transform-origin: top left; }
+.tile-grid { grid-template-columns: repeat(auto-fill, minmax(43px, 1fr)) !important; grid-auto-rows: 60px !important; }
+.tile-grid .flip-tile-inner,
+.tile-grid .flip-tile { width: 43px !important; height: 60px !important; }
+.tile-grid .metro-tile-title { font-size: 6px !important; }
+.tile-grid .metro-tile-subtitle { font-size: 5px !important; }
+
+.start-screen-grid { grid-template-columns: repeat(auto-fit, minmax(37px, 1fr)) !important; grid-auto-rows: 37px !important; gap: 4px !important; }
+.start-screen-grid .tile { font-size: 8px !important; }
+.start-screen-grid .start-title { font-size: 6px !important; padding: 2px !important; }
+.start-screen-grid .start-icon { font-size: 1rem !important; }
+.start-tile-notif { font-size: 1.5rem !important; }
+
+/* Mobile: same scale (was 100x150) */
+@media (max-width: 768px) {
+  .trending-tile { width: 33px !important; height: 50px !important; }
+  .tile-grid { grid-template-columns: repeat(auto-fill, minmax(33px, 1fr)) !important; grid-auto-rows: 50px !important; }
+}
+
+
+/* ---------- Top menu (xbox-nav) and right nav must always be visible above panorama sections ---------- */
+/* Login overlay still covers them (z-index:9999). When overlay is hidden (display:none), the menu shows. */
+.xbox-nav { z-index: 200 !important; opacity: 1 !important; visibility: visible !important; }
+.top-right-nav { z-index: 1100 !important; opacity: 1 !important; visibility: visible !important; }
+.nav-arrows { z-index: 1100 !important; opacity: 1 !important; visibility: visible !important; }
+
+/* Override embedded 'display: none' for top-right-nav specifically. Keep it controlled by JS state
+   but ensure no Metro rule is killing the visibility. */
+#top-right-nav[data-shown="1"] { display: flex !important; }
+
+/* If the user is not signed in but on the login overlay, ensure the menu doesn't show through the overlay
+   (z-index 9999 covers z-index 200/1100 anyway, but as a safety:) */
+#login-overlay { z-index: 9999 !important; }
