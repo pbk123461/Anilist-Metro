@@ -22,6 +22,7 @@
 
         :root,
         [data-theme="dark"] {
+            color-scheme: dark;
             --bg: #000000;
             --surface: #111111;
             --surface-hover: #1a1a1a;
@@ -33,17 +34,23 @@
             --hero-bg-text: rgba(255, 255, 255, 0.055);
             --wallpaper-overlay: rgba(0, 0, 0, 0.65);
             --glass-line: rgba(255, 255, 255, 0.16);
+            --accent-ink: #07131a;
+            --accent-ink-muted: rgba(7, 19, 26, 0.76);
         }
 
         [data-theme="light"] {
+            color-scheme: light;
             --bg: #ffffff;
-            --surface: #f2f2f2;
-            --surface-hover: #e6e6e6;
-            --input-bg: #eeeeee;
+            --surface: #f4f5f7;
+            --surface-hover: #e6e9ed;
+            --input-bg: #ffffff;
             --text: #000000;
             --text-main: #000000;
-            --text-muted: rgba(0, 0, 0, 0.6);
-            --text-dim: rgba(0, 0, 0, 0.45);
+            --text-muted: #555b63;
+            --text-dim: #555b63;
+            --accent-green: #3f7412;
+            --accent-yellow: #805500;
+            --accent-red: #aa2b24;
             --hero-bg-text: rgba(0, 0, 0, 0.05);
             --wallpaper-overlay: rgba(255, 255, 255, 0.85);
             --glass-line: rgba(0, 0, 0, 0.12);
@@ -173,6 +180,7 @@
             display: flex;
             flex-direction: column;
         }
+        .header-section.library-section { width:100vw; flex:0 0 100vw; margin-right:0; padding-right:60px; }
 
         /* MASSIVE BACKGROUND TEXT */
         .zune-hero-bg {
@@ -187,10 +195,12 @@
             pointer-events: none;
             letter-spacing: -8px;
             line-height: 1;
-            will-change: transform;
+            will-change: auto;
             transition: color 0.3s;
             width: calc(100vw - 60px);
             overflow: hidden;
+            -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+            mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
         }
         .zune-hero-track {
             display: flex;
@@ -240,6 +250,8 @@
         .top-blur-layer.blur-disabled {
             opacity: 0;
         }
+        [data-theme="dark"] .top-blur-layer.anime-wallpaper-active { background: linear-gradient(to bottom, rgba(0,0,0,.34), transparent); }
+        [data-theme="light"] .top-blur-layer.anime-wallpaper-active { background: linear-gradient(to bottom, rgba(255,255,255,.48), transparent); }
 
         .xbox-nav {
             position: fixed;
@@ -407,7 +419,7 @@
 
         .dropdown-content a:hover {
             background-color: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .dropdown-content a:active {
@@ -466,7 +478,7 @@
 
         .metro-tile-start {
             background-color: var(--accent);
-            color: #ffffff;
+            color: var(--accent-ink);
             position: relative;
             cursor: pointer;
             overflow: hidden;
@@ -474,9 +486,115 @@
             flex-direction: column;
             justify-content: flex-end;
             padding: 12px;
+            perspective: 1000px;
             transition: transform 0.1s var(--metro-easing);
             border: none;
             border-radius: 0;
+        }
+
+        .metro-tile-start.live-start-tile { padding: 0; }
+        .live-tile-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.7s var(--metro-easing);
+        }
+        .live-start-tile.live-flipped .live-tile-inner { transform: rotateY(180deg); }
+        .live-tile-front,
+        .live-tile-back {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            backface-visibility: hidden;
+        }
+        .live-tile-front {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 12px;
+        }
+        .live-tile-back {
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 18px;
+            color: #fff;
+            background: #18202b;
+            text-align: left;
+        }
+        .live-tile-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.66;
+        }
+        .live-tile-back::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,.92), rgba(0,0,0,.12) 85%);
+            pointer-events: none;
+        }
+        .live-tile-copy { position: relative; z-index: 1; }
+        .live-tile-heading {
+            font-size: clamp(1rem, 2vw, 1.35rem);
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .live-tile-detail {
+            color: rgba(255,255,255,.78);
+            font-size: .9rem;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        #anime-hover-wallpaper {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        #anime-hover-wallpaper.is-active { opacity: 1; }
+        #anime-hover-wallpaper img {
+            position: absolute;
+            left: -5%;
+            top: -5%;
+            width: 110%;
+            height: 110%;
+            object-fit: cover;
+            transform: scale(1.04);
+            animation: anime-banner-glide 42s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        #anime-hover-wallpaper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,.64), rgba(0,0,0,.28) 55%, rgba(0,0,0,.55));
+        }
+        @keyframes anime-banner-glide {
+            from { transform: translate3d(-2.5%, 0, 0) scale(1.04); }
+            to { transform: translate3d(2.5%, 0, 0) scale(1.04); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #anime-hover-wallpaper img { animation: none; transform: scale(1.04); }
+            #anime-hover-wallpaper { transition: none; }
+            .live-tile-inner { transition: none; }
         }
 
         .metro-tile-start:active {
@@ -512,7 +630,7 @@
             font-size: 1.1rem;
             font-weight: 300;
             z-index: 2;
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .profile-tile img {
@@ -530,6 +648,7 @@
             z-index: 2;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
             font-weight: 400;
+            color: #fff;
         }
 
         /* =========================================
@@ -550,12 +669,12 @@
         .metro-btn:hover,
         .metro-btn:active {
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .metro-btn.primary {
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .metro-btn.primary:hover {
@@ -624,7 +743,7 @@
         .mts-btn.active,
         .mts-btn:hover {
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
             border-color: var(--accent);
         }
 
@@ -681,7 +800,7 @@
         }
 
         /* Beta library: compact list navigation with independently collapsible shelves. */
-        .library-explorer { display:grid; grid-template-columns:minmax(190px,230px) minmax(0,1fr); gap:28px; min-height:0; }
+        .library-explorer { display:grid; grid-template-columns:minmax(190px,230px) minmax(0,1fr); gap:clamp(16px,2.2vw,28px); min-height:0; width:100%; max-width:100%; align-items:start; box-sizing:border-box; }
         .library-sidebar { display:flex; flex-direction:column; gap:18px; color:var(--text-dim); font-size:14px; }
         .library-sidebar input, .library-sidebar select { width:100%; min-width:0; background:var(--surface); color:var(--text-main); border:1px solid var(--surface-hover); border-radius:3px; padding:10px 12px; font:inherit; }
         .library-sidebar input:focus, .library-sidebar select:focus { outline:2px solid var(--accent); outline-offset:1px; }
@@ -690,12 +809,14 @@
         .library-list-nav button { width:100%; text-align:left; padding:8px 10px; color:var(--text-dim); background:transparent; border:0; border-radius:3px; cursor:pointer; font:inherit; text-transform:none; }
         .library-list-nav button:hover, .library-list-nav button.active { color:var(--text-main); background:var(--surface); }
         .library-list-nav .library-list-count { float:right; color:var(--text-dim); font-size:12px; }
-        .library-main { min-width:0; }
+        .library-list-manager-trigger { width:100%; margin-top:10px; text-align:left; }
+        .library-main, #library-grid, .library-sidebar { min-width:0; max-width:100%; }
+        #library-grid { overflow:hidden; }
         .library-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:0 0 20px; }
         .library-toolbar .media-type-switch { margin:0; }
         .library-layout-toggle { display:flex; gap:4px; }
         .library-layout-toggle button { border:1px solid var(--surface-hover); background:var(--surface); color:var(--text-dim); padding:8px 10px; cursor:pointer; }
-        .library-layout-toggle button.active { color:#fff; background:var(--accent); border-color:var(--accent); }
+        .library-layout-toggle button.active { color:var(--accent-ink); background:var(--accent); border-color:var(--accent); }
         .library-group { margin:0 0 30px; border-top:1px solid var(--surface-hover); }
         .library-group summary { list-style:none; display:flex; align-items:center; gap:10px; padding:14px 2px; cursor:pointer; color:var(--text-main); font-size:20px; }
         .library-group summary::-webkit-details-marker { display:none; }
@@ -708,6 +829,21 @@
         .library-explorer[data-layout="list"] .library-group .tile-grid { grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); grid-auto-rows:110px; gap:10px; }
         .library-explorer[data-layout="list"] .flip-tile-front img { width:76px; }
         .library-empty { color:var(--text-dim); padding:10px 0 20px; }
+        .login-required-card { max-width:560px; margin:12px 0; padding:22px; border:1px solid var(--surface-hover); border-left:3px solid var(--accent); border-radius:4px; background:var(--surface); color:var(--text-main); }
+        .login-required-card p { margin:8px 0 16px; color:var(--text-dim); line-height:1.5; }
+        .library-manager-overlay { position:fixed; inset:0; z-index:10050; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(0,0,0,.72); }
+        .library-manager-overlay.open { display:flex; }
+        .library-manager-dialog { width:min(560px,100%); max-height:85vh; overflow:auto; padding:22px; border:1px solid var(--surface-hover); border-radius:8px; background:var(--bg); color:var(--text-main); box-shadow:0 18px 70px rgba(0,0,0,.4); }
+        .library-manager-head, .library-manager-row { display:flex; align-items:center; gap:10px; }
+        .library-manager-head { justify-content:space-between; margin-bottom:16px; }
+        .library-manager-list { display:grid; gap:8px; margin:16px 0; }
+        .library-manager-row { min-width:0; padding:9px 10px; border:1px solid var(--surface-hover); border-radius:4px; background:var(--surface); }
+        .library-manager-row-label { min-width:0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .library-manager-row-kind { color:var(--text-dim); font-size:11px; text-transform:uppercase; }
+        .library-manager-row button { min-width:34px; padding:5px; }
+        .library-manager-add { display:flex; gap:8px; }
+        .library-manager-add input { min-width:0; flex:1; padding:10px; color:var(--text-main); background:var(--surface); border:1px solid var(--surface-hover); border-radius:4px; font:inherit; }
+        .library-manager-note { min-height:1.4em; color:var(--text-dim); font-size:13px; }
         .studio-detail-shell { max-width:1080px; margin:54px auto 0; padding:24px; }
         .studio-detail-hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,.8fr); gap:24px; align-items:center; margin:0 0 28px; }
         .studio-detail-title { margin:0 0 8px; color:var(--accent); font-size:clamp(2.2rem,5vw,3.6rem); font-weight:300; line-height:1.05; }
@@ -794,6 +930,7 @@
             top: 8px;
             right: 8px;
             background: var(--accent);
+            color: var(--accent-ink);
         }
 
         .tile-score {
@@ -855,7 +992,7 @@
         .flip-tile-back {
             transform: rotateY(180deg);
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
             padding: 15px;
             display: flex;
             flex-direction: column;
@@ -942,7 +1079,7 @@
             left: 5px;
             font-size: 12px;
             font-weight: 400;
-            color: #fff;
+            color: var(--accent-ink);
             background: var(--accent);
             padding: 2px 6px;
             z-index: 5;
@@ -1231,7 +1368,7 @@
         .filter-chip:hover,
         .filter-chip.active {
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
             border-color: var(--accent);
         }
 
@@ -1319,7 +1456,7 @@
 
         .status-btn.active {
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .status-btn.full {
@@ -1395,7 +1532,7 @@
         .btn-back:hover {
             border-color: var(--accent);
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .btn-back-text {
@@ -1513,19 +1650,17 @@
             transition: color 0.2s;
         }
 
-        .metro-tile:hover .tile-label {
-            animation: marquee 3s linear infinite alternate;
-            overflow: visible;
-        }
+        .metro-tile:hover .tile-label,
+        .flip-tile:hover .tile-label { overflow:visible; }
+        .tile-label.is-scrolling { width:max-content; right:auto; text-overflow:clip; animation:marquee 4s linear infinite alternate; }
+        .tile.title-scroll-active:hover .flip-tile-inner { transform:none; }
 
         @keyframes marquee {
             0% {
                 transform: translateX(0);
             }
 
-            100% {
-                transform: translateX(-20%);
-            }
+            100% { transform:translateX(calc(0px - var(--marquee-distance, 20%))); }
         }
 
         /* Character / staff / review grids */
@@ -1647,7 +1782,7 @@
 
         .airing-calendar .day-cell.selected {
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .airing-calendar .day-cell.today {
@@ -1665,7 +1800,7 @@
 
         .airing-date-panel {
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
             padding: 15px;
             display: flex;
             flex-direction: column;
@@ -1673,7 +1808,7 @@
         }
 
         .airing-date-label {
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--accent-ink-muted);
             text-transform: lowercase;
             font-size: 0.85rem;
         }
@@ -1824,37 +1959,56 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.6;
+            opacity: 1;
+            filter: brightness(.78) saturate(.88);
             z-index: 1;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s, filter 0.3s, transform 0.3s;
+        }
+
+        .airing-tile::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            background: linear-gradient(to top, rgba(0,0,0,.86), rgba(0,0,0,.1) 72%);
         }
 
         .airing-tile:hover img {
-            opacity: 0.4;
+            opacity: .88;
+            filter: brightness(.68) saturate(.92);
+            transform: scale(1.025);
         }
 
         .airing-tile-content {
-            z-index: 2;
+            z-index: 3;
             position: relative;
+            margin: 0 -15px -15px;
+            padding: 10px 15px 13px;
+            background: rgba(0,0,0,.9);
+            border-left: 3px solid var(--accent);
+            border-radius:0 3px 3px 0;
         }
 
         .airing-tile-time {
             font-size: 1.5rem;
-            font-weight: 100;
-            color: var(--accent);
+            font-weight: 700;
+            color: #fff !important;
             display: block;
+            line-height:1.2;
+            text-shadow:0 2px 5px rgba(0,0,0,.95);
         }
 
         .airing-tile-title {
             font-size: 1.1rem;
-            color: #fff;
-            font-weight: 300;
+            color: #fff !important;
+            font-weight: 400;
             line-height: 1.2;
         }
 
         .airing-tile-ep {
             font-size: 0.8rem;
-            color: var(--text-dim);
+            color: rgba(255,255,255,.94) !important;
         }
 
         .youtube-iframe-wrapper {
@@ -2018,7 +2172,7 @@
 
         .user-stat-tile.accent {
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .user-stat-value {
@@ -2031,7 +2185,7 @@
         .user-stat-tile.accent .user-stat-value,
         .user-stat-tile.accent .user-stat-label,
         .user-stat-tile.accent .user-stat-sub {
-            color: #fff;
+            color: var(--accent-ink);
         }
 
         .user-stat-label {
@@ -2767,7 +2921,7 @@
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             background: var(--accent);
-            color: #fff;
+            color: var(--accent-ink);
             padding: 15px 30px;
             font-size: 16px;
             z-index: 9000;
@@ -2845,6 +2999,7 @@
                 padding: 160px 20px 70px 20px;
                 margin-right: 0;
             }
+            .header-section.library-section { padding:160px 20px 70px; }
 
             .metro-huge-title {
                 font-size: clamp(3rem, 12vw, 5rem);
@@ -3015,7 +3170,7 @@
             font-family: inherit; font-size: 13px; text-align: left;
         }
         .multi-select-chip:hover { border-color: var(--accent); }
-        .multi-select-chip.selected { background: var(--accent); color: #fff; }
+        .multi-select-chip.selected { background: var(--accent); color: var(--accent-ink); }
         .multi-select-category { font-size: 14px; color: var(--accent); font-weight: 400; margin: 16px 0 8px; }
         .range-slider-wrap { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
         .range-value { font-size: 14px; color: var(--accent); text-align: right; font-weight: 400; }
@@ -3109,7 +3264,7 @@
             color: var(--text-main);
             transition: background 0.1s;
         }
-        .metro-select-opt:hover { background: var(--accent); color: #fff; }
+        .metro-select-opt:hover { background: var(--accent); color: var(--accent-ink); }
 
         /* =========================================
            FLUENT 1 (WINDOWS 11) DESIGN SYSTEM
@@ -3277,7 +3432,7 @@
         [data-ui="fluent"] .metro-btn.primary,
         [data-ui="fluent"] .mts-btn.active {
             background: var(--accent) !important;
-            color: #ffffff !important;
+            color: var(--accent-ink) !important;
             border-color: rgba(255, 255, 255, 0.25) !important;
             box-shadow: 0 2px 10px rgba(var(--accent-rgb, 27, 161, 226), 0.45) !important;
         }
@@ -3344,7 +3499,7 @@
         [data-ui="fluent"] .genre-chip.active,
         [data-ui="fluent"] .studio-chip.active {
             background: var(--accent) !important;
-            color: #ffffff !important;
+            color: var(--accent-ink) !important;
             border-color: var(--accent) !important;
             box-shadow: 0 2px 8px rgba(var(--accent-rgb, 27, 161, 226), 0.4) !important;
         }
@@ -3511,10 +3666,57 @@
         [data-ui="fluent"] .metro-tile-start, [data-ui="fluent"] .tile, [data-ui="fluent"] .metro-tile, [data-ui="fluent"] .wide-info-tile, [data-ui="fluent"] .user-stat-tile, [data-ui="fluent"] .airing-tile, [data-ui="fluent"] .browse-card, [data-ui="fluent"] .char-card, [data-ui="fluent"] .prog-item, [data-ui="fluent"] .trending-tile, [data-ui="fluent"] .inbox-item, [data-ui="fluent"] .media-card, [data-ui="fluent"] .calendar-day-cell { background:rgba(34,38,46,.96) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
         [data-ui="fluent"] .metro-select-dropdown { border:1px solid var(--fluent-border-light) !important; border-radius:0 0 8px 8px !important; overflow:hidden; }
         [data-ui="fluent"] .metro-select-opt { padding:10px 12px; }
-        [data-ui="fluent"] .metro-select-opt.selected, [data-ui="fluent"] .metro-select-opt:hover { background:var(--accent); color:#fff; }
+        [data-ui="fluent"] .metro-select-opt.selected, [data-ui="fluent"] .metro-select-opt:hover { background:var(--accent); color:var(--accent-ink); }
         [data-ui="fluent"] .library-group { border-color:var(--fluent-border); }
         [data-ui="fluent"] .library-group summary { font-size:18px; font-weight:600; }
+        [data-ui="fluent"] .login-required-card, [data-ui="fluent"] .library-manager-dialog { border-radius:12px; box-shadow:var(--fluent-shadow-flyout); }
         @media (max-width:900px) { [data-ui="fluent"] .header-section { padding:96px 20px 90px; } [data-ui="fluent"] .xbox-nav { display:none !important; } }
+
+        /* Light theme keeps Fluent surfaces light while retaining its dark navigation bar. */
+        [data-theme="light"][data-ui="fluent"] {
+            --fluent-acrylic-bg: rgba(255,255,255,.9);
+            --fluent-acrylic-card: rgba(255,255,255,.94);
+            --fluent-acrylic-modal: rgba(255,255,255,.98);
+            --fluent-border: rgba(15,23,42,.12);
+            --fluent-border-light: rgba(15,23,42,.18);
+            --fluent-border-hover: rgba(15,23,42,.28);
+            --fluent-shadow-sm: 0 2px 8px rgba(15,23,42,.08);
+            --fluent-shadow-md: 0 6px 20px rgba(15,23,42,.12), 0 1px 4px rgba(15,23,42,.08);
+            --fluent-shadow-lg: 0 12px 32px rgba(15,23,42,.16), 0 2px 8px rgba(15,23,42,.1);
+            --fluent-shadow-flyout: 0 20px 50px rgba(15,23,42,.18), 0 4px 16px rgba(15,23,42,.1);
+        }
+        [data-theme="light"][data-ui="fluent"] body { background:#f3f5f8 !important; }
+        [data-theme="light"][data-ui="fluent"] .metro-tile-start { background:var(--accent) !important; color:var(--accent-ink) !important; }
+        [data-theme="light"][data-ui="fluent"] .tile,
+        [data-theme="light"][data-ui="fluent"] .metro-tile,
+        [data-theme="light"][data-ui="fluent"] .wide-info-tile,
+        [data-theme="light"][data-ui="fluent"] .user-stat-tile,
+        [data-theme="light"][data-ui="fluent"] .browse-card,
+        [data-theme="light"][data-ui="fluent"] .char-card,
+        [data-theme="light"][data-ui="fluent"] .prog-item,
+        [data-theme="light"][data-ui="fluent"] .inbox-item,
+        [data-theme="light"][data-ui="fluent"] .media-card,
+        [data-theme="light"][data-ui="fluent"] .calendar-day-cell {
+            background:var(--fluent-acrylic-card) !important;
+            color:var(--text-main) !important;
+        }
+        [data-theme="light"][data-ui="fluent"] input,
+        [data-theme="light"][data-ui="fluent"] textarea,
+        [data-theme="light"][data-ui="fluent"] select,
+        [data-theme="light"][data-ui="fluent"] .metro-select-btn {
+            background:#fff !important;
+            color:var(--text-main) !important;
+            border-color:var(--fluent-border) !important;
+            border-bottom-color:var(--fluent-border-hover) !important;
+        }
+        [data-theme="light"][data-ui="fluent"] #main-arrows button,
+        [data-theme="light"][data-ui="fluent"] .section-nav-arrow { color:#fff !important; }
+        [data-theme="light"][data-ui="fluent"] .nav-item,
+        [data-theme="light"][data-ui="fluent"] .mobile-nav-item { color:rgba(255,255,255,.78) !important; }
+        [data-theme="light"][data-ui="fluent"] .nav-item.active,
+        [data-theme="light"][data-ui="fluent"] .mobile-nav-item.active { color:#fff !important; }
+        [data-theme="light"][data-ui="fluent"] .mobile-nav-item.active { box-shadow:inset 0 -2px 0 var(--accent) !important; }
+        [data-theme="light"][data-ui="fluent"] .quick-search-container > i { color:#fff !important; }
 
         /* Browse page tiles */
         .browse-grid {
@@ -3560,7 +3762,7 @@
         /* NSFW blur override controls */
         .nsfw-options { display: flex; gap: 10px; margin: 10px 0; }
         .nsfw-option { padding: 6px 14px; background: var(--surface); cursor: pointer; font-size: 13px; transition: background 0.1s; }
-        .nsfw-option.active { background: var(--accent); color: #fff; }
+        .nsfw-option.active { background: var(--accent); color: var(--accent-ink); }
 
         /* Timeline chart */
         .timeline-chart { display: flex; gap: 2px; align-items: flex-end; height: 100px; margin: 20px 0; }
@@ -3572,6 +3774,7 @@
             .header-section {
                 padding: 140px 15px 60px 15px;
             }
+            .header-section.library-section { padding:140px 15px 60px; }
 
             .metro-huge-title {
                 font-size: 2.5rem;
@@ -3646,6 +3849,7 @@
     </div>
 
     <div class="offline-banner" id="offline-banner">offline — showing cached data</div>
+    <div id="anime-hover-wallpaper" aria-hidden="true"><img id="anime-hover-wallpaper-image" alt=""></div>
     <div id="toast"></div>
 
     <!-- Massive parallax hero bg text -->
@@ -3716,7 +3920,7 @@
         <section class="header-section">
             <div class="content-scroll">
                 <div class="start-screen-grid">
-                    <div class="metro-tile-start wide profile-tile" style="background-color: var(--surface);"
+                    <div class="metro-tile-start wide profile-tile" data-live-tile="profile" style="background-color: var(--surface);"
                         onclick="scrollToSection(1)">
                         <img id="start-tile-avatar"
                             src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png"
@@ -3725,24 +3929,24 @@
                         <div class="start-title" id="start-tile-user"
                             style="padding: 10px; background: var(--wallpaper-overlay); width: 100%;">guest</div>
                     </div>
-                    <div class="metro-tile-start medium" style="background-color: #60a917;"
+                    <div class="metro-tile-start medium" data-live-tile="library" style="background-color: #60a917;"
                         onclick="scrollToSection(2)">
                         <i class="fa-solid fa-book-open start-icon"></i>
                         <span class="start-title">library</span>
                     </div>
-                    <div class="metro-tile-start medium" style="background-color: #f39c12;"
+                    <div class="metro-tile-start medium" data-live-tile="discover" style="background-color: #f39c12;"
                         onclick="scrollToSection(4)">
                         <i class="fa-solid fa-magnifying-glass start-icon"></i>
                         <span class="start-title">discover</span>
                     </div>
-                    <div class="metro-tile-start medium" style="background-color: #d80073;"
+                    <div class="metro-tile-start medium" data-live-tile="inbox" style="background-color: #d80073;"
                         onclick="scrollToSection(6)">
                         <span class="start-title"
                             style="font-size: 4rem; align-self: center; margin: auto; font-weight: 200; line-height: 1;"
                             id="start-tile-notif">0</span>
                         <span class="start-title">inbox</span>
                     </div>
-                    <div class="metro-tile-start wide" style="background-color: #a20025;" onclick="scrollToSection(3)">
+                    <div class="metro-tile-start wide" data-live-tile="community" style="background-color: #a20025;" onclick="scrollToSection(3)">
                         <i class="fa-solid fa-users start-icon"></i>
                         <span class="start-title">community</span>
                     </div>
@@ -3902,13 +4106,13 @@
         </section>
 
         <!-- SECTION 2: LIBRARY -->
-        <section class="header-section">
+        <section class="header-section library-section">
             <h1 class="metro-huge-title">library <span style="font-size:14px;vertical-align:middle;color:var(--text-dim);letter-spacing:0;">beta</span></h1>
             <div class="content-scroll">
                 <div class="library-explorer" id="library-explorer" data-layout="grid">
                     <aside class="library-sidebar" aria-label="Library filters">
                         <div class="library-sidebar-search"><label class="library-sidebar-heading" for="library-filter-search">Filter</label><input id="library-filter-search" type="search" placeholder="Search your lists" oninput="renderLibrary()"></div>
-                        <div class="library-sidebar-lists"><h2 class="library-sidebar-heading">Lists</h2><nav class="library-list-nav" id="library-list-nav" aria-label="Anime and manga lists"></nav></div>
+                        <div class="library-sidebar-lists"><h2 class="library-sidebar-heading">Lists</h2><nav class="library-list-nav" id="library-list-nav" aria-label="Anime and manga lists"></nav><button class="metro-btn library-list-manager-trigger" id="library-list-manager-trigger" type="button" onclick="openLibraryListManager()"><i class="fa-solid fa-sliders"></i> manage lists</button></div>
                         <div><label class="library-sidebar-heading" for="library-filter-format">Format</label><select id="library-filter-format" onchange="renderLibrary()"><option value="">Any format</option></select></div>
                         <div><label class="library-sidebar-heading" for="library-filter-status">Status</label><select id="library-filter-status" onchange="renderLibrary()"><option value="">Any status</option><option value="FINISHED">Finished</option><option value="RELEASING">Releasing</option><option value="NOT_YET_RELEASED">Not yet released</option><option value="CANCELLED">Cancelled</option><option value="HIATUS">Hiatus</option></select></div>
                         <div><label class="library-sidebar-heading" for="library-filter-genre">Genres &amp; Tags</label><input id="library-filter-genre" type="search" placeholder="e.g. comedy, fantasy" oninput="renderLibrary()"></div>
@@ -4328,6 +4532,12 @@
                             </div>
                             <div class="settings-item" style="margin-top: 24px;">
                                 <div class="settings-item-header">wallpaper</div>
+                                <div class="settings-item-sub" id="anime-hover-wallpaper-help">show an anime's banner behind the app while hovering its cards; banners are cached by anilist.</div>
+                                <label class="switch" for="anime-hover-wallpaper-toggle">
+                                    <input type="checkbox" id="anime-hover-wallpaper-toggle" aria-describedby="anime-hover-wallpaper-help">
+                                    <span class="toggle-track"></span>
+                                </label>
+                                <label class="toggle-label" for="anime-hover-wallpaper-toggle">anime banner on hover</label>
                                 <div class="wallpaper-controls">
                                     <label class="metro-btn small wallpaper-button" for="wallpaper-input"><i
                                             class="fa-solid fa-plus"></i> choose wallpaper</label>
@@ -4429,8 +4639,8 @@
                         </div>
                         <div class="settings-item">
                             <div class="settings-item-header">custom lists</div>
-                            <div class="settings-item-sub">manage custom list names (anilist.co)</div>
-                            <a href="https://anilist.co/settings" target="_blank" class="metro-btn" style="display:inline-block;margin-top:10px;">manage on anilist</a>
+                            <div class="settings-item-sub">add, remove, and reorder custom lists from the beta library.</div>
+                            <button type="button" class="metro-btn" style="display:inline-block;margin-top:10px;" onclick="scrollToSection(2);openLibraryListManager();">manage library lists</button>
                         </div>
                     </div>
 
@@ -4542,6 +4752,23 @@
 
     </div>
 
+    <!-- Library custom-list manager -->
+    <div id="library-list-manager" class="library-manager-overlay" role="dialog" aria-modal="true" aria-labelledby="library-manager-title" onclick="if(event.target===this)closeLibraryListManager()">
+        <div class="library-manager-dialog">
+            <div class="library-manager-head">
+                <div><h2 id="library-manager-title" style="font-weight:400;">manage lists</h2><p id="library-manager-type" style="color:var(--text-dim);font-size:13px;"></p></div>
+                <button class="metro-btn" type="button" onclick="closeLibraryListManager()" aria-label="Close list manager"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="library-manager-items" class="library-manager-list"></div>
+            <form class="library-manager-add" id="library-manager-add-form" onsubmit="addCustomLibraryList(event)">
+                <input id="library-manager-new-name" type="text" maxlength="40" placeholder="New custom list name" aria-label="New custom list name">
+                <button class="metro-btn primary" type="submit"><i class="fa-solid fa-plus"></i> add</button>
+            </form>
+            <p class="library-manager-note" id="library-manager-note" aria-live="polite"></p>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;"><button class="metro-btn" type="button" onclick="closeLibraryListManager()">cancel</button><button class="metro-btn primary" type="button" onclick="saveLibraryListOrderAndClose()">save order</button></div>
+        </div>
+    </div>
+
     <!-- Year picker overlay (always available) -->
     <div id="year-picker" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);display:none;justify-content:center;align-items:center;z-index:10000;">
         <div style="background:var(--surface);padding:25px;width:90%;max-width:420px;max-height:85vh;overflow-y:auto;">
@@ -4568,6 +4795,8 @@
         let currentUserId = null;
         let allListsData = { ANIME: {}, MANGA: {} };
         let libraryGroups = { ANIME: [], MANGA: [] };
+        const viewerListOptions = { ANIME: { customLists: [], sectionOrder: [] }, MANGA: { customLists: [], sectionOrder: [] } };
+        let activeDetailRequestSequence = 0;
         let viewedUserLibraryLists = [];
         let viewedUserLibraryType = 'ANIME';
         let viewedUserLibrarySelection = 'ALL';
@@ -4591,6 +4820,10 @@
             return String(value ?? '').replace(/[&<>"']/g, char => ({
                 '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
             })[char]);
+        }
+
+        function loginRequiredMarkup(feature, description) {
+            return `<section class="login-required-card"><strong>sign in to ${escapeHtml(feature)}</strong><p>${escapeHtml(description)}</p><button class="metro-btn primary" type="button" onclick="login()"><i class="fa-solid fa-right-to-bracket"></i> sign in with anilist</button></section>`;
         }
 
         function renderAniListDescription(value) {
@@ -4701,6 +4934,7 @@
         let showSpoilers = localStorage.getItem('show_spoilers') === 'true';
         let wallpaperDataUrl = localStorage.getItem('metro_wallpaper') || '';
         let wallpaperName = localStorage.getItem('metro_wallpaper_name') || 'default';
+        let animeHoverWallpaperEnabled = localStorage.getItem('metro_anime_hover_wallpaper') === 'true';
         let currentLibraryPage = 1;
         const storedLibraryLayout = localStorage.getItem('library_layout');
         let libraryLayout = ['grid', 'list', 'compact'].includes(storedLibraryLayout) ? storedLibraryLayout : (localStorage.getItem('list_display') === 'detail' ? 'list' : (localStorage.getItem('list_display') === 'compact' ? 'compact' : 'grid'));
@@ -4733,27 +4967,236 @@
             </div>
             <div class="flip-tile-back">
                 <div class="tile-back-title">${safeFullTitle.toLowerCase()}</div>
-                ${progressStr ? `<div style="font-size:12px; margin-bottom:5px; color:rgba(255,255,255,0.7);">${safeProgress.toLowerCase()}</div>` : ''}
+                ${progressStr ? `<div style="font-size:12px; margin-bottom:5px; color:var(--accent-ink-muted);">${safeProgress.toLowerCase()}</div>` : ''}
                 <div class="tile-back-rating"><i class="fa-solid fa-star"></i> ${score || 'n/a'}</div>
             </div>
         </div>
     </div>`;
         }
 
+        document.addEventListener('pointerover', event => {
+            const tile = event.target.closest('.flip-tile, .metro-tile');
+            if (!tile || (event.relatedTarget && tile.contains(event.relatedTarget))) return;
+            const label = tile.querySelector('.tile-label');
+            if (!label) return;
+            const overflow = label.scrollWidth - label.clientWidth;
+            if (overflow > 8) {
+                label.style.setProperty('--marquee-distance', `${overflow}px`);
+                label.classList.add('is-scrolling');
+                tile.classList.add('title-scroll-active');
+            }
+        });
+        document.addEventListener('pointerout', event => {
+            const tile = event.target.closest('.flip-tile, .metro-tile');
+            if (!tile || (event.relatedTarget && tile.contains(event.relatedTarget))) return;
+            tile.querySelector('.tile-label')?.classList.remove('is-scrolling');
+            tile.classList.remove('title-scroll-active');
+        });
+
+        const liveTileContent = {};
+        let liveTileRotationIndex = -1;
+        function getLiveTileState(name) {
+            const username = document.getElementById('start-tile-user')?.textContent?.trim() || 'guest';
+            const profileSummary = document.getElementById('user-page-sub')?.textContent?.trim() || 'browse without syncing';
+            const avatar = document.getElementById('start-tile-avatar')?.getAttribute('src') || '';
+            const unreadCount = Number.parseInt(document.getElementById('start-tile-notif')?.textContent || '0', 10) || 0;
+            if (name === 'profile') return { heading: isGuest ? 'guest profile' : `hello, ${username}`, detail: isGuest ? 'browse the metro shell without syncing' : profileSummary, image: avatar };
+            if (name === 'library') return isGuest
+                ? { heading: 'your library', detail: 'sign in to sync anime and manga lists', image: '' }
+                : (liveTileContent.library || { heading: `${username}'s library`, detail: `${profileSummary} tracked`, image: '' });
+            if (name === 'inbox') return { heading: isGuest ? 'inbox' : `${unreadCount} unread`, detail: isGuest ? 'sign in to see notifications' : 'notifications from your anilist account', image: '' };
+            return liveTileContent[name] || (name === 'discover'
+                ? { heading: 'discover anime', detail: 'trending picks and seasonal favorites', image: '' }
+                : { heading: 'community', detail: 'recent updates from anilist members', image: '' });
+        }
+
+        function renderLiveTile(tile) {
+            const back = tile.querySelector('.live-tile-back');
+            if (!back) return;
+            const state = getLiveTileState(tile.dataset.liveTile);
+            const stateKey = JSON.stringify(state);
+            if (back.dataset.liveState === stateKey) return;
+            back.dataset.liveState = stateKey;
+            back.replaceChildren();
+            if (state.image) {
+                const image = document.createElement('img');
+                image.className = 'live-tile-image';
+                image.src = state.image;
+                image.alt = '';
+                image.loading = 'lazy';
+                image.onerror = () => image.remove();
+                back.appendChild(image);
+            }
+            const copy = document.createElement('div');
+            copy.className = 'live-tile-copy';
+            const heading = document.createElement('div');
+            heading.className = 'live-tile-heading';
+            heading.textContent = state.heading;
+            const detail = document.createElement('div');
+            detail.className = 'live-tile-detail';
+            detail.textContent = state.detail;
+            copy.append(heading, detail);
+            back.appendChild(copy);
+        }
+
+        function updateLiveTile(name, state) {
+            liveTileContent[name] = state;
+            const tile = document.querySelector(`.metro-tile-start[data-live-tile="${name}"]`);
+            if (tile) renderLiveTile(tile);
+        }
+
+        function refreshLiveTiles() {
+            document.querySelectorAll('.metro-tile-start[data-live-tile]').forEach(renderLiveTile);
+        }
+
         function initLiveTiles() {
+            const tiles = Array.from(document.querySelectorAll('.metro-tile-start[data-live-tile]'));
+            tiles.forEach(tile => {
+                const front = document.createElement('div');
+                front.className = 'live-tile-front';
+                while (tile.firstChild) front.appendChild(tile.firstChild);
+                const back = document.createElement('div');
+                back.className = 'live-tile-back';
+                back.setAttribute('aria-hidden', 'true');
+                const inner = document.createElement('div');
+                inner.className = 'live-tile-inner';
+                inner.append(front, back);
+                tile.appendChild(inner);
+                tile.classList.add('live-start-tile');
+                renderLiveTile(tile);
+            });
+
             setInterval(() => {
-                if (document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-                const tiles = Array.from(document.querySelectorAll('.flip-tile')).filter(tile => {
-                    const rect = tile.getBoundingClientRect();
-                    return rect.width && rect.height && rect.bottom > 0 && rect.right > 0 && rect.top < window.innerHeight && rect.left < window.innerWidth;
-                });
-                if (tiles.length === 0) return;
-                const t = tiles[Math.floor(Math.random() * tiles.length)];
-                t.classList.add('flipped');
-                setTimeout(() => t.classList.remove('flipped'), 3000);
-            }, 7500);
+                const app = document.getElementById('app-container');
+                if (document.hidden || !app || app.style.display === 'none' || getCurrentSectionIndex() !== 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    tiles.forEach(tile => tile.classList.remove('live-flipped'));
+                    liveTileRotationIndex = -1;
+                    return;
+                }
+                tiles.forEach(renderLiveTile);
+                tiles.forEach(tile => tile.classList.remove('live-flipped'));
+                liveTileRotationIndex = (liveTileRotationIndex + 1) % tiles.length;
+                tiles[liveTileRotationIndex]?.classList.add('live-flipped');
+                window.setTimeout(() => tiles[liveTileRotationIndex]?.classList.remove('live-flipped'), 3600);
+            }, 7200);
         }
         initLiveTiles();
+
+        let hoverWallpaperTimer = null;
+        let hoverWallpaperHideTimer = null;
+        let activeHoverAnimeId = null;
+        let lastHoverBannerRequestAt = 0;
+        const hoverBannerCache = new Map();
+        const hoverBannerQuery = `query ($id:Int) { Media(id:$id,type:ANIME) { bannerImage coverImage { extraLarge } } }`;
+        function findAnimeCard(target) {
+            for (let node = target instanceof Element ? target : null; node && node !== document.documentElement; node = node.parentElement) {
+                const action = node.getAttribute('onclick') || '';
+                const match = action.match(/openDetailById\s*\(\s*(\d+)\s*,\s*['"]ANIME['"]\s*\)/i);
+                if (match) return { id: Number(match[1]), element: node };
+            }
+            return null;
+        }
+        function showAnimeHoverWallpaper(id, imageUrl) {
+            const layer = document.getElementById('anime-hover-wallpaper');
+            const image = document.getElementById('anime-hover-wallpaper-image');
+            if (!layer || !image || !animeHoverWallpaperEnabled || activeHoverAnimeId !== id || !imageUrl) return;
+            image.onload = () => {
+                if (animeHoverWallpaperEnabled && activeHoverAnimeId === id) {
+                    layer.classList.add('is-active');
+                    document.getElementById('top-blur-layer')?.classList.add('anime-wallpaper-active');
+                }
+            };
+            image.onerror = () => {
+                if (activeHoverAnimeId === id) {
+                    layer.classList.remove('is-active');
+                    document.getElementById('top-blur-layer')?.classList.remove('anime-wallpaper-active');
+                }
+            };
+            image.src = imageUrl;
+            if (image.complete && image.naturalWidth > 0) {
+                layer.classList.add('is-active');
+                document.getElementById('top-blur-layer')?.classList.add('anime-wallpaper-active');
+            }
+        }
+        function readCachedAnimeBanner(id) {
+            const variables = { id };
+            try {
+                const cached = readApiCache(getApiCacheKey(hoverBannerQuery, variables), hoverBannerQuery, variables, true);
+                const media = cached?.data?.Media;
+                if (!media) return null;
+                const imageUrl = media.bannerImage || media.coverImage?.extraLarge || '';
+                hoverBannerCache.set(id, imageUrl);
+                return imageUrl;
+            } catch (error) {
+                return null;
+            }
+        }
+        function loadAnimeHoverWallpaper(id) {
+            if (!animeHoverWallpaperEnabled || activeHoverAnimeId !== id) return;
+            if (hoverBannerCache.has(id)) {
+                showAnimeHoverWallpaper(id, hoverBannerCache.get(id));
+                return;
+            }
+            lastHoverBannerRequestAt = Date.now();
+            fetchAPI(hoverBannerQuery, { id }).then(data => {
+                const media = data?.Media;
+                const imageUrl = media?.bannerImage || media?.coverImage?.extraLarge || '';
+                hoverBannerCache.set(id, imageUrl);
+                showAnimeHoverWallpaper(id, imageUrl);
+            }).catch(error => {
+                console.debug('anime hover banner unavailable:', error.message);
+                hoverBannerCache.set(id, '');
+            });
+        }
+        function scheduleAnimeHoverWallpaper(id) {
+            clearTimeout(hoverWallpaperTimer);
+            if (hoverBannerCache.has(id)) {
+                loadAnimeHoverWallpaper(id);
+                return;
+            }
+            const cachedImage = readCachedAnimeBanner(id);
+            if (cachedImage !== null) {
+                if (cachedImage) showAnimeHoverWallpaper(id, cachedImage);
+                return;
+            }
+            const cooldown = Math.max(0, 5000 - (Date.now() - lastHoverBannerRequestAt));
+            hoverWallpaperTimer = setTimeout(() => loadAnimeHoverWallpaper(id), Math.max(380, cooldown));
+        }
+        function clearAnimeHoverWallpaper() {
+            clearTimeout(hoverWallpaperTimer);
+            clearTimeout(hoverWallpaperHideTimer);
+            activeHoverAnimeId = null;
+            document.getElementById('anime-hover-wallpaper')?.classList.remove('is-active');
+            document.getElementById('top-blur-layer')?.classList.remove('anime-wallpaper-active');
+        }
+        function setAnimeHoverWallpaper(enabled) {
+            animeHoverWallpaperEnabled = Boolean(enabled);
+            localStorage.setItem('metro_anime_hover_wallpaper', animeHoverWallpaperEnabled ? 'true' : 'false');
+            const toggle = document.getElementById('anime-hover-wallpaper-toggle');
+            if (toggle) toggle.checked = animeHoverWallpaperEnabled;
+            if (!animeHoverWallpaperEnabled) clearAnimeHoverWallpaper();
+            showToast(animeHoverWallpaperEnabled ? 'anime banner hover enabled' : 'anime banner hover disabled');
+        }
+        document.addEventListener('pointerover', event => {
+            if (!animeHoverWallpaperEnabled || event.pointerType === 'touch') return;
+            const card = findAnimeCard(event.target);
+            if (!card || (event.relatedTarget && card.element.contains(event.relatedTarget))) return;
+            clearTimeout(hoverWallpaperHideTimer);
+            if (activeHoverAnimeId === card.id) return;
+            activeHoverAnimeId = card.id;
+            document.getElementById('anime-hover-wallpaper')?.classList.remove('is-active');
+            document.getElementById('top-blur-layer')?.classList.remove('anime-wallpaper-active');
+            scheduleAnimeHoverWallpaper(card.id);
+        });
+        document.addEventListener('pointerout', event => {
+            if (!animeHoverWallpaperEnabled) return;
+            const card = findAnimeCard(event.target);
+            if (!card || (event.relatedTarget && card.element.contains(event.relatedTarget))) return;
+            clearTimeout(hoverWallpaperHideTimer);
+            hoverWallpaperHideTimer = setTimeout(() => {
+                if (activeHoverAnimeId === card.id) clearAnimeHoverWallpaper();
+            }, 180);
+        });
 
         // ==========================================
         // PANORAMA & SCROLL ENGINE (with parallax)
@@ -4838,8 +5281,8 @@
             const width = getSectionWidth();
             const scrollRatio = container.scrollLeft / width;
 
-            // Parallax the giant background text
-            if (bgHero) bgHero.style.transform = `translateX(-${container.scrollLeft * 0.3}px)`;
+            // Keep the marquee inside its clipped viewport while sections scroll.
+            if (bgHero) bgHero.style.removeProperty('transform');
 
             const idx = Math.round(scrollRatio);
             if (activeNavIndex !== idx) {
@@ -4879,6 +5322,17 @@
             return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
         }
 
+        function applyAccentContrast(hex) {
+            const normalized = /^#?[\da-f]{3}(?:[\da-f]{3})?$/i.test(hex || '') ? hex.replace('#', '') : '1ba1e2';
+            const expanded = normalized.length === 3 ? normalized.split('').map(char => char + char).join('') : normalized;
+            const channels = [0, 2, 4].map(offset => parseInt(expanded.slice(offset, offset + 2), 16) / 255);
+            const luminance = channels.map(channel => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4)
+                .reduce((sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index], 0);
+            const useDarkInk = luminance > 0.179;
+            document.documentElement.style.setProperty('--accent-ink', useDarkInk ? '#07131a' : '#ffffff');
+            document.documentElement.style.setProperty('--accent-ink-muted', useDarkInk ? 'rgba(7,19,26,.76)' : 'rgba(255,255,255,.82)');
+        }
+
         function setUIStyle(style) {
             const currentStyle = style === 'fluent' ? 'fluent' : 'metro';
             localStorage.setItem('ui_style', currentStyle);
@@ -4914,6 +5368,7 @@
         function setAccentColor(color) {
             document.documentElement.style.setProperty('--accent', color);
             document.documentElement.style.setProperty('--accent-rgb', hexToRgb(color));
+            applyAccentContrast(color);
             localStorage.setItem('metro_theme', color);
             wheelPickedColor = color;
             const cb = document.getElementById('color-preview-box'); if (cb) cb.style.background = color;
@@ -5050,6 +5505,8 @@
 
         const savedTheme = localStorage.getItem('metro_theme') || '#1ba1e2';
         document.documentElement.style.setProperty('--accent', savedTheme);
+        document.documentElement.style.setProperty('--accent-rgb', hexToRgb(savedTheme));
+        applyAccentContrast(savedTheme);
 
         document.addEventListener("DOMContentLoaded", () => {
             initColorWheel();
@@ -5076,6 +5533,12 @@
 
             const wallpaperInput = document.getElementById('wallpaper-input');
             if (wallpaperInput) wallpaperInput.addEventListener('change', handleWallpaperUpload);
+
+            const animeHoverToggle = document.getElementById('anime-hover-wallpaper-toggle');
+            if (animeHoverToggle) {
+                animeHoverToggle.checked = animeHoverWallpaperEnabled;
+                animeHoverToggle.addEventListener('change', event => setAnimeHoverWallpaper(event.target.checked));
+            }
 
             const adultToggle = document.getElementById('adult-toggle');
             if (adultToggle) {
@@ -5183,10 +5646,16 @@
             document.getElementById('user-page-name').innerText = 'guest';
             document.getElementById('start-tile-user').innerText = 'guest';
             document.getElementById('user-page-sub').innerText = 'browse the metro shell without syncing';
+            communityMode = 'feed';
+            const communityFeedTab = document.querySelector('#community-pivots .pivot-item[data-mode="feed"]');
+            document.querySelectorAll('#community-pivots .pivot-item').forEach(tab => tab.classList.toggle('active', tab === communityFeedTab));
+            document.querySelectorAll('#community-pivots ~ .prog-list').forEach(feed => { feed.style.display = feed.id === 'public-feed' ? 'grid' : 'none'; });
             renderUserHomeStats({ statistics: { anime: {}, manga: {} } });
             setUserHomeGuestState();
-            document.getElementById('notif-list').innerHTML = '<div style="color:var(--text-dim);">sign in to see notifications.</div>';
-            document.getElementById('library-grid').innerHTML = '<div style="color:var(--text-dim);">sign in to access library.</div>';
+            document.getElementById('notif-list').innerHTML = loginRequiredMarkup('view your notifications', 'Notifications are tied to your AniList account. You can still browse public activity and discover anime as a guest.');
+            renderLibrary(currentLibStatus);
+            updateLibraryListNav();
+            refreshLiveTiles();
             ensureSectionContent(getCurrentSectionIndex());
         }
         function initLoginSlideshow() {
@@ -5239,12 +5708,12 @@
         let nextRequestAt = 0;
         let serverRateLimitUntil = 0;
 
-        // Keep a buffer below AniList's published ceiling and serialize request starts.
+        // AniList can temporarily lower the global limit to 30/min; stay below it.
         async function rateLimitedFetch(url, options) {
             while (true) {
                 const now = Date.now();
                 while (requestTimestamps.length && requestTimestamps[0] <= now - 60000) requestTimestamps.shift();
-                const windowWait = requestTimestamps.length >= 48 ? requestTimestamps[0] + 60000 - now + 100 : 0;
+                const windowWait = requestTimestamps.length >= 24 ? requestTimestamps[0] + 60000 - now + 100 : 0;
                 const slotWait = Math.max(nextRequestAt, serverRateLimitUntil) - now;
                 const waitMs = Math.max(windowWait, slotWait, 0);
                 if (waitMs > 0) {
@@ -5253,7 +5722,7 @@
                 }
                 const sentAt = Date.now();
                 requestTimestamps.push(sentAt);
-                nextRequestAt = sentAt + 1250;
+                nextRequestAt = sentAt + 2500;
                 break;
             }
             return fetch(url, options);
@@ -5499,14 +5968,11 @@
                 return;
             }
             try {
-                const [activityData, animeGenres, mangaGenres] = await Promise.all([
-                    fetchAPI(`query($userId:Int){ Page(page:1, perPage:140) { activities(userId:$userId, type:MEDIA_LIST, sort:ID_DESC) { ... on ListActivity { id status progress createdAt media { id type title { english romaji } coverImage { large } } } } } }`, { userId }),
-                    fetchAPI(`query($userId:Int){ MediaListCollection(userId:$userId, type:ANIME) { lists { entries { media { genres } } } } }`, { userId }),
-                    fetchAPI(`query($userId:Int){ MediaListCollection(userId:$userId, type:MANGA) { lists { entries { media { genres } } } } }`, { userId })
-                ]);
-                renderUserHomeActivity((activityData?.Page?.activities || []).filter(act => act && act.media));
+                const q = `query($userId:Int){ Page(page:1,perPage:140){activities(userId:$userId,type:MEDIA_LIST,sort:ID_DESC){... on ListActivity{id status progress createdAt media{id type title{english romaji} coverImage{large}}}}} animeLists:MediaListCollection(userId:$userId,type:ANIME){lists{entries{media{genres}}}} mangaLists:MediaListCollection(userId:$userId,type:MANGA){lists{entries{media{genres}}}} }`;
+                const data = await fetchAPI(q, { userId });
+                renderUserHomeActivity((data?.Page?.activities || []).filter(act => act && act.media));
                 const genreMap = new Map();
-                [animeGenres, mangaGenres].forEach(group => {
+                [data?.animeLists, data?.mangaLists].forEach(group => {
                     (group?.MediaListCollection?.lists || []).forEach(list => {
                         (list.entries || []).forEach(entry => {
                             (entry.media?.genres || []).forEach(genre => {
@@ -5530,11 +5996,13 @@
         // ==========================================
         async function loadUserData() {
             if (isGuest) return;
-            const q = `query { Viewer { id name avatar { large } bannerImage statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } } unreadNotificationCount favourites { anime(page:1, perPage:8) { nodes { id title { english romaji } coverImage { large } } } manga(page:1, perPage:8) { nodes { id title { english romaji } coverImage { large } } } } } }`;
+            const q = `query { Viewer { id name avatar { large } bannerImage mediaListOptions { animeList { customLists sectionOrder } mangaList { customLists sectionOrder } } statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } } unreadNotificationCount favourites { anime(page:1, perPage:8) { nodes { id title { english romaji } coverImage { large } } } manga(page:1, perPage:8) { nodes { id title { english romaji } coverImage { large } } } } } }`;
             try {
                 const data = await fetchAPI(q);
                 if (!data || !data.Viewer) { showToast('error loading user data'); return; }
                 const v = data.Viewer; currentUserId = v.id;
+                viewerListOptions.ANIME = v.mediaListOptions?.animeList || viewerListOptions.ANIME;
+                viewerListOptions.MANGA = v.mediaListOptions?.mangaList || viewerListOptions.MANGA;
                 document.getElementById('user-page-name').innerText = v.name ? v.name.toLowerCase() : 'user';
                 document.getElementById('start-tile-user').innerText = v.name ? v.name.toLowerCase() : 'user';
                 if (v.avatar && v.avatar.large) {
@@ -5554,11 +6022,12 @@
                 renderUserHomeStats(v);
                 renderUserHomeFavorites(v.favourites);
                 if (v.unreadNotificationCount > 0) {
-                    document.getElementById('notif-page-title').innerHTML = `inbox <span style="background:var(--accent); color:#fff; font-size:40px; padding:2px 10px; vertical-align:top;">${v.unreadNotificationCount}</span>`;
+                    document.getElementById('notif-page-title').innerHTML = `inbox <span style="background:var(--accent); color:var(--accent-ink); font-size:40px; padding:2px 10px; vertical-align:top;">${v.unreadNotificationCount}</span>`;
                 } else {
                     document.getElementById('notif-page-title').innerText = 'inbox';
                 }
                 document.getElementById('start-tile-notif').innerText = v.unreadNotificationCount || 0;
+                refreshLiveTiles();
                 ensureSectionContent(getCurrentSectionIndex());
             } catch (err) {
                 console.error(err);
@@ -5572,6 +6041,7 @@
         let communityMode = 'feed';
 
         function switchCommunityMode(mode, el) {
+            communityMode = mode;
             document.querySelectorAll('#community-pivots .pivot-item').forEach(p => p.classList.remove('active'));
             if (el) el.classList.add('active');
             document.getElementById('public-feed').style.display = 'none';
@@ -5585,7 +6055,12 @@
             else if (mode === 'reviews') { document.getElementById('reviews-feed').style.display = 'grid'; loadGlobalReviews(); }
             else if (mode === 'recommendations') { document.getElementById('recommendations-feed').style.display = 'grid'; loadGlobalRecommendations(); }
             else if (mode === 'trending') { document.getElementById('trending-feed').style.display = 'grid'; loadTrendingFeed(); }
-            else if (mode === 'following') { document.getElementById('following-feed').style.display = 'grid'; loadFollowingFeed(); }
+            else if (mode === 'following') {
+                const following = document.getElementById('following-feed');
+                following.style.display = 'grid';
+                if (isGuest) following.innerHTML = loginRequiredMarkup('view following activity', 'Following activity is only available when you are signed in. Public activity, forums, reviews, and trending remain available in guest mode.');
+                else loadFollowingFeed();
+            }
         }
 
         async function loadGlobalReviews() {
@@ -5670,9 +6145,8 @@
 
         async function loadFollowingFeed(append = false) {
             const el = document.getElementById('following-feed');
+            if (isGuest) { el.innerHTML = loginRequiredMarkup('view following activity', 'Sign in to see updates from people you follow.'); return; }
             if (!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; }
-
-            if (isGuest) { el.innerHTML = '<div style="color:var(--text-dim);">sign in to see following activity.</div>'; return; }
 
             const q = `query { Page(page:1,perPage:20) { activities(isFollowing:true,sort:ID_DESC) { ... on ListActivity { id status progress createdAt user { name avatar { large } } media { id type title { english romaji } coverImage { large } } } } } }`;
             try {
@@ -5753,6 +6227,15 @@
                 if (!data || !data.Page) { el.innerHTML = '<div style="color:var(--text-dim);">could not load activity.</div>'; return; }
                 if (!append) el.innerHTML = '';
                 const acts = data.Page.activities.filter(a => a.media && a.user);
+                if (!append && acts.length) {
+                    const latest = acts[0];
+                    const mediaTitle = latest.media.title?.english || latest.media.title?.romaji || 'anime update';
+                    updateLiveTile('community', {
+                        heading: latest.user.name || 'community update',
+                        detail: `${latest.status || 'updated'} ${latest.progress || ''} ${mediaTitle}`.trim(),
+                        image: latest.media.coverImage?.large || ''
+                    });
+                }
                 acts.forEach(act => {
                     const title = act.media.title.english || act.media.title.romaji;
                     let action = act.status || ''; if (act.progress) action += ' ' + act.progress + ' of';
@@ -5860,6 +6343,12 @@
                     tRow.innerHTML = '<div style="color:var(--text-dim);">no trending anime.</div>';
                     return;
                 }
+                const featured = data.Page.media.find(Boolean);
+                if (featured) updateLiveTile('discover', {
+                    heading: 'trending now',
+                    detail: featured.title?.english || featured.title?.romaji || 'popular anime',
+                    image: featured.coverImage?.large || ''
+                });
                 data.Page.media.forEach((m, i) => {
                     if (!m) return;
                     const title = (m.title && (m.title.english || m.title.romaji)) || 'unknown';
@@ -5873,11 +6362,11 @@
                     <div class="flip-tile-front">
                         <img src="${cover}" loading="lazy" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''}/>
                         <div class="trending-rank">#${i + 1}</div>
-                        <div class="tile-label">${title.toLowerCase()}</div>
+                        <div class="tile-label">${escapeHtml(title).toLowerCase()}</div>
                     </div>
                     <div class="flip-tile-back">
                         <div class="tile-back-title">${title.substring(0, 20).toLowerCase()}...</div>
-                        <div style="font-size:10px; color:rgba(255,255,255,0.7); line-height:1.4;">${desc.toLowerCase()}</div>
+                        <div style="font-size:10px; color:var(--accent-ink-muted); line-height:1.4;">${desc.toLowerCase()}</div>
                         <div style="margin-top:auto; font-size:16px; font-weight:400;"><i class="fa-solid fa-star"></i> ${score}</div>
                     </div>
                 </div>
@@ -5887,7 +6376,7 @@
             } catch (e) { tRow.innerHTML = '<div style="color:var(--text-dim);">could not load.</div>'; }
 
             const wRow = document.getElementById('watching-row');
-            if (isGuest || !currentUserId) { wRow.innerHTML = '<div style="color:var(--text-dim);">log in to see watching.</div>'; return; }
+            if (isGuest || !currentUserId) { wRow.innerHTML = loginRequiredMarkup('see your currently watching list', 'Sign in to show your personal anime progress here.'); return; }
             const wq = `query ($userId:Int) { MediaListCollection(userId:$userId,type:ANIME,status:CURRENT) { lists { entries { media { id title { english romaji } coverImage { large } episodes } progress score(format:POINT_10) } } } }`;
             try {
                 const wdata = await fetchAPI(wq, { userId: currentUserId });
@@ -5898,6 +6387,13 @@
                 }
                 const entries = wdata.MediaListCollection.lists[0]?.entries || [];
                 if (!entries.length) { wRow.innerHTML = '<div style="color:var(--text-dim);">not watching anything.</div>'; return; }
+                const currentEntry = entries[0];
+                const currentTitle = currentEntry.media.title.english || currentEntry.media.title.romaji || 'currently watching';
+                updateLiveTile('library', {
+                    heading: 'currently watching',
+                    detail: `${currentTitle} · ep ${currentEntry.progress || 0}`,
+                    image: currentEntry.media.coverImage?.large || ''
+                });
                 entries.forEach(e => {
                     const title = e.media.title.english || e.media.title.romaji;
                     const epCount = e.media.episodes || (e.media.chapters ? e.media.chapters + ' ch' : '?');
@@ -5912,7 +6408,7 @@
                     </div>
                     <div class="flip-tile-back">
                         <div class="tile-back-title">${title.substring(0, 20).toLowerCase()}</div>
-                        <div style="font-size:10px; color:rgba(255,255,255,0.7);">progress: ${prog}</div>
+                        <div style="font-size:10px; color:var(--accent-ink-muted);">progress: ${prog}</div>
                         <div style="margin-top:auto; font-size:16px;"><i class="fa-solid fa-star"></i> ${e.score || 'n/a'}</div>
                     </div>
                 </div>
@@ -6093,7 +6589,7 @@
         // LIBRARY
         // ==========================================
         async function loadLibrary(mediaType) {
-            if (isGuest) return;
+            if (isGuest || !currentUserId) { renderLibrary(currentLibStatus); return; }
             try {
                 const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status isCustomList entries { score(format:POINT_10) progress updatedAt media { id type format title { english romaji } coverImage { large } episodes chapters status genres countryOfOrigin startDate { year } tags { name } } } } } }`;
                 const data = await fetchAPI(q, { userId: currentUserId, type: mediaType });
@@ -6112,6 +6608,25 @@
                         libraryGroups[mediaType].push({ key, name, status: isStatusList ? listStatus : '', isCustom: !isStatusList, entries });
                     });
                 }
+                const configured = viewerListOptions[mediaType]?.customLists || [];
+                configured.forEach(name => {
+                    const key = `CUSTOM:${name}`;
+                    if (!libraryGroups[mediaType].some(group => group.key === key)) {
+                        allListsData[mediaType][key] = [];
+                        libraryGroups[mediaType].push({ key, name, status: '', isCustom: true, entries: [] });
+                    }
+                });
+                if (mediaType === 'ANIME') {
+                    const entries = libraryGroups.ANIME.flatMap(group => group.entries || []);
+                    const uniqueCount = new Set(entries.map(entry => entry.media?.id).filter(Boolean)).size;
+                    const featured = entries.find(entry => entry.media?.coverImage?.large)?.media;
+                    updateLiveTile('library', {
+                        heading: `${uniqueCount} anime tracked`,
+                        detail: `${libraryGroups.ANIME.length} lists · open your library`,
+                        image: featured?.coverImage?.large || ''
+                    });
+                }
+                sortLibraryGroups(mediaType);
                 updateLibraryListNav();
                 if (mediaType === currentMediaType) renderLibrary(currentLibStatus);
             } catch (e) {
@@ -6127,8 +6642,8 @@
             currentLibraryPage = 1;
             const explorer = document.getElementById('library-explorer');
             if (explorer) explorer.dataset.layout = libraryLayout;
-            if (isGuest) { el.innerHTML = '<div class="library-empty">sign in to access your lists.</div>'; updateLibraryListNav(); return; }
-            if (!libraryLoaded[currentMediaType]) { el.innerHTML = '<div class="library-empty">loading your lists…</div>'; return; }
+            if (isGuest || !accessToken) { el.innerHTML = loginRequiredMarkup('access your library', 'Sign in to load your anime and manga lists, manage custom lists, and sync progress.'); updateLibraryListNav(); return; }
+            if (!currentUserId || !libraryLoaded[currentMediaType]) { el.innerHTML = '<div class="library-empty" role="status">loading your lists…</div>'; return; }
 
             const query = document.getElementById('library-filter-search')?.value.trim().toLowerCase() || '';
             const genreQuery = document.getElementById('library-filter-genre')?.value.trim().toLowerCase() || '';
@@ -6137,7 +6652,7 @@
             const country = document.getElementById('library-filter-country')?.value || '';
             const year = Number(document.getElementById('library-filter-year')?.value) || null;
             const sort = document.getElementById('library-sort-select')?.value || 'added';
-            const groups = (libraryGroups[currentMediaType] || []).filter(group => currentLibStatus === 'ALL' || group.key === currentLibStatus);
+            const groups = sortLibraryGroups(currentMediaType).filter(group => currentLibStatus === 'ALL' || group.key === currentLibStatus);
             updateLibraryListNav();
             const viewGroups = groups.map(group => {
                 let entries = group.entries.filter(entry => {
@@ -6152,7 +6667,7 @@
                 else if (sort === 'progress') entries = entries.slice().sort((a,b) => (b.progress || 0) - (a.progress || 0));
                 else entries = entries.slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
                 return { ...group, filteredEntries: entries };
-            }).filter(group => group.filteredEntries.length || (!query && !genreQuery && currentLibStatus === 'ALL'));
+            }).filter(group => group.filteredEntries.length || (!query && !genreQuery && (currentLibStatus === 'ALL' || group.isCustom)));
             if (!viewGroups.length) { el.innerHTML = '<div class="library-empty">no matching entries found.</div>'; return; }
             const filtering = Boolean(query || genreQuery || format || mediaStatus || country || year);
             el.innerHTML = viewGroups.map((group, index) => {
@@ -6177,10 +6692,137 @@
             if (group.status === 'REPEATING') return 'Rewatching';
             return group.name;
         }
+        const LIBRARY_STATUSES = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED', 'REPEATING'];
+        let libraryManagerDraft = [];
+        let libraryManagerDirty = false;
+        function libraryGroupOrderValue(group) { return group.status || group.name; }
+        function sortLibraryGroups(mediaType) {
+            const groups = libraryGroups[mediaType] || [];
+            const sectionOrder = viewerListOptions[mediaType]?.sectionOrder || [];
+            if (!sectionOrder.length) return groups;
+            const order = [...sectionOrder, ...groups.map(libraryGroupOrderValue).filter(value => !sectionOrder.includes(value))];
+            groups.sort((a, b) => order.indexOf(libraryGroupOrderValue(a)) - order.indexOf(libraryGroupOrderValue(b)));
+            return groups;
+        }
+        function getLibraryManagerGroups() {
+            const groups = sortLibraryGroups(currentMediaType);
+            const result = groups.slice();
+            LIBRARY_STATUSES.forEach(status => {
+                if (!result.some(group => group.status === status)) result.push({ key:status, name:status, status, isCustom:false, entries:[] });
+            });
+            (viewerListOptions[currentMediaType]?.customLists || []).forEach(name => {
+                if (!result.some(group => group.isCustom && group.name === name)) result.push({ key:`CUSTOM:${name}`, name, status:'', isCustom:true, entries:[] });
+            });
+            return result;
+        }
+        function openLibraryListManager() {
+            if (isGuest || !accessToken) {
+                document.getElementById('library-grid').innerHTML = loginRequiredMarkup('manage your lists', 'Sign in with AniList to add, remove, and reorder your custom lists.');
+                return;
+            }
+            libraryManagerDraft = getLibraryManagerGroups().map(group => ({ key:group.key, name:group.name, status:group.status, isCustom:group.isCustom }));
+            libraryManagerDirty = false;
+            document.getElementById('library-manager-type').textContent = `${currentMediaType.toLowerCase()} lists`;
+            document.getElementById('library-manager-note').textContent = '';
+            renderLibraryListManager();
+            document.getElementById('library-list-manager').classList.add('open');
+            document.getElementById('library-manager-new-name').focus();
+        }
+        function closeLibraryListManager() {
+            document.getElementById('library-list-manager')?.classList.remove('open');
+            libraryManagerDirty = false;
+        }
+        function renderLibraryListManager() {
+            const list = document.getElementById('library-manager-items');
+            if (!list) return;
+            list.innerHTML = libraryManagerDraft.map((item, index) => `<div class="library-manager-row"><span class="library-manager-row-label">${escapeHtml(item.status ? libraryGroupLabel(item) : item.name)}</span><span class="library-manager-row-kind">${item.isCustom ? 'custom' : 'status'}</span><button class="metro-btn" type="button" data-move="-1" data-index="${index}" aria-label="Move ${escapeHtml(item.name)} up" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-arrow-up"></i></button><button class="metro-btn" type="button" data-move="1" data-index="${index}" aria-label="Move ${escapeHtml(item.name)} down" ${index === libraryManagerDraft.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-arrow-down"></i></button>${item.isCustom ? `<button class="metro-btn" type="button" data-delete-index="${index}" aria-label="Delete ${escapeHtml(item.name)}"><i class="fa-solid fa-trash"></i></button>` : ''}</div>`).join('');
+            list.querySelectorAll('[data-move]').forEach(button => button.addEventListener('click', () => {
+                const from = Number(button.dataset.index), to = from + Number(button.dataset.move);
+                if (to < 0 || to >= libraryManagerDraft.length) return;
+                [libraryManagerDraft[from], libraryManagerDraft[to]] = [libraryManagerDraft[to], libraryManagerDraft[from]];
+                libraryManagerDirty = true;
+                renderLibraryListManager();
+            }));
+            list.querySelectorAll('[data-delete-index]').forEach(button => button.addEventListener('click', () => deleteCustomLibraryList(Number(button.dataset.deleteIndex))));
+        }
+        async function updateLibraryListOptions(mediaType, nextOptions) {
+            const optionArg = mediaType === 'ANIME' ? 'animeListOptions' : 'mangaListOptions';
+            const q = `mutation ($options: MediaListOptionsInput) { UpdateUser(${optionArg}:$options) { id mediaListOptions { animeList { customLists sectionOrder } mangaList { customLists sectionOrder } } } }`;
+            const data = await fetchAPI(q, { options:nextOptions });
+            const saved = data?.UpdateUser?.mediaListOptions?.[mediaType === 'ANIME' ? 'animeList' : 'mangaList'];
+            viewerListOptions[mediaType] = saved || nextOptions;
+            return viewerListOptions[mediaType];
+        }
+        async function addCustomLibraryList(event) {
+            event?.preventDefault();
+            const input = document.getElementById('library-manager-new-name');
+            const note = document.getElementById('library-manager-note');
+            const name = input.value.trim();
+            const options = viewerListOptions[currentMediaType] || { customLists:[], sectionOrder:[] };
+            if (!name) { note.textContent = 'enter a list name first.'; input.focus(); return; }
+            if ((options.customLists || []).some(existing => existing.toLowerCase() === name.toLowerCase())) { note.textContent = 'a list with that name already exists.'; return; }
+            const customLists = [...(options.customLists || []), name];
+            const sectionOrder = [...(options.sectionOrder || getLibraryManagerGroups().map(libraryGroupOrderValue))];
+            sectionOrder.push(name);
+            try {
+                await updateLibraryListOptions(currentMediaType, { customLists, sectionOrder });
+                const key = `CUSTOM:${name}`;
+                libraryGroups[currentMediaType].push({ key, name, status:'', isCustom:true, entries:[] });
+                allListsData[currentMediaType][key] = [];
+                libraryManagerDraft.push({ key, name, status:'', isCustom:true });
+                input.value = '';
+                note.textContent = `created “${name}”.`;
+                updateLibraryListNav();
+                renderLibraryListManager();
+                renderLibrary(currentLibStatus);
+            } catch (error) {
+                note.textContent = `could not create list: ${error.message || 'please try again.'}`;
+            }
+        }
+        async function deleteCustomLibraryList(index) {
+            const item = libraryManagerDraft[index];
+            if (!item?.isCustom || !confirm(`Delete “${item.name}” and remove it from all entries?`)) return;
+            const note = document.getElementById('library-manager-note');
+            try {
+                const q = `mutation ($name:String,$type:MediaType) { DeleteCustomList(customList:$name,type:$type) { deleted } }`;
+                await fetchAPI(q, { name:item.name, type:currentMediaType });
+                const options = viewerListOptions[currentMediaType] || { customLists:[], sectionOrder:[] };
+                const next = {
+                    customLists:(options.customLists || []).filter(name => name !== item.name),
+                    sectionOrder:(options.sectionOrder || getLibraryManagerGroups().map(libraryGroupOrderValue)).filter(name => name !== item.name)
+                };
+                await updateLibraryListOptions(currentMediaType, next);
+                libraryManagerDraft.splice(index, 1);
+                libraryGroups[currentMediaType] = libraryGroups[currentMediaType].filter(group => group.key !== item.key);
+                delete allListsData[currentMediaType][item.key];
+                if (currentLibStatus === item.key) currentLibStatus = 'ALL';
+                note.textContent = `deleted “${item.name}”.`;
+                updateLibraryListNav();
+                renderLibraryListManager();
+                renderLibrary(currentLibStatus);
+            } catch (error) {
+                note.textContent = `could not delete list: ${error.message || 'please try again.'}`;
+            }
+        }
+        async function saveLibraryListOrderAndClose() {
+            const note = document.getElementById('library-manager-note');
+            if (!libraryManagerDirty) { closeLibraryListManager(); return; }
+            const options = viewerListOptions[currentMediaType] || { customLists:[], sectionOrder:[] };
+            const sectionOrder = libraryManagerDraft.map(item => item.status || item.name);
+            try {
+                await updateLibraryListOptions(currentMediaType, { customLists:options.customLists || [], sectionOrder });
+                sortLibraryGroups(currentMediaType);
+                updateLibraryListNav();
+                renderLibrary(currentLibStatus);
+                closeLibraryListManager();
+            } catch (error) {
+                note.textContent = `could not save list order: ${error.message || 'please try again.'}`;
+            }
+        }
         function updateLibraryListNav() {
             const nav = document.getElementById('library-list-nav');
             if (!nav) return;
-            const groups = libraryGroups[currentMediaType] || [];
+            const groups = sortLibraryGroups(currentMediaType);
             const items = [{ key:'ALL', name:'All', count:groups.reduce((sum, group) => sum + group.entries.length, 0) }, ...groups.map(group => ({ key:group.key, name:libraryGroupLabel(group), count:group.entries.length }))];
             nav.innerHTML = items.map(item => `<button type="button" data-list-key="${escapeHtml(item.key)}" class="${currentLibStatus === item.key ? 'active' : ''}" onclick="selectLibraryList(this.dataset.listKey)">${escapeHtml(item.name)}<span class="library-list-count">${item.count}</span></button>`).join('');
             const formatSelect = document.getElementById('library-filter-format');
@@ -6629,8 +7271,8 @@
         }
 
         async function loadNotifications(mode, append = false) {
-            if (isGuest) return;
             const el = document.getElementById('notif-list');
+            if (isGuest || !accessToken) { el.innerHTML = loginRequiredMarkup('view your notifications', 'Notifications belong to your AniList account and are unavailable in guest mode.'); return; }
             if (!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; notifPage = 1; }
             // Fetch notifications (without resetting count automatically)
             const q = `query ($page: Int) { Page(page:$page,perPage:50) { pageInfo { hasNextPage } notifications(resetNotificationCount:false) {
@@ -7241,6 +7883,7 @@
                 if (aId) id = parseInt(aId);
                 else { showToast('invalid media url'); return; }
             }
+            const requestId = ++activeDetailRequestSequence;
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
@@ -7271,6 +7914,7 @@
     }`;
             try {
                 const data = await fetchAPI(q, { id });
+                if (requestId !== activeDetailRequestSequence) return;
                 if (!data || !data.Media) {
                     content.innerHTML = '<div style="color:var(--text-dim);">media not found. this might be a private entry.</div>';
                     return;
@@ -7371,7 +8015,15 @@
                 </div>
             </div>`;
             } catch (e) {
-                content.innerHTML = '<div style="color:var(--text-dim);">error loading media.</div>';
+                if (requestId !== activeDetailRequestSequence) return;
+                const message = e?.message || 'unknown api error';
+                const guidance = /rate limited/i.test(message)
+                    ? 'AniList is temporarily limiting requests. Wait a moment, then retry.'
+                    : /failed to fetch|network|load failed/i.test(message)
+                        ? 'The AniList API could not be reached. It may be temporarily unavailable or rate limiting requests; try again in a moment.'
+                        : `AniList returned: ${message}`;
+                const mediaPath = type === 'MANGA' ? 'manga' : 'anime';
+                content.innerHTML = `<section class="login-required-card"><strong>could not load this ${mediaPath} entry</strong><p>${escapeHtml(guidance)}</p><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="metro-btn primary" type="button" onclick="openDetailById(${Number(id)},'${mediaPath.toUpperCase()}')"><i class="fa-solid fa-rotate-right"></i> retry</button><a class="metro-btn" href="https://anilist.co/${mediaPath}/${Number(id)}" target="_blank" rel="noopener">open on anilist</a></div></section>`;
                 console.error(e);
             }
         }
@@ -8606,8 +9258,9 @@
             const remaining = headers.get('X-RateLimit-Remaining');
             const reset = headers.get('X-RateLimit-Reset');
             if (remaining !== null) {
-                el.innerText = `api: ${remaining}/90`;
-                el.style.color = parseInt(remaining) < 10 ? 'var(--accent-red)' : 'var(--text-dim)';
+                const limit = headers.get('X-RateLimit-Limit') || '30';
+                el.innerText = `api: ${remaining}/${limit}`;
+                el.style.color = parseInt(remaining) < Math.max(5, Math.ceil(Number(limit) * 0.15)) ? 'var(--accent-red)' : 'var(--text-dim)';
             }
         }
 
