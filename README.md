@@ -4,6 +4,16 @@ AniList Metro is a browser-based anime and manga tracker with a Windows Phone an
 
 [Open the live demo](https://anilist-metro.netlify.app/)
 
+## Screenshots
+
+### Desktop
+
+![AniList Metro on desktop](output/playwright/anilist-metro.png)
+
+### Mobile
+
+![AniList Metro on mobile](output/playwright/anilist-metro-mobile.png)
+
 ## Use the app
 
 Open the demo and choose **Guest Mode** to browse without an AniList account. Sign in to sync your anime and manga lists with AniList.
