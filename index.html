@@ -1616,6 +1616,16 @@
             color: var(--accent);
         }
 
+        .streaming-service-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr)); gap:12px; margin:20px 0 28px; }
+        .streaming-service-card { display:flex; align-items:center; justify-content:space-between; gap:14px; min-width:0; padding:16px; border:1px solid var(--surface-hover); border-left:3px solid var(--accent); background:var(--surface); color:var(--text-main); text-decoration:none; }
+        .streaming-service-card:hover { border-color:var(--accent); background:var(--surface-hover); }
+        .streaming-service-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .streaming-service-meta { color:var(--text-dim); font-size:12px; }
+        .streaming-episode-list { display:grid; gap:8px; }
+        .streaming-episode-card { display:flex; align-items:center; gap:12px; min-width:0; padding:8px; border:1px solid var(--surface-hover); background:var(--surface); color:var(--text-main); text-decoration:none; }
+        .streaming-episode-card img { width:96px; height:54px; flex:0 0 auto; object-fit:cover; background:var(--surface-hover); }
+        .streaming-episode-card:hover { border-color:var(--accent); }
+
         .metro-tile {
             background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.05) 100%), var(--surface);
             position: relative;
@@ -1850,6 +1860,12 @@
             background: transparent;
             font-size: 0.85rem;
         }
+
+        .discover-month-grid.airing-calendar { grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:8px; }
+        .discover-month-grid .month-cell { min-height:50px; aspect-ratio:auto; border:0; border-radius:2px; font-family:inherit; font-size:14px; text-transform:lowercase; }
+        .discover-month-grid .month-cell.selected.today { color:var(--accent-ink); border:2px solid var(--accent-ink); }
+        .discover-month-year { max-width:150px; padding:5px 24px 5px 8px; border:0; outline:none; background:var(--surface); color:var(--text-main); text-align:center; text-transform:lowercase; cursor:pointer; }
+        .discover-month-year:focus-visible { outline:2px solid var(--accent); }
 
         .airing-date-panel {
             background: var(--accent);
@@ -2150,13 +2166,8 @@
         /* Blur 18+ content */
         .blur-adult {
             filter: blur(8px);
-            cursor: pointer;
             transition: filter 0.3s;
             pointer-events: auto;
-        }
-
-        .blur-adult:hover {
-            filter: blur(4px);
         }
 
         .blur-adult.unblurred {
@@ -4370,12 +4381,9 @@
                     </div>
                     <div class="search-filters" id="filter-row-scores" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:8px 0;">
                         <div class="range-slider-wrap" style="flex:1;min-width:180px;">
-                            <span style="font-size:12px;color:var(--text-dim);min-width:35px;">score</span>
-                            <input type="range" id="filter-score-min" min="0" max="100" value="0" onchange="applySearchFilters()" style="width:80px;">
-                            <span id="score-min-label" class="range-value" style="width:30px;">0</span>
-                            <span style="color:var(--text-dim);font-size:12px;">-</span>
-                            <input type="range" id="filter-score-max" min="0" max="100" value="100" onchange="applySearchFilters()" style="width:80px;">
-                            <span id="score-max-label" class="range-value" style="width:30px;">100</span>
+                            <label for="filter-score" style="font-size:12px;color:var(--text-dim);">minimum rating</label>
+                            <input type="range" id="filter-score" min="0" max="10" step="0.1" value="0" oninput="updateScoreFilterLabel()" onchange="applySearchFilters()" aria-label="Minimum rating, 0 to 10" style="width:140px;">
+                            <output id="score-filter-label" class="range-value" for="filter-score" style="width:52px;">0.0 / 10</output>
                         </div>
                         <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
                             <span style="font-size:12px;color:var(--text-dim);margin-right:4px;">year</span>
@@ -4388,13 +4396,6 @@
                         <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
                             <span style="font-size:12px;color:var(--text-dim);">premiere month</span>
                             <button id="discover-month-button" class="metro-btn small" type="button" onclick="showDiscoverMonthPicker()" style="font-size:10px;padding:2px 6px;">any month</button>
-                        </div>
-                        <div style="display:flex;gap:6px;align-items:center;margin-left:auto;">
-                            <label class="switch" style="margin:0;">
-                                <input type="checkbox" id="filter-adult" onchange="applySearchFilters()">
-                                <span class="toggle-track"></span>
-                            </label>
-                            <span style="font-size:11px;color:var(--text-dim);">18+</span>
                         </div>
                     </div>
                     <div class="search-filters" id="media-sort-filters">
@@ -4873,14 +4874,14 @@
     <div id="discover-month-picker" role="dialog" aria-modal="true" aria-labelledby="discover-month-picker-title" onclick="if(event.target===this)hideDiscoverMonthPicker()" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;justify-content:center;align-items:center;z-index:10000;padding:20px;">
         <div style="background:var(--surface);padding:22px;width:min(100%,390px);max-height:90vh;overflow-y:auto;border:1px solid var(--surface-hover);">
             <h3 id="discover-month-picker-title" style="text-align:center;margin:0 0 8px;color:var(--accent);font-weight:300;font-size:1.5rem;">select premiere month</h3>
-            <p style="text-align:center;color:var(--text-dim);font-size:12px;margin:0 0 14px;">choose any day in the month you want to browse</p>
+            <p style="text-align:center;color:var(--text-dim);font-size:12px;margin:0 0 14px;">choose a month and year to browse</p>
             <div class="airing-calendar-panel" style="max-width:100%;">
                 <div class="airing-calendar-header">
-                    <button class="metro-btn small" type="button" onclick="shiftDiscoverCalendarMonth(-1)" aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
-                    <div class="airing-month-label" id="discover-month-label"></div>
-                    <button class="metro-btn small" type="button" onclick="shiftDiscoverCalendarMonth(1)" aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="metro-btn small" type="button" onclick="shiftDiscoverCalendarYear(-1)" aria-label="Previous year"><i class="fa-solid fa-chevron-left"></i></button>
+                    <select class="discover-month-year airing-month-label" id="discover-month-year" aria-label="Choose year" onchange="setDiscoverCalendarYear(this.value)"></select>
+                    <button class="metro-btn small" type="button" onclick="shiftDiscoverCalendarYear(1)" aria-label="Next year"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
-                <div class="airing-calendar" id="discover-month-calendar"></div>
+                <div class="airing-calendar discover-month-grid" id="discover-month-calendar" role="group" aria-label="Choose premiere month"></div>
             </div>
             <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">
                 <button class="metro-btn" type="button" onclick="hideDiscoverMonthPicker()" style="flex:1;">cancel</button>
@@ -4921,15 +4922,24 @@
         let studioWorksPage = 1;
         let yearStart = null;
         let yearEnd = null;
-        let discoverSelectedDate = null;
-        let discoverPickerDate = new Date();
-        let discoverPendingDate = null;
+        let discoverSelectedMonth = null;
+        let discoverPickerMonth = new Date();
+        let discoverPendingMonth = null;
         let discoverClearMonthRequested = false;
 
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, char => ({
                 '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
             })[char]);
+        }
+
+        function safeHttpUrl(value) {
+            try {
+                const url = new URL(String(value || ''), window.location.href);
+                return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : '';
+            } catch (error) {
+                return '';
+            }
         }
 
         function loginRequiredMarkup(feature, description) {
@@ -5023,7 +5033,7 @@
             document.getElementById('year-picker').style.display = 'none';
         }
         function selectYear(y) {
-            discoverSelectedDate = null;
+            discoverSelectedMonth = null;
             const monthButton = document.getElementById('discover-month-button');
             if (monthButton) monthButton.textContent = 'any month';
             if (yearPickerMode === 'start') {
@@ -5039,8 +5049,9 @@
             applySearchFilters();
         }
         function showDiscoverMonthPicker() {
-            discoverPendingDate = discoverSelectedDate ? new Date(discoverSelectedDate) : null;
-            discoverPickerDate = discoverSelectedDate ? new Date(discoverSelectedDate) : new Date();
+            const initialMonth = discoverSelectedMonth || new Date();
+            discoverPickerMonth = new Date(initialMonth.getFullYear(), initialMonth.getMonth(), 1);
+            discoverPendingMonth = new Date(discoverPickerMonth);
             discoverClearMonthRequested = false;
             renderDiscoverCalendar();
             document.getElementById('discover-month-picker').style.display = 'flex';
@@ -5048,50 +5059,71 @@
         function hideDiscoverMonthPicker() {
             const picker = document.getElementById('discover-month-picker');
             if (picker) picker.style.display = 'none';
-            discoverPendingDate = null;
+            discoverPendingMonth = null;
         }
         function renderDiscoverCalendar() {
-            const label = document.getElementById('discover-month-label');
-            if (label) label.textContent = discoverPickerDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-            const applyButton = document.getElementById('discover-month-apply');
-            if (applyButton) applyButton.disabled = !discoverPendingDate && !discoverClearMonthRequested;
-            renderCalendarGrid(
-                document.getElementById('discover-month-calendar'),
-                discoverPickerDate,
-                discoverPendingDate,
-                selectDiscoverPickerDate
-            );
-        }
-        function shiftDiscoverCalendarMonth(offset) {
-            discoverPickerDate = new Date(discoverPickerDate.getFullYear(), discoverPickerDate.getMonth() + offset, 1);
-            if (discoverPendingDate && (discoverPendingDate.getFullYear() !== discoverPickerDate.getFullYear() || discoverPendingDate.getMonth() !== discoverPickerDate.getMonth())) {
-                discoverPendingDate = null;
+            const yearSelect = document.getElementById('discover-month-year');
+            if (yearSelect) {
+                if (!yearSelect.options.length) {
+                    const firstYear = 1940;
+                    const lastYear = new Date().getFullYear() + 8;
+                    yearSelect.innerHTML = Array.from({ length: lastYear - firstYear + 1 }, (_, index) => {
+                        const year = firstYear + index;
+                        return `<option value="${year}">${year}</option>`;
+                    }).join('');
+                }
+                yearSelect.value = String(discoverPickerMonth.getFullYear());
             }
+            const applyButton = document.getElementById('discover-month-apply');
+            if (applyButton) applyButton.disabled = !discoverPendingMonth && !discoverClearMonthRequested;
+            const calendar = document.getElementById('discover-month-calendar');
+            if (!calendar) return;
+            const monthNames = Array.from({ length: 12 }, (_, month) => new Date(2020, month, 1).toLocaleDateString(undefined, { month: 'long' }));
+            const selectedMonth = discoverPendingMonth;
+            calendar.innerHTML = monthNames.map((name, month) => {
+                const isSelected = selectedMonth && selectedMonth.getFullYear() === discoverPickerMonth.getFullYear() && selectedMonth.getMonth() === month;
+                const isCurrent = new Date().getFullYear() === discoverPickerMonth.getFullYear() && new Date().getMonth() === month;
+                return `<button class="day-cell month-cell${isSelected ? ' selected' : ''}${isCurrent ? ' today' : ''}" type="button" aria-pressed="${Boolean(isSelected)}" onclick="selectDiscoverPickerMonth(${month})">${name}</button>`;
+            }).join('');
+        }
+        function shiftDiscoverCalendarYear(offset) {
+            const minYear = 1940;
+            const maxYear = new Date().getFullYear() + 8;
+            const year = Math.min(maxYear, Math.max(minYear, discoverPickerMonth.getFullYear() + offset));
+            discoverPickerMonth = new Date(year, discoverPickerMonth.getMonth(), 1);
+            if (discoverPendingMonth) discoverPendingMonth = new Date(year, discoverPendingMonth.getMonth(), 1);
             discoverClearMonthRequested = false;
             renderDiscoverCalendar();
         }
-        function selectDiscoverPickerDate(date) {
-            discoverPendingDate = new Date(date);
-            discoverPickerDate = new Date(date);
+        function setDiscoverCalendarYear(value) {
+            const year = Number(value);
+            if (!Number.isInteger(year) || year < 1940 || year > new Date().getFullYear() + 8) return;
+            discoverPickerMonth = new Date(year, discoverPickerMonth.getMonth(), 1);
+            if (discoverPendingMonth) discoverPendingMonth = new Date(year, discoverPendingMonth.getMonth(), 1);
+            discoverClearMonthRequested = false;
+            renderDiscoverCalendar();
+        }
+        function selectDiscoverPickerMonth(month) {
+            discoverPendingMonth = new Date(discoverPickerMonth.getFullYear(), month, 1);
             discoverClearMonthRequested = false;
             renderDiscoverCalendar();
         }
         function clearDiscoverMonthSelection() {
-            discoverPendingDate = null;
+            discoverPendingMonth = null;
             discoverClearMonthRequested = true;
             renderDiscoverCalendar();
         }
         function applyDiscoverMonthSelection() {
-            if (!discoverPendingDate && !discoverClearMonthRequested) return;
-            discoverSelectedDate = discoverPendingDate ? new Date(discoverPendingDate) : null;
+            if (!discoverPendingMonth && !discoverClearMonthRequested) return;
+            discoverSelectedMonth = discoverPendingMonth ? new Date(discoverPendingMonth) : null;
             const monthButton = document.getElementById('discover-month-button');
-            if (discoverSelectedDate) {
-                const selectedYear = discoverSelectedDate.getFullYear();
+            if (discoverSelectedMonth) {
+                const selectedYear = discoverSelectedMonth.getFullYear();
                 yearStart = selectedYear;
                 yearEnd = selectedYear;
                 document.getElementById('year-start-display').textContent = selectedYear;
                 document.getElementById('year-end-display').textContent = selectedYear;
-                monthButton.textContent = discoverSelectedDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }).toLowerCase();
+                monthButton.textContent = discoverSelectedMonth.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }).toLowerCase();
                 searchFilters.season = '';
                 const seasonButton = document.getElementById('season-btn');
                 if (seasonButton) seasonButton.innerHTML = 'all seasons <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
@@ -5104,7 +5136,7 @@
                 monthButton.textContent = 'any month';
             }
             document.getElementById('discover-month-picker').style.display = 'none';
-            discoverPendingDate = null;
+            discoverPendingMonth = null;
             discoverClearMonthRequested = false;
             applySearchFilters();
         }
@@ -5131,9 +5163,25 @@
         // ==========================================
         // FLIP TILES
         // ==========================================
-        function toggleBlur(el) { el.classList.toggle('unblurred'); el.parentElement.parentElement.parentElement.classList.toggle('blur-unblurred'); }
+        function toggleBlur() {
+            if (!showAdultContent) showToast('enable adult content in settings to view this title');
+        }
+        function adultBlurClass(isAdult) { return isAdult && !showAdultContent ? 'blur-adult' : ''; }
+        function applyAdultContentVisibility(root = document) {
+            root.querySelectorAll('[data-adult-content="true"]').forEach(el => {
+                el.classList.toggle('blur-adult', !showAdultContent);
+            });
+        }
+        function openAdultAwareDetail(id, type, isAdult) {
+            if (isAdult && !showAdultContent) {
+                showToast('enable adult content in settings to view this title');
+                return;
+            }
+            openDetailById(id, type);
+        }
         function createFlipTile(id, type, coverImage, title, fullTitle, score, status, progressStr, isAdult = false, bannerImage = '') {
-            const blurClass = (isAdult && !showAdultContent) ? 'blur-adult' : '';
+            const blurClass = adultBlurClass(isAdult);
+            const adultData = isAdult ? 'data-adult-content="true"' : '';
             const safeTitle = escapeHtml(title);
             const safeFullTitle = escapeHtml(fullTitle);
             const safeCover = escapeHtml(coverImage);
@@ -5142,16 +5190,16 @@
             const safeStatus = escapeHtml(status || '');
             const safeProgress = escapeHtml(progressStr || '');
             return `
-    <div class="tile flip-tile" onclick="openDetailById(${id},'${type}')">
+    <div class="tile flip-tile" onclick="openAdultAwareDetail(${id},'${type}',${!!isAdult})">
         <div class="flip-tile-inner">
             <div class="flip-tile-front">
-                <img src="${displayImage}" data-cover-src="${safeCover}" data-banner-src="${safeBanner}" alt="${safeTitle} artwork" loading="lazy" decoding="async" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''} onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/media/placeholder_large.jpg';"/>
+                <img src="${displayImage}" data-cover-src="${safeCover}" data-banner-src="${safeBanner}" alt="${safeTitle} artwork" loading="lazy" decoding="async" class="${blurClass}" ${adultData} onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/media/placeholder_large.jpg';"/>
                 ${score ? `<div class="tile-score">${score}</div>` : ''}
                 ${status ? `<div class="tile-badge">${safeStatus}</div>` : ''}
-                <div class="tile-label">${safeTitle.toLowerCase()}</div>
+                <div class="tile-label ${blurClass}" ${adultData}>${safeTitle.toLowerCase()}</div>
             </div>
             <div class="flip-tile-back">
-                <div class="tile-back-title">${safeFullTitle.toLowerCase()}</div>
+                <div class="tile-back-title ${blurClass}" ${adultData}>${safeFullTitle.toLowerCase()}</div>
                 ${progressStr ? `<div style="font-size:12px; margin-bottom:5px; color:var(--accent-ink-muted);">${safeProgress.toLowerCase()}</div>` : ''}
                 <div class="tile-back-rating"><i class="fa-solid fa-star"></i> ${score || 'n/a'}</div>
             </div>
@@ -5723,6 +5771,9 @@
             showAdultContent = enabled;
             localStorage.setItem('show_adult', enabled ? 'true' : 'false');
             showToast(enabled ? 'adult content enabled' : 'adult content disabled');
+            applyAdultContentVisibility();
+            applySearchFilters();
+            if (loadedSections.has(4)) loadTrending();
         }
 
         // Color wheel (from index.html)
@@ -6161,10 +6212,13 @@
                 } else {
                     feed.innerHTML = currentViewerActivity.slice(0, 8).map(act => {
                         const title = act.media?.title?.english || act.media?.title?.romaji || 'unknown';
-                        return `<div class="user-activity-card" onclick="openDetailById(${act.media.id}, '${act.media.type}')">
-                            <img src="${act.media.coverImage?.large || ''}" loading="lazy" alt="${title}">
+                        const isAdult = !!act.media?.isAdult;
+                        const blurClass = adultBlurClass(isAdult);
+                        const adultData = isAdult ? 'data-adult-content="true"' : '';
+                        return `<div class="user-activity-card" onclick="openAdultAwareDetail(${act.media.id}, '${act.media.type}', ${isAdult})">
+                            <img src="${act.media.coverImage?.large || ''}" loading="lazy" alt="${title}" class="${blurClass}" ${adultData}>
                             <div>
-                                <div class="user-activity-line">${formatListActivity(act.status, act.progress)} <span style="color:var(--accent);">${title.toLowerCase()}</span></div>
+                                <div class="user-activity-line">${formatListActivity(act.status, act.progress)} <span class="${blurClass}" ${adultData} style="color:var(--accent);">${title.toLowerCase()}</span></div>
                                 <div class="user-activity-time">${timeAgo(act.createdAt)}</div>
                             </div>
                         </div>`;
@@ -6226,7 +6280,7 @@
                 return;
             }
             try {
-                const q = `query($userId:Int){ Page(page:1,perPage:140){activities(userId:$userId,type:MEDIA_LIST,sort:ID_DESC){... on ListActivity{id status progress createdAt media{id type title{english romaji} coverImage{large}}}}} animeLists:MediaListCollection(userId:$userId,type:ANIME){lists{entries{media{genres}}}} mangaLists:MediaListCollection(userId:$userId,type:MANGA){lists{entries{media{genres}}}} }`;
+                const q = `query($userId:Int){ Page(page:1,perPage:140){activities(userId:$userId,type:MEDIA_LIST,sort:ID_DESC){... on ListActivity{id status progress createdAt media{id type isAdult title{english romaji} coverImage{large}}}}} animeLists:MediaListCollection(userId:$userId,type:ANIME){lists{entries{media{genres}}}} mangaLists:MediaListCollection(userId:$userId,type:MANGA){lists{entries{media{genres}}}} }`;
                 const data = await fetchAPI(q, { userId });
                 renderUserHomeActivity((data?.Page?.activities || []).filter(act => act && act.media));
                 const genreMap = new Map();
@@ -6406,7 +6460,7 @@
             if (isGuest) { el.innerHTML = loginRequiredMarkup('view following activity', 'Sign in to see updates from people you follow.'); return; }
             if (!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; }
 
-            const q = `query { Page(page:1,perPage:20) { activities(isFollowing:true,sort:ID_DESC) { ... on ListActivity { id status progress createdAt user { name avatar { large } } media { id type title { english romaji } coverImage { large } } } } } }`;
+            const q = `query { Page(page:1,perPage:20) { activities(isFollowing:true,sort:ID_DESC) { ... on ListActivity { id status progress createdAt user { name avatar { large } } media { id type isAdult title { english romaji } coverImage { large } } } } } }`;
             try {
                 const data = await fetchAPI(q);
                 if (!append) el.innerHTML = '';
@@ -6420,6 +6474,8 @@
                 activities.forEach(act => {
                     if (!act || !act.user || !act.media) return;
                     const title = act.media.title.english || act.media.title.romaji;
+                    const blurClass = adultBlurClass(!!act.media.isAdult);
+                    const adultData = act.media.isAdult ? 'data-adult-content="true"' : '';
                     let action = act.status || '';
                     if (act.progress) action += ' ' + act.progress + ' of';
 
@@ -6427,10 +6483,10 @@
                 <img src="${act.user.avatar.large}" class="prog-avatar" onclick="openUserDetail('${act.user.name}')" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';"/>
                 <div class="prog-info">
                     <div class="prog-user" onclick="openUserDetail('${act.user.name}')">${act.user.name.toLowerCase()}</div>
-                    <div class="prog-status">${action.toLowerCase()} <span onclick="openDetailById(${act.media.id}, '${act.media.type}')">${title.toLowerCase()}</span></div>
+                    <div class="prog-status">${action.toLowerCase()} <span class="${blurClass}" ${adultData} onclick="openAdultAwareDetail(${act.media.id}, '${act.media.type}', ${!!act.media.isAdult})">${title.toLowerCase()}</span></div>
                     <div class="prog-time">${timeAgo(act.createdAt)}</div>
                 </div>
-                <img src="${act.media.coverImage.large}" class="prog-thumb" style="width:42px;height:56px;" onclick="openDetailById(${act.media.id}, '${act.media.type}')"/>
+                <img src="${act.media.coverImage.large}" class="prog-thumb ${blurClass}" ${adultData} style="width:42px;height:56px;" onclick="openAdultAwareDetail(${act.media.id}, '${act.media.type}', ${!!act.media.isAdult})"/>
             </div>`;
                 });
             } catch (e) { if (!append) el.innerHTML = '<div style="color:var(--text-dim);">could not load following.</div>'; console.error(e); }
@@ -6451,12 +6507,13 @@
 
                 data.Page.media.forEach((m, i) => {
                     const title = m.title.english || m.title.romaji;
-                    const blurClass = (m.isAdult && !showAdultContent) ? 'blur-adult' : '';
+                    const blurClass = adultBlurClass(!!m.isAdult);
+                    const adultData = m.isAdult ? 'data-adult-content="true"' : '';
                     el.innerHTML += `
-            <div class="prog-item" onclick="openDetailById(${m.id}, 'ANIME')">
-                <img src="${m.coverImage.large}" class="prog-thumb ${blurClass}" style="width:42px;height:56px;" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''}/>
+            <div class="prog-item" onclick="openAdultAwareDetail(${m.id}, 'ANIME', ${!!m.isAdult})">
+                <img src="${m.coverImage.large}" class="prog-thumb ${blurClass}" ${adultData} style="width:42px;height:56px;"/>
                 <div class="prog-info">
-                    <div class="prog-user">#${i + 1} ${title.toLowerCase()}</div>
+                    <div class="prog-user">#${i + 1} <span class="${blurClass}" ${adultData}>${title.toLowerCase()}</span></div>
                     <div class="prog-status">score: ${m.averageScore || 'n/a'} &bull; popularity: #${m.popularity || '?'}</div>
                 </div>
             </div>`;
@@ -6467,7 +6524,7 @@
         async function loadPublicCommunityFeed(append = false) {
             const el = document.getElementById('public-feed');
             if (!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; communityPage = 1; }
-            const q = `query($page: Int) { Page(page:$page,perPage:20) { pageInfo { hasNextPage } activities(isFollowing:false,sort:ID_DESC,type:MEDIA_LIST) { ... on ListActivity { id status progress createdAt user { name avatar { large } } media { id type title { english romaji } coverImage { large } } likeCount isLiked } } } }`;
+            const q = `query($page: Int) { Page(page:$page,perPage:20) { pageInfo { hasNextPage } activities(isFollowing:false,sort:ID_DESC,type:MEDIA_LIST) { ... on ListActivity { id status progress createdAt user { name avatar { large } } media { id type isAdult title { english romaji } coverImage { large } } likeCount isLiked } } } }`;
             // show inline spinner if this is an append (load more) action
             if (append) {
                 const existingBtn = document.getElementById('load-more-community');
@@ -6486,16 +6543,22 @@
                 if (!append) el.innerHTML = '';
                 const acts = data.Page.activities.filter(a => a.media && a.user);
                 if (!append && acts.length) {
-                    const latest = acts[0];
-                    const mediaTitle = latest.media.title?.english || latest.media.title?.romaji || 'anime update';
-                    updateLiveTile('community', {
-                        heading: latest.user.name || 'community update',
-                        detail: `${latest.status || 'updated'} ${latest.progress || ''} ${mediaTitle}`.trim(),
-                        image: latest.media.coverImage?.large || ''
-                    });
+                    const latest = acts.find(act => showAdultContent || !act.media.isAdult);
+                    if (!latest) {
+                        updateLiveTile('community', { heading: 'community update', detail: '18+ activity hidden by settings', image: '' });
+                    } else {
+                        const mediaTitle = latest.media.title?.english || latest.media.title?.romaji || 'anime update';
+                        updateLiveTile('community', {
+                            heading: latest.user.name || 'community update',
+                            detail: `${latest.status || 'updated'} ${latest.progress || ''} ${mediaTitle}`.trim(),
+                            image: latest.media.coverImage?.large || ''
+                        });
+                    }
                 }
                 acts.forEach(act => {
                     const title = act.media.title.english || act.media.title.romaji;
+                    const blurClass = adultBlurClass(!!act.media.isAdult);
+                    const adultData = act.media.isAdult ? 'data-adult-content="true"' : '';
                     let action = act.status || ''; if (act.progress) action += ' ' + act.progress + ' of';
                     const likeCount = act.likeCount || 0;
                     const isLiked = act.isLiked || false;
@@ -6503,7 +6566,7 @@
                 <img src="${act.user.avatar.large}" class="prog-avatar" onclick="openUserDetail('${act.user.name}')" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';"/>
                 <div class="prog-info">
                     <div class="prog-user" onclick="openUserDetail('${act.user.name}')">${act.user.name.toLowerCase()}</div>
-                    <div class="prog-status">${action.toLowerCase()} <span onclick="openDetailById(${act.media.id}, '${act.media.type}')">${title.toLowerCase()}</span></div>
+                    <div class="prog-status">${action.toLowerCase()} <span class="${blurClass}" ${adultData} onclick="openAdultAwareDetail(${act.media.id}, '${act.media.type}', ${!!act.media.isAdult})">${title.toLowerCase()}</span></div>
                     <div class="prog-time">${timeAgo(act.createdAt)}</div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:5px;">
                         <button class="metro-btn" style="font-size:12px; padding:4px 8px;" onclick="event.stopPropagation(); toggleLike(${act.id}, this)"><i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${likeCount}</button>
@@ -6517,7 +6580,7 @@
                         </div>
                     </div>
                 </div>
-                <img src="${act.media.coverImage.large}" class="prog-thumb" style="width:42px;height:56px;" onclick="openDetailById(${act.media.id}, '${act.media.type}')"/>
+                <img src="${act.media.coverImage.large}" class="prog-thumb ${blurClass}" ${adultData} style="width:42px;height:56px;" onclick="openAdultAwareDetail(${act.media.id}, '${act.media.type}', ${!!act.media.isAdult})"/>
             </div>`;
                 });
                 // remove any inline spinner
@@ -6592,7 +6655,8 @@
         // TRENDING & CURRENTLY WATCHING
         // ==========================================
         async function loadTrending() {
-            const tq = `query { Page(page:1,perPage:12) { media(sort:TRENDING_DESC,type:ANIME,status:RELEASING,isAdult:false) { id title { english romaji } coverImage { large } description(asHtml:false) averageScore isAdult } } }`;
+            const adultFilter = showAdultContent ? '' : ',isAdult:false';
+            const tq = `query { Page(page:1,perPage:12) { media(sort:TRENDING_DESC,type:ANIME,status:RELEASING${adultFilter}) { id title { english romaji } coverImage { large } description(asHtml:false) averageScore isAdult } } }`;
             const tRow = document.getElementById('trending-row');
             try {
                 const data = await fetchAPI(tq);
@@ -6610,21 +6674,22 @@
                 data.Page.media.forEach((m, i) => {
                     if (!m) return;
                     const title = (m.title && (m.title.english || m.title.romaji)) || 'unknown';
-                    const desc = (m.description || 'no description.').replace(/<[^>]+>/g, '').substring(0, 100) + '...';
+                    const desc = m.isAdult && !showAdultContent ? '18+ content hidden by settings.' : (m.description || 'no description.').replace(/<[^>]+>/g, '').substring(0, 100) + '...';
                     const score = m.averageScore ? `${m.averageScore}%` : 'n/a';
                     const cover = m.coverImage ? (m.coverImage.large || '') : '';
-                    const blurClass = (m.isAdult && !showAdultContent) ? 'blur-adult' : '';
+                    const blurClass = adultBlurClass(!!m.isAdult);
+                    const adultData = m.isAdult ? 'data-adult-content="true"' : '';
                     tRow.innerHTML += `
-            <div class="trending-tile tile flip-tile" onclick="openDetailById(${m.id},'ANIME')">
+            <div class="trending-tile tile flip-tile" onclick="openAdultAwareDetail(${m.id},'ANIME',${!!m.isAdult})">
                 <div class="flip-tile-inner">
                     <div class="flip-tile-front">
-                        <img src="${cover}" loading="lazy" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''}/>
+                        <img src="${cover}" loading="lazy" class="${blurClass}" ${adultData}/>
                         <div class="trending-rank">#${i + 1}</div>
-                        <div class="tile-label">${escapeHtml(title).toLowerCase()}</div>
+                        <div class="tile-label ${blurClass}" ${adultData}>${escapeHtml(title).toLowerCase()}</div>
                     </div>
                     <div class="flip-tile-back">
-                        <div class="tile-back-title">${title.substring(0, 20).toLowerCase()}...</div>
-                        <div style="font-size:10px; color:var(--accent-ink-muted); line-height:1.4;">${desc.toLowerCase()}</div>
+                        <div class="tile-back-title ${blurClass}" ${adultData}>${escapeHtml(title.substring(0, 20).toLowerCase())}...</div>
+                        <div class="${blurClass}" ${adultData} style="font-size:10px; color:var(--accent-ink-muted); line-height:1.4;">${desc.toLowerCase()}</div>
                         <div style="margin-top:auto; font-size:16px; font-weight:400;"><i class="fa-solid fa-star"></i> ${score}</div>
                     </div>
                 </div>
@@ -7188,6 +7253,12 @@
             else if (searchType === 'ANIME' || searchType === 'MANGA') doSortedBrowse();
         }
 
+        function updateScoreFilterLabel() {
+            const score = Number(document.getElementById('filter-score')?.value || 0);
+            const label = document.getElementById('score-filter-label');
+            if (label) label.textContent = `${score.toFixed(1)} / 10`;
+        }
+
         async function doSearch(term) {
             const el = document.getElementById('search-results');
             const requestId = ++searchRequestSequence;
@@ -7201,11 +7272,7 @@
             }
             term = term.trim();
 
-            // Sync range labels
-            const scoreMinEl = document.getElementById('filter-score-min');
-            const scoreMaxEl = document.getElementById('filter-score-max');
-            if (scoreMinEl) document.getElementById('score-min-label').innerText = scoreMinEl.value;
-            if (scoreMaxEl) document.getElementById('score-max-label').innerText = scoreMaxEl.value;
+            updateScoreFilterLabel();
 
             if (requestedType === 'USER') {
                 const q = `query ($search: String) { Page(page:1,perPage:24) { users(search: $search) { id name avatar { large } } } }`;
@@ -7279,24 +7346,21 @@
             const variables = { type, sort: [sort] };
             if (term) variables.search = term;
             const { season, format, status, episodes, source, country } = searchFilters;
-            const scoreMin = Number(document.getElementById('filter-score-min')?.value || 0);
-            const scoreMax = Number(document.getElementById('filter-score-max')?.value || 100);
-            const isAdultFilter = document.getElementById('filter-adult')?.checked || false;
+            const minimumRating = Number(document.getElementById('filter-score')?.value || 0);
             const startYear = Number(yearStart || 0);
             const endYear = Number(yearEnd || 0);
 
-            if (season && !discoverSelectedDate) variables.season = season;
-            const selectedYear = discoverSelectedDate?.getFullYear() || startYear || endYear;
+            if (season && !discoverSelectedMonth) variables.season = season;
+            const selectedYear = discoverSelectedMonth?.getFullYear() || startYear || endYear;
             if (selectedYear) variables.seasonYear = selectedYear;
             if (format) variables.format = format;
             if (status) variables.status = status;
             if (source) variables.source = source;
             if (country) variables.countryOfOrigin = country;
-            if (scoreMin > 0) variables.averageScore_greater = scoreMin - 1;
-            if (scoreMax < 100) variables.averageScore_lesser = scoreMax + 1;
-            if (discoverSelectedDate) {
-                const monthStart = discoverSelectedDate.getFullYear() * 10000 + (discoverSelectedDate.getMonth() + 1) * 100;
-                const nextMonth = new Date(discoverSelectedDate.getFullYear(), discoverSelectedDate.getMonth() + 1, 1);
+            if (minimumRating > 0) variables.averageScore_greater = Math.round(minimumRating * 10) - 1;
+            if (discoverSelectedMonth) {
+                const monthStart = discoverSelectedMonth.getFullYear() * 10000 + (discoverSelectedMonth.getMonth() + 1) * 100;
+                const nextMonth = new Date(discoverSelectedMonth.getFullYear(), discoverSelectedMonth.getMonth() + 1, 1);
                 const nextMonthStart = nextMonth.getFullYear() * 10000 + (nextMonth.getMonth() + 1) * 100 + 1;
                 variables.startDate_greater = monthStart;
                 variables.startDate_lesser = nextMonthStart;
@@ -7307,7 +7371,7 @@
             if (selectedGenres.length) variables.genre_in = selectedGenres;
             if (selectedTags.length) variables.tag_in = selectedTags;
             if (selectedTags.length && minTagPercent > 0) variables.minimumTagRank = minTagPercent;
-            if (isAdultFilter) variables.isAdult = true;
+            if (!showAdultContent) variables.isAdult = false;
             if (episodes) {
                 const match = episodes.match(/^(\d+)-(\d*)$/);
                 if (match) {
@@ -7350,8 +7414,8 @@
 
         function setFilter(name, value, label) {
             if (!Object.prototype.hasOwnProperty.call(searchFilters, name)) return;
-            if (name === 'season' && value && discoverSelectedDate) {
-                discoverSelectedDate = null;
+            if (name === 'season' && value && discoverSelectedMonth) {
+                discoverSelectedMonth = null;
                 const monthButton = document.getElementById('discover-month-button');
                 if (monthButton) monthButton.textContent = 'any month';
             }
@@ -7396,6 +7460,7 @@
         });
         function renderSearchResults(media, isCurrentRequest = () => true) {
             const el = document.getElementById('search-results'); el.innerHTML = '';
+            if (!showAdultContent) media = media.filter(item => !item.isAdult);
             if (!media.length) { el.innerHTML = '<div style="color:var(--text-dim);">no results.</div>'; return; }
             media.forEach(m => {
                 if (!isCurrentRequest()) return;
@@ -7917,7 +7982,7 @@
                         activities(userId:$userId,type:MEDIA_LIST,sort:ID_DESC) {
                             ... on ListActivity {
                                 id status progress createdAt likeCount isLiked
-                                media { id type title { english romaji } coverImage { large } }
+                                media { id type isAdult title { english romaji } coverImage { large } }
                                 replies { id text createdAt likeCount isLiked user { id name avatar { large } } }
                             }
                         }
@@ -7935,6 +8000,8 @@
                 acts.forEach(a => {
                     if (!a || !a.media) return;
                     const title = a.media.title?.english || a.media.title?.romaji || 'unknown';
+                    const blurClass = adultBlurClass(!!a.media.isAdult);
+                    const adultData = a.media.isAdult ? 'data-adult-content="true"' : '';
                     const likeCount = a.likeCount || 0;
                     const time = timeAgo(a.createdAt);
                     const repliesHtml = (a.replies || []).slice(0, 3).map(r => {
@@ -7958,9 +8025,9 @@
                     <div class="timeline-content">
                         <div class="timeline-header">${time}</div>
                         <div style="display:flex; gap:12px; align-items:center;">
-                            <img src="${a.media.coverImage?.large || ''}" style="width:48px; height:64px; object-fit:cover; cursor:pointer;" onclick="openDetailById(${a.media.id},'${a.media.type}')">
+                            <img src="${a.media.coverImage?.large || ''}" class="${blurClass}" ${adultData} style="width:48px; height:64px; object-fit:cover; cursor:pointer;" onclick="openAdultAwareDetail(${a.media.id},'${a.media.type}',${!!a.media.isAdult})">
                             <div style="flex:1;">
-                                <div class="timeline-title" onclick="openDetailById(${a.media.id},'${a.media.type}')">${title.toLowerCase()}</div>
+                                <div class="timeline-title ${blurClass}" ${adultData} onclick="openAdultAwareDetail(${a.media.id},'${a.media.type}',${!!a.media.isAdult})">${title.toLowerCase()}</div>
                                 <div style="font-size:13px; color:var(--text-dim);">${a.status || ''} ${a.progress || ''}</div>
                             </div>
                         </div>
@@ -8279,6 +8346,10 @@
                     <h2 style="font-weight:200; color:var(--text-main); margin-bottom:15px; font-size:36px;">explore</h2>
                     <div class="metro-hub" id="metro-hub-main">
                         ${trailerTileHtml}
+                        ${type === 'ANIME' ? `<div class="metro-tile" style="background:var(--surface);" onclick="showSubview('streaming')">
+                            <div class="metro-tile-title"><i class="fa-solid fa-tv"></i> streaming services</div>
+                            <div class="metro-tile-subtitle">where to watch this anime</div>
+                        </div>` : ''}
                         <div class="metro-tile" style="background:var(--surface);" onclick="showSubview('characters')">
                             <div class="metro-tile-title"><i class="fa-solid fa-users"></i> characters</div>
                             <div class="metro-tile-subtitle">${m.characters?.pageInfo?.total || 0} listed</div>
@@ -8303,13 +8374,16 @@
             } catch (e) {
                 if (requestId !== activeDetailRequestSequence) return;
                 const message = e?.message || 'unknown api error';
-                const guidance = /rate limited/i.test(message)
+                const staleStudioQuery = /unknown argument ["']page["'] on field ["']studios["'] of type ["']media["']/i.test(message);
+                const guidance = staleStudioQuery
+                    ? 'this tab is running an outdated anime detail query. reload the beta page to load the corrected viewer.'
+                    : /rate limited/i.test(message)
                     ? 'AniList is temporarily limiting requests. Wait a moment, then retry.'
                     : /failed to fetch|network|load failed/i.test(message)
                         ? 'The AniList API could not be reached. It may be temporarily unavailable or rate limiting requests; try again in a moment.'
                         : `AniList returned: ${message}`;
                 const mediaPath = type === 'MANGA' ? 'manga' : 'anime';
-                content.innerHTML = `<section class="login-required-card"><strong>could not load this ${mediaPath} entry</strong><p>${escapeHtml(guidance)}</p><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="metro-btn primary" type="button" onclick="openDetailById(${Number(id)},'${mediaPath.toUpperCase()}')"><i class="fa-solid fa-rotate-right"></i> retry</button><a class="metro-btn" href="https://anilist.co/${mediaPath}/${Number(id)}" target="_blank" rel="noopener">open on anilist</a></div></section>`;
+                content.innerHTML = `<section class="login-required-card"><strong>could not load this ${mediaPath} entry</strong><p>${escapeHtml(guidance)}</p><div style="display:flex;gap:8px;flex-wrap:wrap;">${staleStudioQuery ? '<button class="metro-btn primary" type="button" onclick="window.location.reload()"><i class="fa-solid fa-rotate-right"></i> reload beta</button>' : `<button class="metro-btn primary" type="button" onclick="openDetailById(${Number(id)},'${mediaPath.toUpperCase()}')"><i class="fa-solid fa-rotate-right"></i> retry</button>`}<a class="metro-btn" href="https://anilist.co/${mediaPath}/${Number(id)}" target="_blank" rel="noopener noreferrer">open on anilist</a></div></section>`;
                 console.error(e);
             }
         }
@@ -8375,6 +8449,63 @@
                 <div style="font-size:12px; color:var(--accent); margin-top:10px; text-align:right;">read more <i class="fa-solid fa-chevron-right"></i></div>
             </div>`).join('');
                 contentHtml = bannerBase.replace('{SUBTITLE}', 'community reviews') + `<div>${reviews || '<div style="color:var(--text-dim);">no reviews found.</div>'}</div>`;
+            } else if (type === 'streaming') {
+                title = 'streaming services';
+                if (!m.streamingInfoLoaded) {
+                    main.classList.add('hidden');
+                    sub.classList.add('active');
+                    sub.innerHTML = `<div class="subview-header" style="padding-top:10px;"><button class="btn-back" onclick="hideSubview()"><i class="fa-solid fa-arrow-left"></i></button><div class="subview-title">${title}</div></div><p style="color:var(--text-dim);padding:20px;">checking available services…</p>`;
+                    try {
+                        const streamingQuery = `query ($id: Int) { Media(id: $id) { externalLinks { url site type language isDisabled } streamingEpisodes { title thumbnail url site } } }`;
+                        const streamingData = await fetchAPI(streamingQuery, { id: m.id });
+                        if (currentMediaCache !== m || sub.dataset.requestToken !== String(viewToken)) return;
+                        m.externalLinks = streamingData?.Media?.externalLinks || [];
+                        m.streamingEpisodes = streamingData?.Media?.streamingEpisodes || [];
+                        m.streamingInfoError = '';
+                    } catch (error) {
+                        console.warn('Streaming availability could not be loaded.', error);
+                        m.externalLinks = [];
+                        m.streamingEpisodes = [];
+                        m.streamingInfoError = error?.message || 'service information is temporarily unavailable';
+                    }
+                    m.streamingInfoLoaded = true;
+                    if (currentMediaCache !== m || sub.dataset.requestToken !== String(viewToken)) return;
+                }
+
+                const serviceMap = new Map();
+                [...(m.externalLinks || []), ...(m.streamingEpisodes || []).map(episode => ({
+                    url: episode.url, site: episode.site, type: 'STREAMING', isDisabled: false
+                }))].forEach(link => {
+                    if (link?.isDisabled || (link?.type && link.type !== 'STREAMING')) return;
+                    const url = safeHttpUrl(link?.url);
+                    const site = String(link?.site || '').trim();
+                    if (!url || !site) return;
+                    const key = site.toLowerCase();
+                    if (!serviceMap.has(key)) serviceMap.set(key, { site, url, language: link.language || '' });
+                });
+                const servicesHtml = [...serviceMap.values()].map(service => `<a class="streaming-service-card" href="${escapeHtml(service.url)}" target="_blank" rel="noopener noreferrer">
+                    <span style="min-width:0;"><strong class="streaming-service-name">${escapeHtml(service.site)}</strong>${service.language ? `<span class="streaming-service-meta" style="display:block;">${escapeHtml(service.language)}</span>` : ''}</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                </a>`).join('');
+                const episodesHtml = (m.streamingEpisodes || []).slice(0, 12).map(episode => {
+                    const url = safeHttpUrl(episode.url);
+                    if (!url) return '';
+                    const thumbnail = safeHttpUrl(episode.thumbnail);
+                    return `<a class="streaming-episode-card" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+                        ${thumbnail ? `<img src="${escapeHtml(thumbnail)}" alt="" loading="lazy" decoding="async">` : ''}
+                        <span style="min-width:0;flex:1;"><strong>${escapeHtml(episode.title || 'streaming episode')}</strong><span class="streaming-service-meta" style="display:block;">${escapeHtml(episode.site || '')}</span></span>
+                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                    </a>`;
+                }).join('');
+                const errorNote = m.streamingInfoError ? `<p class="streaming-service-meta">${escapeHtml(m.streamingInfoError)}</p><button class="metro-btn small" type="button" onclick="retryMediaStreaming()"><i class="fa-solid fa-rotate-right"></i> retry</button>` : '';
+                const emptyServices = m.streamingInfoError
+                    ? '<p style="color:var(--text-dim);">service listings could not be loaded. retry in a moment.</p>'
+                    : '<p style="color:var(--text-dim);">AniList has no streaming services listed for this anime.</p>';
+                contentHtml = bannerBase.replace('{SUBTITLE}', 'where to watch') + `
+                    ${errorNote}
+                    <h3 style="color:var(--accent);font-weight:300;">available services</h3>
+                    <div class="streaming-service-grid">${servicesHtml || emptyServices}</div>
+                    ${episodesHtml ? `<h3 style="color:var(--accent);font-weight:300;">streaming episodes</h3><div class="streaming-episode-list">${episodesHtml}</div>` : ''}`;
             } else if (type === 'info') {
                 title = 'media info';
                 if (!m.studiosLoaded) {
@@ -8452,6 +8583,13 @@
             const main = document.getElementById('metro-hub-main');
             const sub = document.getElementById('subview-panel');
             if (main && sub) { sub.dataset.requestToken = String(Number(sub.dataset.requestToken || 0) + 1); sub.classList.remove('active'); main.classList.remove('hidden'); }
+        }
+
+        function retryMediaStreaming() {
+            if (!currentMediaCache) return;
+            currentMediaCache.streamingInfoLoaded = false;
+            currentMediaCache.streamingInfoError = '';
+            showSubview('streaming');
         }
 
         async function openFullReview(reviewId) {
