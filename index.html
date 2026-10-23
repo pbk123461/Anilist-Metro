@@ -189,6 +189,25 @@
             line-height: 1;
             will-change: transform;
             transition: color 0.3s;
+            width: calc(100vw - 60px);
+            overflow: hidden;
+        }
+        .zune-hero-track {
+            display: flex;
+            width: max-content;
+            animation: hero-text-loop 90s linear infinite;
+            will-change: transform;
+        }
+        .zune-hero-track span {
+            display: block;
+            flex: 0 0 auto;
+            padding-right: 10vw;
+        }
+        @keyframes hero-text-loop {
+            to { transform: translateX(-50%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .zune-hero-track { animation: none; }
         }
 
         /* MASSIVE SECTION TITLES */
@@ -660,6 +679,57 @@
             grid-auto-rows: 180px;
             gap: 10px;
         }
+
+        /* Beta library: compact list navigation with independently collapsible shelves. */
+        .library-explorer { display:grid; grid-template-columns:minmax(190px,230px) minmax(0,1fr); gap:28px; min-height:0; }
+        .library-sidebar { display:flex; flex-direction:column; gap:18px; color:var(--text-dim); font-size:14px; }
+        .library-sidebar input, .library-sidebar select { width:100%; min-width:0; background:var(--surface); color:var(--text-main); border:1px solid var(--surface-hover); border-radius:3px; padding:10px 12px; font:inherit; }
+        .library-sidebar input:focus, .library-sidebar select:focus { outline:2px solid var(--accent); outline-offset:1px; }
+        .library-sidebar-heading { margin:0 0 8px; color:var(--text-dim); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+        .library-list-nav { display:flex; flex-direction:column; gap:3px; max-height:35vh; overflow:auto; }
+        .library-list-nav button { width:100%; text-align:left; padding:8px 10px; color:var(--text-dim); background:transparent; border:0; border-radius:3px; cursor:pointer; font:inherit; text-transform:none; }
+        .library-list-nav button:hover, .library-list-nav button.active { color:var(--text-main); background:var(--surface); }
+        .library-list-nav .library-list-count { float:right; color:var(--text-dim); font-size:12px; }
+        .library-main { min-width:0; }
+        .library-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:0 0 20px; }
+        .library-toolbar .media-type-switch { margin:0; }
+        .library-layout-toggle { display:flex; gap:4px; }
+        .library-layout-toggle button { border:1px solid var(--surface-hover); background:var(--surface); color:var(--text-dim); padding:8px 10px; cursor:pointer; }
+        .library-layout-toggle button.active { color:#fff; background:var(--accent); border-color:var(--accent); }
+        .library-group { margin:0 0 30px; border-top:1px solid var(--surface-hover); }
+        .library-group summary { list-style:none; display:flex; align-items:center; gap:10px; padding:14px 2px; cursor:pointer; color:var(--text-main); font-size:20px; }
+        .library-group summary::-webkit-details-marker { display:none; }
+        .library-group summary::before { content:'›'; color:var(--accent); font-size:24px; line-height:1; transition:transform .16s; }
+        .library-group[open] summary::before { transform:rotate(90deg); }
+        .library-group-count { color:var(--text-dim); font-size:13px; }
+        .library-group .tile-grid { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); grid-auto-rows:245px; gap:16px; }
+        .library-group .load-more-btn { grid-column:1/-1; }
+        .library-explorer[data-layout="compact"] .library-group .tile-grid { grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); grid-auto-rows:185px; gap:10px; }
+        .library-explorer[data-layout="list"] .library-group .tile-grid { grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); grid-auto-rows:110px; gap:10px; }
+        .library-explorer[data-layout="list"] .flip-tile-front img { width:76px; }
+        .library-empty { color:var(--text-dim); padding:10px 0 20px; }
+        .studio-detail-shell { max-width:1080px; margin:54px auto 0; padding:24px; }
+        .studio-detail-hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,.8fr); gap:24px; align-items:center; margin:0 0 28px; }
+        .studio-detail-title { margin:0 0 8px; color:var(--accent); font-size:clamp(2.2rem,5vw,3.6rem); font-weight:300; line-height:1.05; }
+        .studio-detail-meta { color:var(--text-dim); font-size:14px; }
+        .studio-preview-gallery { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+        .studio-preview-gallery img { width:100%; height:120px; object-fit:cover; border-radius:4px; background:var(--surface); }
+        .studio-work-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); grid-auto-rows:245px; gap:14px; }
+        .studio-work-card { position:relative; min-width:0; overflow:hidden; border-radius:4px; background:var(--surface); cursor:pointer; text-align:left; }
+        .studio-work-card img { width:100%; height:100%; object-fit:cover; transition:transform .25s; }
+        .studio-work-card:hover img { transform:scale(1.04); }
+        .studio-work-caption { position:absolute; inset:auto 0 0; padding:34px 12px 12px; color:#fff; background:linear-gradient(transparent,rgba(0,0,0,.9)); }
+        .studio-work-title { display:block; font-size:14px; line-height:1.3; }
+        .studio-work-subtitle { display:block; margin-top:5px; color:rgba(255,255,255,.78); font-size:11px; }
+        @media(max-width:700px) { .studio-detail-hero { grid-template-columns:1fr; } .studio-preview-gallery img { height:90px; } .studio-work-grid { grid-template-columns:repeat(auto-fill,minmax(125px,1fr)); grid-auto-rows:205px; } }
+        @media (max-width:900px) {
+            .library-explorer { grid-template-columns:1fr; gap:18px; }
+            .library-sidebar { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+            .library-sidebar-search, .library-sidebar-lists { grid-column:1/-1; }
+            .library-list-nav { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); max-height:180px; }
+            .library-group .tile-grid { grid-template-columns:repeat(auto-fill,minmax(125px,1fr)); grid-auto-rows:210px; gap:10px; }
+        }
+        @media (max-width:520px) { .library-sidebar { grid-template-columns:1fr; } .library-sidebar-search, .library-sidebar-lists { grid-column:auto; } }
 
         .tile-grid.zoom-in > *,
         .prog-list.zoom-in > *,
@@ -3428,6 +3498,24 @@
             background: rgba(255, 255, 255, 0.38) !important;
         }
 
+        /* Keep Fluent mode coherent while leaving Metro mode untouched. */
+        [data-ui="fluent"] body { background:#101319 !important; }
+        [data-ui="fluent"] .header-section { padding-top:110px; padding-left:36px; padding-right:36px; }
+        [data-ui="fluent"] .metro-huge-title { font-size:clamp(2.5rem,5vw,4.5rem); line-height:1; margin-bottom:24px; }
+        [data-ui="fluent"] .zune-hero-bg { top:8px; left:24px; width:calc(100vw - 48px); opacity:.48; font-size:clamp(70px,14vw,130px); }
+        [data-ui="fluent"] .zune-hero-track { animation-duration:140s; }
+        [data-ui="fluent"] .xbox-nav { top:0; left:0; right:0; width:100%; min-height:64px; padding:0 250px 0 24px; gap:4px; align-items:center; transform:none !important; transition:none; background:rgba(22,25,31,.94); border-bottom:1px solid var(--fluent-border); box-shadow:var(--fluent-shadow-sm); }
+        [data-ui="fluent"] .xbox-nav .nav-item { padding:10px 14px !important; margin:0 !important; font-size:14px !important; font-weight:500; border-radius:6px !important; }
+        [data-ui="fluent"] #top-right-nav { top:8px; right:20px; border:1px solid var(--fluent-border); border-radius:8px; background:rgba(30,34,42,.92); box-shadow:var(--fluent-shadow-sm); }
+        [data-ui="fluent"] .metro-btn, [data-ui="fluent"] .mts-btn, [data-ui="fluent"] .metro-select-btn, [data-ui="fluent"] .library-sidebar input, [data-ui="fluent"] .library-sidebar select { border-radius:6px !important; font-size:14px; }
+        [data-ui="fluent"] .metro-tile-start, [data-ui="fluent"] .tile, [data-ui="fluent"] .metro-tile, [data-ui="fluent"] .wide-info-tile, [data-ui="fluent"] .user-stat-tile, [data-ui="fluent"] .airing-tile, [data-ui="fluent"] .browse-card, [data-ui="fluent"] .char-card, [data-ui="fluent"] .prog-item, [data-ui="fluent"] .trending-tile, [data-ui="fluent"] .inbox-item, [data-ui="fluent"] .media-card, [data-ui="fluent"] .calendar-day-cell { background:rgba(34,38,46,.96) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+        [data-ui="fluent"] .metro-select-dropdown { border:1px solid var(--fluent-border-light) !important; border-radius:0 0 8px 8px !important; overflow:hidden; }
+        [data-ui="fluent"] .metro-select-opt { padding:10px 12px; }
+        [data-ui="fluent"] .metro-select-opt.selected, [data-ui="fluent"] .metro-select-opt:hover { background:var(--accent); color:#fff; }
+        [data-ui="fluent"] .library-group { border-color:var(--fluent-border); }
+        [data-ui="fluent"] .library-group summary { font-size:18px; font-weight:600; }
+        @media (max-width:900px) { [data-ui="fluent"] .header-section { padding:96px 20px 90px; } [data-ui="fluent"] .xbox-nav { display:none !important; } }
+
         /* Browse page tiles */
         .browse-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -3562,7 +3650,7 @@
 
     <!-- Massive parallax hero bg text -->
     <div class="top-blur-layer" id="top-blur-layer"></div>
-    <div class="zune-hero-bg" id="dynamic-header">start user library community discover airing inbox system</div>
+    <div class="zune-hero-bg" id="dynamic-header" aria-hidden="true"><div class="zune-hero-track"><span>start user library community discover airing inbox system</span><span>start user library community discover airing inbox system</span></div></div>
 
     <div class="xbox-nav" id="main-nav" style="display: none;">
                                 <div class="nav-item active" onclick="scrollToSection(0)"><i class="fa-solid fa-house"></i> start</div>
@@ -3815,21 +3903,33 @@
 
         <!-- SECTION 2: LIBRARY -->
         <section class="header-section">
-            <h1 class="metro-huge-title">library</h1>
+            <h1 class="metro-huge-title">library <span style="font-size:14px;vertical-align:middle;color:var(--text-dim);letter-spacing:0;">beta</span></h1>
             <div class="content-scroll">
-                <div class="media-type-switch">
-                    <button class="mts-btn active" onclick="switchMediaType('ANIME',this)">anime</button>
-                    <button class="mts-btn" onclick="switchMediaType('MANGA',this)">manga</button>
-                </div>
-                <div class="pivot-headers" id="library-pivots">
-                    <div class="pivot-item active" data-status="CURRENT">watching</div>
-                    <div class="pivot-item" data-status="COMPLETED">completed</div>
-                    <div class="pivot-item" data-status="PLANNING">planned</div>
-                    <div class="pivot-item" data-status="PAUSED">paused</div>
-                    <div class="pivot-item" data-status="DROPPED">dropped</div>
-                </div>
-                <div class="tile-grid" id="library-grid">
-                    <div style="color:var(--text-dim);">loading...</div>
+                <div class="library-explorer" id="library-explorer" data-layout="grid">
+                    <aside class="library-sidebar" aria-label="Library filters">
+                        <div class="library-sidebar-search"><label class="library-sidebar-heading" for="library-filter-search">Filter</label><input id="library-filter-search" type="search" placeholder="Search your lists" oninput="renderLibrary()"></div>
+                        <div class="library-sidebar-lists"><h2 class="library-sidebar-heading">Lists</h2><nav class="library-list-nav" id="library-list-nav" aria-label="Anime and manga lists"></nav></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-format">Format</label><select id="library-filter-format" onchange="renderLibrary()"><option value="">Any format</option></select></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-status">Status</label><select id="library-filter-status" onchange="renderLibrary()"><option value="">Any status</option><option value="FINISHED">Finished</option><option value="RELEASING">Releasing</option><option value="NOT_YET_RELEASED">Not yet released</option><option value="CANCELLED">Cancelled</option><option value="HIATUS">Hiatus</option></select></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-genre">Genres &amp; Tags</label><input id="library-filter-genre" type="search" placeholder="e.g. comedy, fantasy" oninput="renderLibrary()"></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-country">Country</label><select id="library-filter-country" onchange="renderLibrary()"><option value="">Any country</option><option value="JP">Japan</option><option value="KR">South Korea</option><option value="CN">China</option><option value="TW">Taiwan</option></select></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-year">Year</label><input id="library-filter-year" type="number" min="1940" max="2100" placeholder="Any year" oninput="renderLibrary()"></div>
+                        <div><label class="library-sidebar-heading" for="library-sort-select">Sort</label><select id="library-sort-select" onchange="renderLibrary()"><option value="added">Last added</option><option value="title">Title</option><option value="score">Score</option><option value="progress">Progress</option></select></div>
+                    </aside>
+                    <main class="library-main">
+                        <div class="library-toolbar">
+                            <div class="media-type-switch" id="library-media-switch">
+                                <button class="mts-btn active" onclick="switchMediaType('ANIME',this)">anime</button>
+                                <button class="mts-btn" onclick="switchMediaType('MANGA',this)">manga</button>
+                            </div>
+                            <div class="library-layout-toggle" role="group" aria-label="Library layout">
+                                <button class="active" data-layout-choice="grid" onclick="setLibraryLayout('grid',this)" aria-label="Poster grid"><i class="fa-solid fa-table-cells-large"></i></button>
+                                <button data-layout-choice="list" onclick="setLibraryLayout('list',this)" aria-label="List layout"><i class="fa-solid fa-list"></i></button>
+                                <button data-layout-choice="compact" onclick="setLibraryLayout('compact',this)" aria-label="Compact grid"><i class="fa-solid fa-table-cells"></i></button>
+                            </div>
+                        </div>
+                        <div id="library-grid" aria-live="polite"><div class="library-empty">sign in to load your lists.</div></div>
+                    </main>
                 </div>
             </div>
         </section>
@@ -4398,9 +4498,9 @@
                             </div>
                         </div>
                         <div class="settings-item">
-                            <div class="settings-item-header">clear image cache</div>
-                            <div class="settings-item-sub">free up storage from cached images</div>
-                            <button class="metro-btn small" onclick="showToast('image cache cleared'); localStorage.removeItem('gql_');">clear cache</button>
+                            <div class="settings-item-header">clear saved api data</div>
+                            <div class="settings-item-sub">remove cached anilist responses from this browser</div>
+                            <button class="metro-btn small" onclick="clearApiCache()">clear cache</button>
                         </div>
                         <div class="settings-item">
                             <div class="settings-item-header">rate limit</div>
@@ -4467,11 +4567,17 @@
         let accessToken = localStorage.getItem('anilist_token');
         let currentUserId = null;
         let allListsData = { ANIME: {}, MANGA: {} };
+        let libraryGroups = { ANIME: [], MANGA: [] };
+        let viewedUserLibraryLists = [];
+        let viewedUserLibraryType = 'ANIME';
+        let viewedUserLibrarySelection = 'ALL';
         let libraryLoaded = { ANIME: false, MANGA: false };
         let currentMediaType = 'ANIME';
-        let currentLibStatus = 'CURRENT';
+        let currentLibStatus = 'ALL';
         let searchType = 'ANIME';
         let searchSort = null;
+        const searchFilters = { season: '', format: '', status: '', episodes: '', source: '', country: '' };
+        let activeMetroDropdown = null;
         let searchRequestSequence = 0;
         let activeStaffDetailId = null;
         let staffWorksPage = 1;
@@ -4596,9 +4702,12 @@
         let wallpaperDataUrl = localStorage.getItem('metro_wallpaper') || '';
         let wallpaperName = localStorage.getItem('metro_wallpaper_name') || 'default';
         let currentLibraryPage = 1;
+        const storedLibraryLayout = localStorage.getItem('library_layout');
+        let libraryLayout = ['grid', 'list', 'compact'].includes(storedLibraryLayout) ? storedLibraryLayout : (localStorage.getItem('list_display') === 'detail' ? 'list' : (localStorage.getItem('list_display') === 'compact' ? 'compact' : 'grid'));
         let activityPage = 1;
         let notifPage = 1;
         let communityPage = 1;
+        const loadedSections = new Set();
         let wheelPickedColor = localStorage.getItem('metro_theme') || '#1ba1e2';
         let currentViewerActivity = [];
 
@@ -4608,18 +4717,23 @@
         function toggleBlur(el) { el.classList.toggle('unblurred'); el.parentElement.parentElement.parentElement.classList.toggle('blur-unblurred'); }
         function createFlipTile(id, type, coverImage, title, fullTitle, score, status, progressStr, isAdult = false) {
             const blurClass = (isAdult && !showAdultContent) ? 'blur-adult' : '';
+            const safeTitle = escapeHtml(title);
+            const safeFullTitle = escapeHtml(fullTitle);
+            const safeCover = escapeHtml(coverImage);
+            const safeStatus = escapeHtml(status || '');
+            const safeProgress = escapeHtml(progressStr || '');
             return `
     <div class="tile flip-tile" onclick="openDetailById(${id},'${type}')">
         <div class="flip-tile-inner">
             <div class="flip-tile-front">
-                <img src="${coverImage}" loading="lazy" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''} onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/media/placeholder_large.jpg';"/>
+                <img src="${safeCover}" alt="${safeTitle} cover" loading="lazy" decoding="async" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''} onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/media/placeholder_large.jpg';"/>
                 ${score ? `<div class="tile-score">${score}</div>` : ''}
-                ${status ? `<div class="tile-badge">${status}</div>` : ''}
-                <div class="tile-label">${title.toLowerCase()}</div>
+                ${status ? `<div class="tile-badge">${safeStatus}</div>` : ''}
+                <div class="tile-label">${safeTitle.toLowerCase()}</div>
             </div>
             <div class="flip-tile-back">
-                <div class="tile-back-title">${fullTitle.toLowerCase()}</div>
-                ${progressStr ? `<div style="font-size:12px; margin-bottom:5px; color:rgba(255,255,255,0.7);">${progressStr.toLowerCase()}</div>` : ''}
+                <div class="tile-back-title">${safeFullTitle.toLowerCase()}</div>
+                ${progressStr ? `<div style="font-size:12px; margin-bottom:5px; color:rgba(255,255,255,0.7);">${safeProgress.toLowerCase()}</div>` : ''}
                 <div class="tile-back-rating"><i class="fa-solid fa-star"></i> ${score || 'n/a'}</div>
             </div>
         </div>
@@ -4628,12 +4742,16 @@
 
         function initLiveTiles() {
             setInterval(() => {
-                const tiles = document.querySelectorAll('.flip-tile');
+                if (document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                const tiles = Array.from(document.querySelectorAll('.flip-tile')).filter(tile => {
+                    const rect = tile.getBoundingClientRect();
+                    return rect.width && rect.height && rect.bottom > 0 && rect.right > 0 && rect.top < window.innerHeight && rect.left < window.innerWidth;
+                });
                 if (tiles.length === 0) return;
                 const t = tiles[Math.floor(Math.random() * tiles.length)];
                 t.classList.add('flipped');
-                setTimeout(() => t.classList.remove('flipped'), 4000);
-            }, 2500);
+                setTimeout(() => t.classList.remove('flipped'), 3000);
+            }, 7500);
         }
         initLiveTiles();
 
@@ -4646,6 +4764,7 @@
         const navItems = document.querySelectorAll('.nav-item');
         let activeNavIndex = -1;
         let isDown = false, startX, scrollLeft;
+        let sectionLoadTimer = null;
 
         const interactiveElements = 'button, a, i, input, select, .status-btn, .tile, .prog-item, .pivot-item, .filter-chip, .mts-btn, .feed-tab, .trending-tile, .inbox-item, .detail-close, canvas, .color-swatch, .dropbtn, .dropdown-content, .metro-tile-start, .anime-poster, iframe, .btn-back, .wp-setting-item, .btn-back-text, .switch, .check';
 
@@ -4707,6 +4826,14 @@
             if (container) container.scrollBy({ left: dir * w, behavior: 'smooth' });
         }
 
+        function scheduleVisibleSectionLoad(index) {
+            clearTimeout(sectionLoadTimer);
+            sectionLoadTimer = setTimeout(() => {
+                const settledIndex = getCurrentSectionIndex();
+                if (settledIndex === index) ensureSectionContent(settledIndex);
+            }, 180);
+        }
+
         container.addEventListener('scroll', () => {
             const width = getSectionWidth();
             const scrollRatio = container.scrollLeft / width;
@@ -4719,6 +4846,7 @@
                 if (activeNavIndex !== -1 && typeof Sfx !== 'undefined') Sfx.play('pan');
                 activeNavIndex = idx;
                 navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
+                scheduleVisibleSectionLoad(idx);
                 if (navItems[idx]) {
                     const offset = navItems[idx].offsetLeft;
                     topNav.style.transform = `translateX(-${offset}px)`;
@@ -5005,7 +5133,27 @@
                     console.error('User data load failed:', err);
                     showToast('welcome back (limited profile data)');
                 });
+                ensureSectionContent(getCurrentSectionIndex());
             }
+        }
+
+        function getCurrentSectionIndex() {
+            const width = container?.clientWidth || window.innerWidth || 1;
+            return Math.max(0, Math.min(7, Math.round((container?.scrollLeft || 0) / width)));
+        }
+
+        function ensureSectionContent(index) {
+            if (loadedSections.has(index)) return;
+            let load;
+            if (index === 1 && !isGuest && currentUserId) load = () => loadUserHomeOverview(currentUserId);
+            else if (index === 2 && !isGuest && currentUserId && !libraryLoaded[currentMediaType]) load = () => loadLibrary(currentMediaType);
+            else if (index === 3) load = () => communityMode === 'following' && !isGuest ? loadFollowingFeed() : loadPublicCommunityFeed();
+            else if (index === 4) load = () => loadTrending();
+            else if (index === 5) load = () => { initAiringCalendar(); loadAiringSchedule(airingView); };
+            else if (index === 6 && !isGuest) load = () => loadNotifications(inboxMode);
+            if (!load) return;
+            loadedSections.add(index);
+            Promise.resolve().then(load).catch(error => console.error(`section ${index} failed to load:`, error));
         }
         function openStableVersion() {
             localStorage.setItem('metro_experimental_stable', 'true');
@@ -5039,10 +5187,7 @@
             setUserHomeGuestState();
             document.getElementById('notif-list').innerHTML = '<div style="color:var(--text-dim);">sign in to see notifications.</div>';
             document.getElementById('library-grid').innerHTML = '<div style="color:var(--text-dim);">sign in to access library.</div>';
-            loadPublicCommunityFeed();
-            loadTrending();
-            initAiringCalendar();
-            loadAiringSchedule('today');
+            ensureSectionContent(getCurrentSectionIndex());
         }
         function initLoginSlideshow() {
             const slideshow = document.getElementById('slideshow-content');
@@ -5091,29 +5236,26 @@
         // Request deduplication and rate limiter
         const pendingRequests = new Map();
         const requestTimestamps = [];
-        let requestQueue = [];
+        let nextRequestAt = 0;
+        let serverRateLimitUntil = 0;
 
-        // Ensure max 80 requests per minute with minimum 750ms between requests
+        // Keep a buffer below AniList's published ceiling and serialize request starts.
         async function rateLimitedFetch(url, options) {
-            // Clean old timestamps (>60s)
-            const now = Date.now();
-            while (requestTimestamps.length > 0 && requestTimestamps[0] < now - 60000) {
-                requestTimestamps.shift();
-            }
-            // If we've made 80+ requests in the last 60 seconds, wait
-            if (requestTimestamps.length >= 80) {
-                const waitMs = requestTimestamps[0] + 60000 - now + 100;
-                await new Promise(resolve => setTimeout(resolve, waitMs));
-            }
-            // Ensure minimum 400ms between requests
-            if (requestTimestamps.length > 0) {
-                const lastTs = requestTimestamps[requestTimestamps.length - 1];
-                const elapsed = now - lastTs;
-                if (elapsed < 400) {
-                    await new Promise(resolve => setTimeout(resolve, 400 - elapsed));
+            while (true) {
+                const now = Date.now();
+                while (requestTimestamps.length && requestTimestamps[0] <= now - 60000) requestTimestamps.shift();
+                const windowWait = requestTimestamps.length >= 48 ? requestTimestamps[0] + 60000 - now + 100 : 0;
+                const slotWait = Math.max(nextRequestAt, serverRateLimitUntil) - now;
+                const waitMs = Math.max(windowWait, slotWait, 0);
+                if (waitMs > 0) {
+                    await new Promise(resolve => setTimeout(resolve, waitMs));
+                    continue;
                 }
+                const sentAt = Date.now();
+                requestTimestamps.push(sentAt);
+                nextRequestAt = sentAt + 1250;
+                break;
             }
-            requestTimestamps.push(Date.now());
             return fetch(url, options);
         }
 
@@ -5141,7 +5283,8 @@
 
                     if (response.status === 429) {
                         const retryAfter = parseInt(response.headers.get('Retry-After')) || 60;
-                        showRateLimitPopup(retryAfter);
+                        serverRateLimitUntil = Math.max(serverRateLimitUntil, Date.now() + retryAfter * 1000);
+                        showToast(`anilist cooldown: ${retryAfter}s`);
                         throw new Error(`Rate limited. Please wait ${retryAfter} seconds.`);
                     }
 
@@ -5416,9 +5559,7 @@
                     document.getElementById('notif-page-title').innerText = 'inbox';
                 }
                 document.getElementById('start-tile-notif').innerText = v.unreadNotificationCount || 0;
-                loadLibrary('ANIME'); loadLibrary('MANGA');
-                loadPublicCommunityFeed(); loadNotifications('unread'); loadTrending(); initAiringCalendar(); loadAiringSchedule('today');
-                loadUserHomeOverview(v.id);
+                ensureSectionContent(getCurrentSectionIndex());
             } catch (err) {
                 console.error(err);
                 showToast('userlogin failed');
@@ -5954,73 +6095,162 @@
         async function loadLibrary(mediaType) {
             if (isGuest) return;
             try {
-                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status entries { score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
+                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status isCustomList entries { score(format:POINT_10) progress updatedAt media { id type format title { english romaji } coverImage { large } episodes chapters status genres countryOfOrigin startDate { year } tags { name } } } } } }`;
                 const data = await fetchAPI(q, { userId: currentUserId, type: mediaType });
                 allListsData[mediaType] = {};
+                libraryGroups[mediaType] = [];
                 libraryLoaded[mediaType] = true;
                 if (data && data.MediaListCollection && data.MediaListCollection.lists) {
-                    const validLists = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED'];
+                    const validLists = ['CURRENT', 'PLANNING', 'COMPLETED', 'DROPPED', 'PAUSED', 'REPEATING'];
                     data.MediaListCollection.lists.forEach(l => {
                         const listStatus = l.status ? l.status.toUpperCase() : null;
-                        const listName = l.name ? l.name.toUpperCase() : null;
-                        const key = (listStatus && validLists.includes(listStatus)) ? listStatus : listName;
-                        if (!key) return;
-                        allListsData[mediaType][key] = l.entries;
+                        const isStatusList = listStatus && validLists.includes(listStatus) && !l.isCustomList;
+                        const name = l.name || listStatus || 'Custom list';
+                        const key = isStatusList ? listStatus : `CUSTOM:${name}`;
+                        const entries = Array.isArray(l.entries) ? l.entries : [];
+                        allListsData[mediaType][key] = entries;
+                        libraryGroups[mediaType].push({ key, name, status: isStatusList ? listStatus : '', isCustom: !isStatusList, entries });
                     });
                 }
+                updateLibraryListNav();
                 if (mediaType === currentMediaType) renderLibrary(currentLibStatus);
-            } catch (e) { console.error('error loading library:', e); }
+            } catch (e) {
+                console.error('error loading library:', e);
+                if (mediaType === currentMediaType) document.getElementById('library-grid').innerHTML = '<div class="library-empty">could not load your lists. try again in a moment.</div>';
+            }
         }
 
         function renderLibrary(status, append = false) {
-            if (isGuest) { document.getElementById('library-grid').innerHTML = '<div style="color:var(--text-dim);">sign in to access library.</div>'; return; }
             const el = document.getElementById('library-grid');
-            if (!append) { el.innerHTML = ''; currentLibraryPage = 1; }
-            const entries = (allListsData[currentMediaType] || {})[status] || [];
-            document.querySelector('#library-pivots .pivot-item[data-status="CURRENT"]').innerText = currentMediaType === 'ANIME' ? 'watching' : 'reading';
-            if (!entries.length && !append) { el.innerHTML = '<div style="color:var(--text-dim);">no entries found.</div>'; return; }
-            const chunk = entries.slice((currentLibraryPage - 1) * libraryItemsPerPage, currentLibraryPage * libraryItemsPerPage);
-            const existingBtn = document.getElementById('load-more-lib-btn'); if (existingBtn) existingBtn.remove();
-            chunk.forEach(entry => {
-                if (!entry || !entry.media) return;
-                const title = entry.media.title?.english || entry.media.title?.romaji || 'unknown';
-                const total = (currentMediaType === 'ANIME' ? entry.media.episodes : entry.media.chapters) || '?';
-                const rawProgress = entry.progress || 0;
-                const displayProgress = (status === 'COMPLETED' && rawProgress === 0 && total !== '?') ? total : rawProgress;
-                const progressStr = `progress: ${displayProgress} / ${total}`;
-                let badge = '';
-                if (status === 'COMPLETED') badge = total !== '?' ? `${total}/${total}` : 'done';
-                else if (status === 'CURRENT') badge = displayProgress + (total !== '?' ? '/' + total : '');
+            if (!el) return;
+            if (status && status !== currentLibStatus) currentLibStatus = status;
+            currentLibraryPage = 1;
+            const explorer = document.getElementById('library-explorer');
+            if (explorer) explorer.dataset.layout = libraryLayout;
+            if (isGuest) { el.innerHTML = '<div class="library-empty">sign in to access your lists.</div>'; updateLibraryListNav(); return; }
+            if (!libraryLoaded[currentMediaType]) { el.innerHTML = '<div class="library-empty">loading your lists…</div>'; return; }
 
-                el.innerHTML += createFlipTile(entry.media.id, currentMediaType, entry.media.coverImage?.large || '', title, title, entry.score, badge, progressStr);
+            const query = document.getElementById('library-filter-search')?.value.trim().toLowerCase() || '';
+            const genreQuery = document.getElementById('library-filter-genre')?.value.trim().toLowerCase() || '';
+            const format = document.getElementById('library-filter-format')?.value || '';
+            const mediaStatus = document.getElementById('library-filter-status')?.value || '';
+            const country = document.getElementById('library-filter-country')?.value || '';
+            const year = Number(document.getElementById('library-filter-year')?.value) || null;
+            const sort = document.getElementById('library-sort-select')?.value || 'added';
+            const groups = (libraryGroups[currentMediaType] || []).filter(group => currentLibStatus === 'ALL' || group.key === currentLibStatus);
+            updateLibraryListNav();
+            const viewGroups = groups.map(group => {
+                let entries = group.entries.filter(entry => {
+                    const media = entry?.media;
+                    if (!media) return false;
+                    const title = `${media.title?.english || ''} ${media.title?.romaji || ''}`.toLowerCase();
+                    const genreTags = `${(media.genres || []).join(' ')} ${(media.tags || []).map(tag => tag.name).join(' ')}`.toLowerCase();
+                    return (!query || title.includes(query)) && (!genreQuery || genreTags.includes(genreQuery)) && (!format || media.format === format) && (!mediaStatus || media.status === mediaStatus) && (!country || media.countryOfOrigin === country) && (!year || media.startDate?.year === year);
+                });
+                if (sort === 'title') entries = entries.slice().sort((a,b) => libraryEntryTitle(a).localeCompare(libraryEntryTitle(b)));
+                else if (sort === 'score') entries = entries.slice().sort((a,b) => (b.score || 0) - (a.score || 0));
+                else if (sort === 'progress') entries = entries.slice().sort((a,b) => (b.progress || 0) - (a.progress || 0));
+                else entries = entries.slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+                return { ...group, filteredEntries: entries };
+            }).filter(group => group.filteredEntries.length || (!query && !genreQuery && currentLibStatus === 'ALL'));
+            if (!viewGroups.length) { el.innerHTML = '<div class="library-empty">no matching entries found.</div>'; return; }
+            const filtering = Boolean(query || genreQuery || format || mediaStatus || country || year);
+            el.innerHTML = viewGroups.map((group, index) => {
+                const open = filtering || (currentLibStatus !== 'ALL') || index === 0;
+                const name = libraryGroupLabel(group);
+                return `<details class="library-group" data-library-key="${escapeHtml(group.key)}" data-rendered="false" ${open ? 'open' : ''}><summary><span>${escapeHtml(name)}</span><span class="library-group-count">${group.filteredEntries.length}${group.filteredEntries.length !== group.entries.length ? ` of ${group.entries.length}` : ''}</span></summary><div class="tile-grid" data-library-tiles></div><button class="load-more-btn" type="button" data-library-more hidden>load more</button></details>`;
+            }).join('');
+            el.querySelectorAll('.library-group').forEach(details => {
+                const group = viewGroups.find(item => item.key === details.dataset.libraryKey);
+                details.addEventListener('toggle', () => { if (details.open && details.dataset.rendered !== 'true') renderLibraryGroup(details, group); });
+                if (details.open) renderLibraryGroup(details, group);
             });
-            if (entries.length > currentLibraryPage * libraryItemsPerPage) {
-                el.innerHTML += `<button class="load-more-btn" id="load-more-lib-btn" onclick="loadMoreLibrary()" style="grid-column: 1 / -1;">load more...</button>`;
+        }
+
+        function libraryEntryTitle(entry) { return entry?.media?.title?.english || entry?.media?.title?.romaji || 'Unknown'; }
+        function libraryGroupLabel(group) {
+            if (group.status === 'CURRENT') return currentMediaType === 'ANIME' ? 'Watching' : 'Reading';
+            if (group.status === 'PLANNING') return 'Planning';
+            if (group.status === 'COMPLETED') return 'Completed';
+            if (group.status === 'PAUSED') return 'Paused';
+            if (group.status === 'DROPPED') return 'Dropped';
+            if (group.status === 'REPEATING') return 'Rewatching';
+            return group.name;
+        }
+        function updateLibraryListNav() {
+            const nav = document.getElementById('library-list-nav');
+            if (!nav) return;
+            const groups = libraryGroups[currentMediaType] || [];
+            const items = [{ key:'ALL', name:'All', count:groups.reduce((sum, group) => sum + group.entries.length, 0) }, ...groups.map(group => ({ key:group.key, name:libraryGroupLabel(group), count:group.entries.length }))];
+            nav.innerHTML = items.map(item => `<button type="button" data-list-key="${escapeHtml(item.key)}" class="${currentLibStatus === item.key ? 'active' : ''}" onclick="selectLibraryList(this.dataset.listKey)">${escapeHtml(item.name)}<span class="library-list-count">${item.count}</span></button>`).join('');
+            const formatSelect = document.getElementById('library-filter-format');
+            if (formatSelect) {
+                const selected = formatSelect.value;
+                const formats = [...new Set(groups.flatMap(group => group.entries.map(entry => entry.media?.format).filter(Boolean)))].sort();
+                formatSelect.innerHTML = '<option value="">Any format</option>' + formats.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value.replaceAll('_',' ').toLowerCase())}</option>`).join('');
+                formatSelect.value = formats.includes(selected) ? selected : '';
             }
         }
-        function loadMoreLibrary() { currentLibraryPage++; renderLibrary(currentLibStatus, true); }
+        function selectLibraryList(key) { currentLibStatus = key; renderLibrary(); }
+        function setLibraryLayout(layout, button) {
+            libraryLayout = layout;
+            localStorage.setItem('library_layout', layout);
+            localStorage.setItem('list_display', layout === 'list' ? 'detail' : layout);
+            document.querySelectorAll('.library-layout-toggle button').forEach(item => item.classList.toggle('active', item === button));
+            ['library-explorer', 'user-library-explorer'].forEach(id => {
+                const explorer = document.getElementById(id);
+                if (explorer) explorer.dataset.layout = layout;
+            });
+            const displaySetting = document.getElementById('list-display-select');
+            if (displaySetting) displaySetting.value = layout === 'list' ? 'detail' : layout;
+        }
+        setLibraryLayout(libraryLayout, document.querySelector(`.library-layout-toggle [data-layout-choice="${libraryLayout}"]`) || document.querySelector('.library-layout-toggle button'));
+        function renderLibraryGroup(details, group) {
+            if (!group) return;
+            const tileGrid = details.querySelector('[data-library-tiles]');
+            if (!tileGrid) return;
+            if (!group.filteredEntries.length) {
+                tileGrid.innerHTML = '<div class="library-empty">This list is empty.</div>';
+                details.dataset.rendered = 'true';
+                details.querySelector('[data-library-more]').hidden = true;
+                return;
+            }
+            const rendered = Number(details.dataset.count || 0);
+            const chunkSize = 24;
+            const next = group.filteredEntries.slice(0, rendered ? rendered + chunkSize : chunkSize);
+            const markup = next.slice(rendered).map(entry => {
+                const media = entry.media;
+                const title = libraryEntryTitle(entry);
+                const total = (currentMediaType === 'ANIME' ? media.episodes : media.chapters) || '?';
+                const progress = entry.progress || 0;
+                const badge = group.status === 'COMPLETED' ? (total === '?' ? 'done' : `${total}/${total}`) : (group.status === 'CURRENT' || group.status === 'REPEATING' ? `${progress}${total !== '?' ? `/${total}` : ''}` : '');
+                return createFlipTile(media.id, currentMediaType, media.coverImage?.large || '', title, title, entry.score, badge, `progress: ${progress} / ${total}`);
+            }).join('');
+            if (markup) tileGrid.insertAdjacentHTML('beforeend', markup);
+            details.dataset.count = String(next.length);
+            details.dataset.rendered = 'true';
+            const more = details.querySelector('[data-library-more]');
+            more.hidden = next.length >= group.filteredEntries.length;
+            more.onclick = () => renderLibraryGroup(details, group);
+            more.textContent = `load more (${Math.min(chunkSize, group.filteredEntries.length - next.length)} more)`;
+        }
+        function loadMoreLibrary() { renderLibrary(currentLibStatus); }
 
         function switchMediaType(type, btn) {
             currentMediaType = type;
-            currentLibStatus = 'CURRENT';
+            currentLibStatus = 'ALL';
             currentLibraryPage = 1;
-            document.querySelectorAll('.mts-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#library-media-switch .mts-btn').forEach(b => b.classList.remove('active'));
             if (btn) btn.classList.add('active');
-            document.querySelectorAll('#library-pivots .pivot-item').forEach((p, i) => p.classList.toggle('active', i === 0));
             if (libraryLoaded[currentMediaType]) {
-                renderLibrary('CURRENT');
+                updateLibraryListNav();
+                renderLibrary('ALL');
             } else {
                 const el = document.getElementById('library-grid');
-                if (el) el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
+                if (el) el.innerHTML = '<div class="library-empty">loading your lists…</div>';
                 loadLibrary(currentMediaType);
             }
         }
-        document.querySelectorAll('#library-pivots .pivot-item').forEach(item => {
-            item.addEventListener('click', e => {
-                document.querySelectorAll('#library-pivots .pivot-item').forEach(s => s.classList.remove('active'));
-                e.target.classList.add('active'); currentLibStatus = e.target.dataset.status; renderLibrary(currentLibStatus);
-            });
-        });
 
         // ==========================================
         // SEARCH
@@ -6136,13 +6366,7 @@
         function buildMediaSearch(type, term, sort) {
             const variables = { type, sort: [sort] };
             if (term) variables.search = term;
-            const season = document.getElementById('filter-season')?.value || '';
-            const year = document.getElementById('filter-year')?.value || '';
-            const format = document.getElementById('filter-format')?.value || '';
-            const status = document.getElementById('filter-status')?.value || '';
-            const episodes = document.getElementById('filter-episodes')?.value || '';
-            const source = document.getElementById('filter-source')?.value || '';
-            const country = document.getElementById('filter-country')?.value || '';
+            const { season, format, status, episodes, source, country } = searchFilters;
             const scoreMin = Number(document.getElementById('filter-score-min')?.value || 0);
             const scoreMax = Number(document.getElementById('filter-score-max')?.value || 100);
             const isAdultFilter = document.getElementById('filter-adult')?.checked || false;
@@ -6150,7 +6374,8 @@
             const endYear = Number(yearEnd || 0);
 
             if (season) variables.season = season;
-            if (year) variables.seasonYear = Number(year);
+            const selectedYear = startYear || endYear;
+            if (selectedYear) variables.seasonYear = selectedYear;
             if (format) variables.format = format;
             if (status) variables.status = status;
             if (source) variables.source = source;
@@ -6180,6 +6405,66 @@
             }`;
             return { variables, query };
         }
+
+        function closeMetroSelects(except = null) {
+            document.querySelectorAll('.metro-select-dropdown.open').forEach(dropdown => {
+                if (dropdown.id === except) return;
+                dropdown.classList.remove('open');
+                const button = document.getElementById(dropdown.id.replace('-dropdown', '-btn'));
+                button?.setAttribute('aria-expanded', 'false');
+            });
+            activeMetroDropdown = except;
+        }
+
+        function toggleMetroSelect(name) {
+            const dropdown = document.getElementById(`${name}-dropdown`);
+            const button = document.getElementById(`${name}-btn`);
+            if (!dropdown || !button) return;
+            const isOpen = dropdown.classList.contains('open');
+            closeMetroSelects(isOpen ? null : dropdown.id);
+            dropdown.classList.toggle('open', !isOpen);
+            button.setAttribute('aria-expanded', String(!isOpen));
+            button.setAttribute('aria-controls', dropdown.id);
+            if (!isOpen) dropdown.querySelector('.metro-select-opt')?.focus();
+        }
+
+        function setFilter(name, value, label) {
+            if (!Object.prototype.hasOwnProperty.call(searchFilters, name)) return;
+            searchFilters[name] = value;
+            const button = document.getElementById(`${name}-btn`);
+            if (button) button.innerHTML = `${escapeHtml(label)} <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>`;
+            document.querySelectorAll(`#${name}-dropdown .metro-select-opt`).forEach(option => {
+                const selected = option.dataset.value === value;
+                option.classList.toggle('selected', selected);
+                option.setAttribute('aria-selected', String(selected));
+            });
+            closeMetroSelects();
+            applySearchFilters();
+        }
+
+        document.addEventListener('click', event => {
+            if (!event.target.closest('.metro-select-wrap')) closeMetroSelects();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeMetroSelects();
+            if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.metro-select-opt')) {
+                event.preventDefault();
+                event.target.click();
+            }
+        });
+        document.querySelectorAll('.metro-select-opt').forEach(option => {
+            option.tabIndex = 0;
+            option.setAttribute('role', 'option');
+            option.setAttribute('aria-selected', String(option.classList.contains('selected')));
+        });
+        document.querySelectorAll('.metro-select-wrap').forEach(wrap => {
+            const button = wrap.querySelector('.metro-select-btn');
+            const dropdown = wrap.querySelector('.metro-select-dropdown');
+            if (!button || !dropdown) return;
+            button.setAttribute('aria-expanded', 'false');
+            button.setAttribute('aria-controls', dropdown.id);
+            dropdown.setAttribute('role', 'listbox');
+        });
         function renderSearchResults(media, isCurrentRequest = () => true) {
             const el = document.getElementById('search-results'); el.innerHTML = '';
             if (!media.length) { el.innerHTML = '<div style="color:var(--text-dim);">no results.</div>'; return; }
@@ -6570,24 +6855,72 @@
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading user list...</div>'; panel.style.display = 'block';
 
-            const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name entries { status score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
+            const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name status isCustomList entries { status score(format:POINT_10) progress updatedAt media { id type format title { english romaji } coverImage { large } episodes chapters status genres countryOfOrigin startDate { year } tags { name } } } } } }`;
             try {
                 const data = await fetchAPI(q, { userId, type });
+                viewedUserLibraryType = type;
+                viewedUserLibrarySelection = 'ALL';
+                viewedUserLibraryLists = data?.MediaListCollection?.lists || [];
                 content.innerHTML = `
             <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
             <h1 class="metro-huge-title" style="margin-top:50px; color:var(--accent);">${type.toLowerCase()} list</h1>
-            <div id="user-lib-grid-container" style="margin-top:40px;"></div>`;
-                const container = document.getElementById('user-lib-grid-container');
-                data.MediaListCollection.lists.forEach(l => {
-                    container.innerHTML += `<h2 style="font-weight:200; color:var(--accent); margin: 30px 0 15px; border-bottom:1px solid var(--surface-hover); padding-bottom:10px;">${l.name.toLowerCase()}</h2>
-                <div class="tile-grid">${l.entries.map(e => {
-                        const title = e.media.title.english || e.media.title.romaji;
-                        const total = type === 'ANIME' ? e.media.episodes : e.media.chapters;
-                        const badge = e.status === 'COMPLETED' ? (total ? `${total}/${total}` : 'done') : `${e.progress}${total ? '/' + total : ''}`;
-                        return createFlipTile(e.media.id, e.media.type || type, e.media.coverImage?.large || '', title, title, e.score, badge, `progress: ${e.progress}/${total || '?'}`);
-                    }).join('')}</div>`;
-                });
+            <div class="library-explorer" id="user-library-explorer" data-layout="${libraryLayout}" style="margin-top:30px;">
+                <aside class="library-sidebar"><div class="library-sidebar-search"><label class="library-sidebar-heading" for="user-lib-filter">Filter</label><input id="user-lib-filter" type="search" placeholder="Search this list" oninput="renderViewedUserLibrary()"></div><div class="library-sidebar-lists"><h2 class="library-sidebar-heading">Lists</h2><nav id="user-lib-nav" class="library-list-nav" aria-label="User list groups"></nav></div></aside>
+                <main class="library-main"><div class="library-toolbar"><div></div><div class="library-layout-toggle" role="group" aria-label="Library layout"><button class="${libraryLayout==='grid'?'active':''}" data-layout-choice="grid" onclick="setLibraryLayout('grid',this)" aria-label="Poster grid"><i class="fa-solid fa-table-cells-large"></i></button><button class="${libraryLayout==='list'?'active':''}" data-layout-choice="list" onclick="setLibraryLayout('list',this)" aria-label="List layout"><i class="fa-solid fa-list"></i></button><button class="${libraryLayout==='compact'?'active':''}" data-layout-choice="compact" onclick="setLibraryLayout('compact',this)" aria-label="Compact grid"><i class="fa-solid fa-table-cells"></i></button></div></div><div id="user-lib-grid-container"></div></main>
+            </div>`;
+                renderViewedUserLibrary();
             } catch (e) { showToast('error loading user list'); }
+        }
+
+        function renderViewedUserLibrary() {
+            const container = document.getElementById('user-lib-grid-container');
+            const nav = document.getElementById('user-lib-nav');
+            if (!container || !nav) return;
+            const getName = list => {
+                const status = list.status || list.entries?.[0]?.status;
+                if (!list.isCustomList && status === 'CURRENT') return viewedUserLibraryType === 'ANIME' ? 'Watching' : 'Reading';
+                if (!list.isCustomList && status === 'PLANNING') return 'Planning';
+                if (!list.isCustomList && status === 'COMPLETED') return 'Completed';
+                if (!list.isCustomList && status === 'PAUSED') return 'Paused';
+                if (!list.isCustomList && status === 'DROPPED') return 'Dropped';
+                if (!list.isCustomList && status === 'REPEATING') return 'Rewatching';
+                return list.name || 'Custom list';
+            };
+            const groups = viewedUserLibraryLists.map((list, index) => ({ key:`USER:${index}`, name:getName(list), status:list.status || '', entries:list.entries || [] }))
+                .filter(group => viewedUserLibrarySelection === 'ALL' || group.key === viewedUserLibrarySelection);
+            const search = document.getElementById('user-lib-filter')?.value.trim().toLowerCase() || '';
+            const filtered = groups.map(group => ({ ...group, filteredEntries:group.entries.filter(entry => {
+                const media = entry?.media;
+                return media && (!search || `${media.title?.english || ''} ${media.title?.romaji || ''}`.toLowerCase().includes(search));
+            }) })).filter(group => group.filteredEntries.length || (!search && viewedUserLibrarySelection === 'ALL'));
+            nav.innerHTML = [{key:'ALL',name:'All',count:viewedUserLibraryLists.reduce((sum,list)=>sum+(list.entries?.length||0),0)}, ...viewedUserLibraryLists.map((list,index)=>({key:`USER:${index}`,name:getName(list),count:list.entries?.length||0}))]
+                .map(item => `<button type="button" class="${viewedUserLibrarySelection===item.key?'active':''}" onclick="selectViewedUserList('${escapeHtml(item.key)}')">${escapeHtml(item.name)}<span class="library-list-count">${item.count}</span></button>`).join('');
+            if (!filtered.length) { container.innerHTML = '<div class="library-empty">no matching entries found.</div>'; return; }
+            container.innerHTML = filtered.map((group,index)=>`<details class="library-group" data-user-list-key="${group.key}" data-rendered="false" ${search||viewedUserLibrarySelection!=='ALL'||index===0?'open':''}><summary><span>${escapeHtml(group.name)}</span><span class="library-group-count">${group.filteredEntries.length}</span></summary><div class="tile-grid" data-user-list-tiles></div><button class="load-more-btn" type="button" data-user-list-more hidden>load more</button></details>`).join('');
+            container.querySelectorAll('.library-group').forEach(details=>{
+                const group=filtered.find(item=>item.key===details.dataset.userListKey);
+                details.addEventListener('toggle',()=>{if(details.open&&details.dataset.rendered!=='true')renderViewedUserGroup(details,group);});
+                if(details.open)renderViewedUserGroup(details,group);
+            });
+        }
+        function selectViewedUserList(key) { viewedUserLibrarySelection=key; renderViewedUserLibrary(); }
+        function renderViewedUserGroup(details,group) {
+            if(!group)return;
+            const tileGrid=details.querySelector('[data-user-list-tiles]');
+            const more=details.querySelector('[data-user-list-more]');
+            if(!tileGrid||!more)return;
+            if(!group.filteredEntries.length){tileGrid.innerHTML='<div class="library-empty">This list is empty.</div>';details.dataset.rendered='true';return;}
+            const rendered=Number(details.dataset.count||0), chunkSize=24;
+            const next=group.filteredEntries.slice(0,rendered?rendered+chunkSize:chunkSize);
+            tileGrid.insertAdjacentHTML('beforeend',next.slice(rendered).map(entry=>{
+                const media=entry.media,title=libraryEntryTitle(entry),total=(viewedUserLibraryType==='ANIME'?media.episodes:media.chapters)||'?';
+                const progress=entry.progress||0,badge=entry.status==='COMPLETED'?(total==='?'?'done':`${total}/${total}`):`${progress}${total!=='?'?`/${total}`:''}`;
+                return createFlipTile(media.id,media.type||viewedUserLibraryType,media.coverImage?.large||'',title,title,entry.score,badge,`progress: ${progress} / ${total}`);
+            }).join(''));
+            details.dataset.count=String(next.length);details.dataset.rendered='true';
+            more.hidden=next.length>=group.filteredEntries.length;
+            more.textContent=`load more (${Math.min(chunkSize,group.filteredEntries.length-next.length)} more)`;
+            more.onclick=()=>renderViewedUserGroup(details,group);
         }
 
         function renderUserFavorites(favs) {
@@ -6637,28 +6970,6 @@
             } else if (studioEl) studioEl.parentElement.style.display = 'none';
         }
 
-        async function loadUserFollowers(userId) {
-            const el = document.getElementById('user-followers-list');
-            if (!el) return;
-            const q = `query($userId: Int) { Page(page:1, perPage:20) { followers(userId:$userId) { id name avatar { large } } } }`;
-            try {
-                const data = await fetchAPI(q, { userId });
-                el.innerHTML = data.Page.followers.map(f => `<span class="filter-chip" onclick="openUserDetail('${f.name}')">${f.name.toLowerCase()}</span>`).join('');
-                if (!data.Page.followers.length) el.parentElement.style.display = 'none';
-            } catch (e) { }
-        }
-
-        async function loadUserFollowing(userId) {
-            const el = document.getElementById('user-following-list');
-            if (!el) return;
-            const q = `query($userId: Int) { Page(page:1, perPage:20) { following(userId:$userId) { id name avatar { large } } } }`;
-            try {
-                const data = await fetchAPI(q, { userId });
-                el.innerHTML = data.Page.following.map(f => `<span class="filter-chip" onclick="openUserDetail('${f.name}')">${f.name.toLowerCase()}</span>`).join('');
-                if (!data.Page.following.length) el.parentElement.style.display = 'none';
-            } catch (e) { }
-        }
-
         let userActivityPage = 1;
         let userFollowersPage = 1;
         let userFollowingPage = 1;
@@ -6671,7 +6982,18 @@
             const el = document.getElementById('user-activity-list');
             if (!el || !userId) return;
             try {
-                const actQ = `query($userId: Int, $page: Int) { Page(page:$page, perPage:10) { pageInfo { hasNextPage } activities(userId:$userId, type:MEDIA_LIST, sort:ID_DESC) { ... on ListActivity { id status progress createdAt media { id type title { english romaji } coverImage { large } } likeCount isLiked replies { id text createdAt user { id name avatar { large } } likeCount isLiked replyCount } } } } } }`;
+                const actQ = `query($userId:Int,$page:Int) {
+                    Page(page:$page,perPage:10) {
+                        pageInfo { hasNextPage }
+                        activities(userId:$userId,type:MEDIA_LIST,sort:ID_DESC) {
+                            ... on ListActivity {
+                                id status progress createdAt likeCount isLiked
+                                media { id type title { english romaji } coverImage { large } }
+                                replies { id text createdAt likeCount isLiked user { id name avatar { large } } }
+                            }
+                        }
+                    }
+                }`;
                 const actData = await fetchAPI(actQ, { userId, page: userActivityPage });
                 const acts = actData?.Page?.activities || [];
                 if (!append) el.innerHTML = '';
@@ -6745,9 +7067,11 @@
             const el = document.getElementById('user-followers-list');
             if (!el || !userId) return;
             try {
-                const q = `query($userId: Int, $page: Int) { User(id: $userId) { followers(page: $page, perPage: 12) { pageInfo { hasNextPage } nodes { id name avatar { large } } } } }`;
+                const q = `query($userId:Int!,$page:Int) { Page(page:$page,perPage:12) { pageInfo { hasNextPage } followers(userId:$userId) { id name avatar { large } } } }`;
                 const data = await fetchAPI(q, { userId, page: userFollowersPage });
-                const followers = data?.User?.followers?.nodes || [];
+                const followers = data?.Page?.followers || [];
+                const moreButton = document.getElementById('user-followers-more');
+                moreButton?.remove();
                 if (!append) el.innerHTML = '';
                 if (!followers.length && !append) {
                     el.innerHTML = '<div style="color:var(--text-dim);">no followers.</div>';
@@ -6755,12 +7079,13 @@
                 }
                 let html = '<div class="char-grid">';
                 followers.forEach(f => {
-                    html += `<div class="char-card" onclick="openUserDetail('${f.name}')"><img src="${f.avatar?.large || ''}" class="char-img"><div class="char-info"><div class="char-name">${f.name?.toLowerCase() || 'unknown'}</div><div class="char-role">follower</div></div></div>`;
+                    html += `<button type="button" class="char-card" data-user-name="${escapeHtml(f.name)}" style="text-align:left;color:inherit;font:inherit;"><img src="${escapeHtml(f.avatar?.large || '')}" class="char-img" alt=""><span class="char-info"><span class="char-name">${escapeHtml(f.name || 'unknown').toLowerCase()}</span><span class="char-role">follower</span></span></button>`;
                 });
                 html += '</div>';
-                el.innerHTML += html;
-                if (data?.User?.followers?.pageInfo?.hasNextPage) {
-                    el.innerHTML += `<button class="load-more-btn" onclick="loadMoreUserFollowers()">load more...</button>`;
+                el.insertAdjacentHTML('beforeend', html);
+                el.querySelectorAll('[data-user-name]').forEach(card => card.addEventListener('click', () => openUserDetail(card.dataset.userName)));
+                if (data?.Page?.pageInfo?.hasNextPage) {
+                    el.insertAdjacentHTML('beforeend', '<button class="load-more-btn" id="user-followers-more" onclick="loadMoreUserFollowers()">load more...</button>');
                 }
             } catch (e) { console.error('error loading followers:', e); }
         }
@@ -6771,9 +7096,11 @@
             const el = document.getElementById('user-following-list');
             if (!el || !userId) return;
             try {
-                const q = `query($userId: Int, $page: Int) { User(id: $userId) { following(page: $page, perPage: 12) { pageInfo { hasNextPage } nodes { id name avatar { large } } } } }`;
+                const q = `query($userId:Int!,$page:Int) { Page(page:$page,perPage:12) { pageInfo { hasNextPage } following(userId:$userId) { id name avatar { large } } } }`;
                 const data = await fetchAPI(q, { userId, page: userFollowingPage });
-                const following = data?.User?.following?.nodes || [];
+                const following = data?.Page?.following || [];
+                const moreButton = document.getElementById('user-following-more');
+                moreButton?.remove();
                 if (!append) el.innerHTML = '';
                 if (!following.length && !append) {
                     el.innerHTML = '<div style="color:var(--text-dim);">not following anyone.</div>';
@@ -6781,12 +7108,13 @@
                 }
                 let html = '<div class="char-grid">';
                 following.forEach(f => {
-                    html += `<div class="char-card" onclick="openUserDetail('${f.name}')"><img src="${f.avatar?.large || ''}" class="char-img"><div class="char-info"><div class="char-name">${f.name?.toLowerCase() || 'unknown'}</div><div class="char-role">following</div></div></div>`;
+                    html += `<button type="button" class="char-card" data-user-name="${escapeHtml(f.name)}" style="text-align:left;color:inherit;font:inherit;"><img src="${escapeHtml(f.avatar?.large || '')}" class="char-img" alt=""><span class="char-info"><span class="char-name">${escapeHtml(f.name || 'unknown').toLowerCase()}</span><span class="char-role">following</span></span></button>`;
                 });
                 html += '</div>';
-                el.innerHTML += html;
-                if (data?.User?.following?.pageInfo?.hasNextPage) {
-                    el.innerHTML += `<button class="load-more-btn" onclick="loadMoreUserFollowing()">load more...</button>`;
+                el.insertAdjacentHTML('beforeend', html);
+                el.querySelectorAll('[data-user-name]').forEach(card => card.addEventListener('click', () => openUserDetail(card.dataset.userName)));
+                if (data?.Page?.pageInfo?.hasNextPage) {
+                    el.insertAdjacentHTML('beforeend', '<button class="load-more-btn" id="user-following-more" onclick="loadMoreUserFollowing()">load more...</button>');
                 }
             } catch (e) { console.error('error loading following:', e); }
         }
@@ -8077,7 +8405,7 @@
                 content.innerHTML = '<div style="color:var(--text-dim);">loading studio...</div>'; panel.style.display = 'block';
             }
             const content = document.getElementById('detail-content');
-            const q = `query($id:Int,$page:Int){Studio(id:$id){id name isAnimationStudio favourites isFavourite siteUrl media(page:$page,perPage:24,sort:[START_DATE_DESC,ID]){pageInfo{hasNextPage}edges{isMainStudio node{id type title{english romaji}coverImage{large}startDate{year}}}}}}`;
+            const q = `query($id:Int,$page:Int){Studio(id:$id){id name isAnimationStudio favourites isFavourite siteUrl media(page:$page,perPage:24,sort:[START_DATE_DESC,ID]){pageInfo{hasNextPage total}edges{isMainStudio node{id type title{english romaji}coverImage{large}startDate{year}}}}}}`;
             try {
                 const d = await fetchAPI(q, { id: activeStudioDetailId, page });
                 const s = d?.Studio;
@@ -8086,11 +8414,10 @@
                     const m = edge.node;
                     if (!m) return '';
                     const title = m.title?.english || m.title?.romaji || 'unknown';
-                    return `<div class="metro-tile" style="background:var(--surface);" onclick="openDetailById(${m.id},'${m.type}')">
-                        <img src="${escapeHtml(m.coverImage?.large || '')}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;">
-                        <div class="metro-tile-title" style="position:relative;z-index:2;">${escapeHtml(title).toLowerCase()}</div>
-                        <div class="metro-tile-subtitle" style="position:relative;z-index:2;">${edge.isMainStudio ? 'main studio' : 'producer'}${m.startDate?.year ? ` · ${m.startDate.year}` : ''}</div>
-                    </div>`;
+                    return `<button class="studio-work-card" type="button" onclick="openDetailById(${m.id},'${m.type}')" aria-label="Open ${escapeHtml(title)}">
+                        <img src="${escapeHtml(m.coverImage?.large || '')}" alt="${escapeHtml(title)} cover" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">
+                        <span class="studio-work-caption"><span class="studio-work-title">${escapeHtml(title)}</span><span class="studio-work-subtitle">${edge.isMainStudio ? 'main studio' : 'producer'}${m.startDate?.year ? ` · ${m.startDate.year}` : ''}</span></span>
+                    </button>`;
                 }).join('');
                 if (append) {
                     document.getElementById('studio-works-grid')?.insertAdjacentHTML('beforeend', works);
@@ -8104,12 +8431,23 @@
                     } else moreButton?.remove();
                     return;
                 }
+                const previewImages = (s.media?.edges || []).slice(0,3).map(edge => {
+                    const media = edge.node;
+                    if (!media?.coverImage?.large) return '';
+                    const title = media.title?.english || media.title?.romaji || 'Studio work';
+                    return `<img src="${escapeHtml(media.coverImage.large)}" alt="${escapeHtml(title)} cover" loading="lazy" decoding="async">`;
+                }).join('');
                 content.innerHTML = `<div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
-                    <div style="max-width:1000px;margin:60px auto 0;padding:20px;">
-                        <div style="font-size:3rem;font-weight:100;color:var(--accent);margin-bottom:5px;">${escapeHtml(s.name || 'unknown').toLowerCase()}</div>
-                        <div style="color:var(--text-dim);font-size:14px;margin-bottom:20px;">${s.isAnimationStudio ? 'animation studio' : 'producer'} · ♥ ${s.favourites || 0}</div>
-                        <div class="panel" style="margin-bottom:20px;"><h3 style="color:var(--accent);font-weight:200;margin-bottom:10px;">studio details</h3><div>${s.isAnimationStudio ? 'animation production studio' : 'production company'}</div>${s.siteUrl ? `<a href="${escapeHtml(s.siteUrl)}" target="_blank" rel="noopener noreferrer" class="metro-btn" style="margin-top:12px;">open on anilist</a>` : ''}</div>
-                        <div class="panel"><h3 style="color:var(--accent);font-weight:200;margin-bottom:15px;">works</h3><div id="studio-works-grid" class="tile-grid">${works || '<div style="color:var(--text-dim);">no works listed.</div>'}</div>${s.media?.pageInfo?.hasNextPage ? '<button class="load-more-btn" id="studio-works-more" onclick="loadMoreStudioWorks()">load more works</button>' : ''}</div>
+                    <div class="studio-detail-shell">
+                        <div class="studio-detail-hero">
+                            <div><div class="studio-detail-title">${escapeHtml(s.name || 'unknown')}</div>
+                                <div class="studio-detail-meta">${s.isAnimationStudio ? 'Animation studio' : 'Production company'} · ♥ ${s.favourites || 0} favourites</div>
+                                ${s.siteUrl ? `<a href="${escapeHtml(s.siteUrl)}" target="_blank" rel="noopener noreferrer" class="metro-btn" style="margin-top:16px;">Open studio page</a>` : ''}
+                            </div>
+                            <div class="studio-preview-gallery" aria-label="Recent work covers">${previewImages || '<div class="library-empty">No cover art available</div>'}</div>
+                        </div>
+                        <section class="panel" style="margin-bottom:20px;"><h3 style="color:var(--accent);font-weight:500;margin-bottom:8px;">Studio details</h3><div>${s.isAnimationStudio ? 'Animation production studio' : 'Production company'} · ${s.media?.pageInfo?.total || (s.media?.edges?.length || 0)} works listed · ${s.media?.edges?.length || 0} shown</div></section>
+                        <section class="panel"><h3 style="color:var(--accent);font-weight:500;margin-bottom:15px;">Works and artwork</h3><div id="studio-works-grid" class="studio-work-grid">${works || '<div class="library-empty">No works listed.</div>'}</div>${s.media?.pageInfo?.hasNextPage ? '<button class="load-more-btn" id="studio-works-more" onclick="loadMoreStudioWorks()">load more works</button>' : ''}</section>
                         ${!isGuest ? `<button class="metro-btn small" data-favourite="${s.isFavourite ? 'true' : 'false'}" onclick="toggleFavourite(${s.id},'STUDIO',this)" style="margin-top:20px;">${s.isFavourite ? '♥ favourited' : '♡ favourite'}</button>` : ''}
                     </div>`;
             } catch(e) {
@@ -8234,9 +8572,12 @@
             // List display default
             const listDisplaySelect = document.getElementById('list-display-select');
             if (listDisplaySelect) {
-                const saved = localStorage.getItem('list_display') || 'grid';
+                const saved = libraryLayout === 'list' ? 'detail' : libraryLayout;
                 listDisplaySelect.value = saved;
-                listDisplaySelect.addEventListener('change', e => localStorage.setItem('list_display', e.target.value));
+                listDisplaySelect.addEventListener('change', e => {
+                    const layout = e.target.value === 'detail' ? 'list' : e.target.value;
+                    setLibraryLayout(layout, document.querySelector(`.library-layout-toggle [data-layout-choice="${layout}"]`));
+                });
             }
             // Calendar view
             const calendarViewSelect = document.getElementById('calendar-view-select');
@@ -8270,89 +8611,146 @@
             }
         }
 
-        // Wrap fetchAPI with cache layer
-        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks in milliseconds
+        // Cache query responses before requesting the network. Writes and Viewer lookups
+        // stay uncached; signed-in data is isolated by AniList user ID.
+        const API_CACHE_PREFIX = 'gql_v2_';
+        const API_CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+        const API_CACHE_MAX_ENTRIES = 90;
+        const API_CACHE_MAX_BYTES = 3 * 1024 * 1024;
+        let lastCacheFallbackToast = 0;
 
-        async function fetchAPIWithCache(query, variables = {}) {
-            const cacheKey = 'gql_' + btoa(unescape(encodeURIComponent(query + JSON.stringify(variables))));
+        function getApiCacheTtl(query) {
+            if (/^\s*(mutation|subscription)\b/i.test(query) || /\bViewer\b/.test(query)) return 0;
+            if (/airingSchedules/.test(query)) return 2 * 60 * 1000;
+            if (/MediaListCollection|notifications\s*\(|activities\s*\(\s*userId/.test(query)) return 4 * 60 * 1000;
+            if (/\b(Studio|Character|Staff)\s*\(/.test(query)) return 12 * 60 * 60 * 1000;
+            if (/media\s*\(\s*search/.test(query)) return 10 * 60 * 1000;
+            return 8 * 60 * 1000;
+        }
+
+        function getApiCacheKey(query, variables) {
+            const scope = accessToken && !isGuest ? `user_${currentUserId || 'pending'}_` : 'public_';
+            const request = encodeURIComponent(JSON.stringify([query, variables || {}]));
+            return API_CACHE_PREFIX + scope + btoa(unescape(request));
+        }
+
+        function readApiCache(key, query, variables, allowStale = false) {
+            const ttl = getApiCacheTtl(query);
+            if (!ttl) return null;
+            const legacyKey = 'gql_' + btoa(unescape(encodeURIComponent(query + JSON.stringify(variables || {}))));
+            const raw = localStorage.getItem(key) || localStorage.getItem(legacyKey);
+            if (!raw) return null;
             try {
-                const data = await fetchAPI(query, variables);
-                try { 
-                    localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
-                } catch(e) {}
-                return data;
-            } catch (e) {
-                const cached = localStorage.getItem(cacheKey);
-                if (cached) {
-                    try {
-                        const parsed = JSON.parse(cached);
-                        if (Date.now() - parsed.timestamp > twoWeeks) {
-                            // too old, treat as missing
-                            localStorage.removeItem(cacheKey);
-                        } else {
-                            showToast('offline: using cached data');
-                            return parsed.data;
-                        }
-                    } catch (err) {
-                        // if parsing fails, treat as missing
-                        localStorage.removeItem(cacheKey);
-                    }
+                const cached = JSON.parse(raw);
+                const age = Date.now() - Number(cached.timestamp || 0);
+                if (!cached.data || age < 0 || age > API_CACHE_MAX_AGE) {
+                    localStorage.removeItem(key);
+                    localStorage.removeItem(legacyKey);
+                    return null;
                 }
-                throw e;
+                if (age <= ttl || allowStale) return { data: cached.data, fresh: age <= ttl };
+            } catch (e) {
+                localStorage.removeItem(key);
+                localStorage.removeItem(legacyKey);
+            }
+            return null;
+        }
+
+        function pruneApiCache() {
+            const entries = [];
+            let totalBytes = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (!key?.startsWith(API_CACHE_PREFIX)) continue;
+                const raw = localStorage.getItem(key);
+                try {
+                    const cached = JSON.parse(raw);
+                    if (!cached.data || Date.now() - cached.timestamp > API_CACHE_MAX_AGE) {
+                        localStorage.removeItem(key);
+                        i--;
+                        continue;
+                    }
+                    const bytes = (key.length + (raw || '').length) * 2;
+                    totalBytes += bytes;
+                    entries.push({ key, timestamp: cached.timestamp, bytes });
+                } catch (e) {
+                    localStorage.removeItem(key);
+                    i--;
+                }
+            }
+            entries.sort((a, b) => a.timestamp - b.timestamp);
+            while (entries.length > API_CACHE_MAX_ENTRIES || totalBytes > API_CACHE_MAX_BYTES) {
+                const oldest = entries.shift();
+                if (!oldest) break;
+                localStorage.removeItem(oldest.key);
+                totalBytes -= oldest.bytes;
             }
         }
 
-        // Replace fetchAPI with cached version for offline resilience
+        function writeApiCache(key, data) {
+            const serialized = JSON.stringify({ data, timestamp: Date.now() });
+            if (serialized.length * 2 > API_CACHE_MAX_BYTES / 2) return;
+            try {
+                localStorage.setItem(key, serialized);
+            } catch (e) {
+                pruneApiCache();
+                try { localStorage.setItem(key, serialized); } catch (storageError) { return; }
+            }
+            pruneApiCache();
+        }
+
+        async function fetchAPIWithCache(query, variables = {}) {
+            return fetchAPI(query, variables);
+        }
+
+        function invalidateUserApiCache() {
+            if (!currentUserId) return;
+            const userPrefix = `${API_CACHE_PREFIX}user_${currentUserId}_`;
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key?.startsWith(userPrefix)) localStorage.removeItem(key);
+            }
+        }
+
         const _origFetchAPI = fetchAPI;
-        fetchAPI = async function(query, variables) {
-            const cacheKey = 'gql_' + btoa(unescape(encodeURIComponent(query + JSON.stringify(variables))));
+        fetchAPI = async function(query, variables = {}) {
+            const isMutation = /^\s*mutation\b/i.test(query);
+            const ttl = getApiCacheTtl(query);
+            if (!ttl) {
+                const data = await _origFetchAPI(query, variables);
+                if (isMutation) invalidateUserApiCache();
+                return data;
+            }
+            const cacheKey = getApiCacheKey(query, variables);
+            const cached = readApiCache(cacheKey, query, variables, true);
+            if (cached?.fresh) return cached.data;
             try {
                 const data = await _origFetchAPI(query, variables);
-                try { 
-                    localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
-                } catch(e) {}
+                writeApiCache(cacheKey, data);
                 return data;
             } catch (e) {
-                const cached = localStorage.getItem(cacheKey);
                 if (cached) {
-                    try {
-                        const parsed = JSON.parse(cached);
-                        if (Date.now() - parsed.timestamp > twoWeeks) {
-                            localStorage.removeItem(cacheKey);
-                        } else {
-                            showToast('offline: using cached data');
-                            return parsed.data;
-                        }
-                    } catch (err) {
-                        localStorage.removeItem(cacheKey);
+                    if (Date.now() - lastCacheFallbackToast > 15000) {
+                        lastCacheFallbackToast = Date.now();
+                        showToast('using saved anilist data');
                     }
+                    return cached.data;
                 }
                 throw e;
             }
         };
 
-        // Cache cleanup: remove entries older than two weeks
-        function cacheCleanup() {
-            const now = Date.now();
-            for (let i = 0; i < localStorage.length; i++) {
+        function clearApiCache() {
+            for (let i = localStorage.length - 1; i >= 0; i--) {
                 const key = localStorage.key(i);
-                if (key.startsWith('gql_')) {
-                    try {
-                        const cached = JSON.parse(localStorage.getItem(key));
-                        if (now - cached.timestamp > twoWeeks) {
-                            localStorage.removeItem(key);
-                        }
-                    } catch (e) {
-                        // if parsing fails, remove the corrupted entry
-                        localStorage.removeItem(key);
-                    }
-                }
+                if (key?.startsWith(API_CACHE_PREFIX) || key?.startsWith('gql_')) localStorage.removeItem(key);
             }
+            showToast('saved api data cleared');
         }
 
-        // Run cleanup on start and then every two weeks
+        function cacheCleanup() { pruneApiCache(); }
         cacheCleanup();
-        setInterval(cacheCleanup, twoWeeks);
+        setInterval(cacheCleanup, 60 * 60 * 1000);
 
         // ==========================================
         // DEEP-LINK SUPPORT
@@ -8446,7 +8844,10 @@
         if (!isGuest) {
             communityMode = 'following';
             const followingTab = document.querySelector('#community-pivots .pivot-item[data-mode="following"]');
-            if (followingTab) switchCommunityMode('following', followingTab);
+            document.querySelectorAll('#community-pivots .pivot-item').forEach(tab => tab.classList.toggle('active', tab === followingTab));
+            document.querySelectorAll('#community-pivots ~ .prog-list').forEach(feed => { feed.style.display = 'none'; });
+            const followingFeed = document.getElementById('following-feed');
+            if (followingFeed) followingFeed.style.display = 'grid';
         }
 
         // Dropdown toggle functions
