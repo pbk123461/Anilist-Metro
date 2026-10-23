@@ -465,6 +465,56 @@
             transform: scale(0.88);
         }
 
+        #controller-hud {
+            position: fixed;
+            left: 50%;
+            bottom: 88px;
+            z-index: 11000;
+            display: none;
+            align-items: center;
+            gap: 14px;
+            max-width: calc(100vw - 32px);
+            padding: 9px 14px;
+            border: 1px solid var(--glass-line);
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--surface) 92%, transparent);
+            color: var(--text-main);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .35);
+            transform: translateX(-50%);
+            font: 500 12px/1.2 "Segoe UI", system-ui, sans-serif;
+            white-space: nowrap;
+            pointer-events: none;
+            backdrop-filter: blur(12px);
+        }
+
+        #controller-hud.is-visible { display: flex; }
+        .controller-hud-prompt { display: inline-flex; align-items: center; gap: 6px; }
+        .controller-hud-button {
+            min-width: 22px;
+            height: 22px;
+            padding: 0 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--text-dim);
+            border-radius: 6px;
+            color: var(--text-main);
+            font: 600 11px/1 "Segoe UI", system-ui, sans-serif;
+        }
+        .controller-hud-status { color: var(--text-dim); }
+        .gamepad-focused {
+            outline: 3px solid var(--accent) !important;
+            outline-offset: 3px !important;
+            box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 28%, transparent) !important;
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 700px) {
+            #controller-hud { bottom: 88px; gap: 8px; padding: 8px 10px; font-size: 10px; }
+            #controller-hud .controller-hud-status:last-child { display: none; }
+        }
+
         /* =========================================
            START SCREEN GRID
            ========================================= */
@@ -827,7 +877,9 @@
         .library-group .load-more-btn { grid-column:1/-1; }
         .library-explorer[data-layout="compact"] .library-group .tile-grid { grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); grid-auto-rows:185px; gap:10px; }
         .library-explorer[data-layout="list"] .library-group .tile-grid { grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); grid-auto-rows:110px; gap:10px; }
-        .library-explorer[data-layout="list"] .flip-tile-front img { width:76px; }
+        .library-explorer[data-layout="list"] .flip-tile-front img { width:100%; height:100%; object-fit:cover; opacity:.76; }
+        .library-explorer[data-layout="list"] .flip-tile-front::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,rgba(0,0,0,.76),rgba(0,0,0,.2) 80%); }
+        .library-explorer[data-layout="list"] .tile-label { top:50%; bottom:auto; left:84px; right:10px; transform:translateY(-50%); background:transparent; padding:0; font-size:13px; }
         .library-empty { color:var(--text-dim); padding:10px 0 20px; }
         .login-required-card { max-width:560px; margin:12px 0; padding:22px; border:1px solid var(--surface-hover); border-left:3px solid var(--accent); border-radius:4px; background:var(--surface); color:var(--text-main); }
         .login-required-card p { margin:8px 0 16px; color:var(--text-dim); line-height:1.5; }
@@ -1224,7 +1276,8 @@
         /* Timeline (GitHub-like) for user activity */
         #user-activity-list {
             display: block;
-            max-width: 1000px;
+            width: 100%;
+            max-width: none;
         }
 
         .timeline-item {
@@ -1821,7 +1874,9 @@
         }
 
         .airing-meta-badge {
-            background: var(--surface-hover);
+            background: rgba(0, 0, 0, 0.82);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.16);
             padding: 6px 10px;
             font-size: 0.85rem;
             margin-bottom: 4px;
@@ -3836,6 +3891,9 @@
                 in</button>
             <button class="metro-btn" onclick="guestMode()"><i class="fa-solid fa-user-secret"></i> guest mode</button>
         </div>
+        <div style="position:absolute;bottom:28px;left:10%;right:10%;display:flex;justify-content:center;">
+            <button class="metro-btn" type="button" onclick="openStableVersion()"><i class="fa-solid fa-shield-halved"></i> use stable version</button>
+        </div>
     </div>
 
     <div id="detail-panel">
@@ -3851,6 +3909,13 @@
     <div class="offline-banner" id="offline-banner">offline — showing cached data</div>
     <div id="anime-hover-wallpaper" aria-hidden="true"><img id="anime-hover-wallpaper-image" alt=""></div>
     <div id="toast"></div>
+    <div id="controller-hud" role="status" aria-live="polite" aria-label="controller controls">
+        <span class="controller-hud-prompt"><kbd id="controller-confirm-label" class="controller-hud-button">A</kbd> select</span>
+        <span class="controller-hud-prompt"><kbd id="controller-back-label" class="controller-hud-button">B</kbd> back</span>
+        <span class="controller-hud-prompt"><kbd id="controller-prev-label" class="controller-hud-button">LB</kbd> prev section</span>
+        <span class="controller-hud-prompt"><kbd id="controller-next-label" class="controller-hud-button">RB</kbd> next section</span>
+        <span class="controller-hud-status">d-pad / stick move</span>
+    </div>
 
     <!-- Massive parallax hero bg text -->
     <div class="top-blur-layer" id="top-blur-layer"></div>
@@ -4312,13 +4377,17 @@
                             <input type="range" id="filter-score-max" min="0" max="100" value="100" onchange="applySearchFilters()" style="width:80px;">
                             <span id="score-max-label" class="range-value" style="width:30px;">100</span>
                         </div>
-                        <div style="display:flex;gap:4px;align-items:center;">
+                        <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
                             <span style="font-size:12px;color:var(--text-dim);margin-right:4px;">year</span>
                             <button class="metro-btn small" onclick="showYearPicker('start')" style="font-size:10px;padding:2px 6px;">from</button>
                             <span id="year-start-display" style="min-width:36px;text-align:center;background:var(--surface-hover);padding:2px 4px;font-size:11px;">any</span>
                             <span style="color:var(--text-dim);font-size:11px;">-</span>
                             <button class="metro-btn small" onclick="showYearPicker('end')" style="font-size:10px;padding:2px 6px;">to</button>
                             <span id="year-end-display" style="min-width:36px;text-align:center;background:var(--surface-hover);padding:2px 4px;font-size:11px;">any</span>
+                        </div>
+                        <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+                            <span style="font-size:12px;color:var(--text-dim);">premiere month</span>
+                            <button id="discover-month-button" class="metro-btn small" type="button" onclick="showDiscoverMonthPicker()" style="font-size:10px;padding:2px 6px;">any month</button>
                         </div>
                         <div style="display:flex;gap:6px;align-items:center;margin-left:auto;">
                             <label class="switch" style="margin:0;">
@@ -4543,6 +4612,8 @@
                                             class="fa-solid fa-plus"></i> choose wallpaper</label>
                                     <button type="button" class="metro-btn small" onclick="resetWallpaper()"><i
                                             class="fa-solid fa-trash"></i> clear wallpaper</button>
+                                    <button type="button" class="metro-btn small" onclick="extractWallpaperAccent()"><i
+                                            class="fa-solid fa-eye-dropper"></i> take accent color from wallpaper</button>
                                 </div>
                                 <input type="file" id="wallpaper-input" accept="image/*" style="display:none"
                                     onchange="handleWallpaperUpload(event)">
@@ -4651,6 +4722,21 @@
                             <button class="metro-btn primary" type="button" onclick="openStableVersion()">
                                 <i class="fa-solid fa-shield-halved"></i> open stable version
                             </button>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">controller support</div>
+                            <div class="settings-item-sub" id="controller-navigation-help">navigate the app with a connected xbox or playstation controller. button hints appear when a controller is connected.</div>
+                            <label class="switch" for="controller-navigation-toggle" role="switch" tabindex="0" aria-checked="true">
+                                <input type="checkbox" id="controller-navigation-toggle" aria-describedby="controller-navigation-help">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">controller navigation</span>
+                            <div class="settings-item-sub" style="margin-top:12px;">button prompt style</div>
+                            <select class="metro-select" id="controller-prompt-style" aria-label="controller button prompt style">
+                                <option value="auto">automatic</option>
+                                <option value="xbox">xbox</option>
+                                <option value="playstation">playstation</option>
+                            </select>
                         </div>
                         <div class="settings-item">
                             <div class="settings-item-header">default home tab</div>
@@ -4784,6 +4870,26 @@
         </div>
     </div>
 
+    <div id="discover-month-picker" role="dialog" aria-modal="true" aria-labelledby="discover-month-picker-title" onclick="if(event.target===this)hideDiscoverMonthPicker()" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;justify-content:center;align-items:center;z-index:10000;padding:20px;">
+        <div style="background:var(--surface);padding:22px;width:min(100%,390px);max-height:90vh;overflow-y:auto;border:1px solid var(--surface-hover);">
+            <h3 id="discover-month-picker-title" style="text-align:center;margin:0 0 8px;color:var(--accent);font-weight:300;font-size:1.5rem;">select premiere month</h3>
+            <p style="text-align:center;color:var(--text-dim);font-size:12px;margin:0 0 14px;">choose any day in the month you want to browse</p>
+            <div class="airing-calendar-panel" style="max-width:100%;">
+                <div class="airing-calendar-header">
+                    <button class="metro-btn small" type="button" onclick="shiftDiscoverCalendarMonth(-1)" aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
+                    <div class="airing-month-label" id="discover-month-label"></div>
+                    <button class="metro-btn small" type="button" onclick="shiftDiscoverCalendarMonth(1)" aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div class="airing-calendar" id="discover-month-calendar"></div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">
+                <button class="metro-btn" type="button" onclick="hideDiscoverMonthPicker()" style="flex:1;">cancel</button>
+                <button class="metro-btn" type="button" onclick="clearDiscoverMonthSelection()" style="flex:1;">any month</button>
+                <button id="discover-month-apply" class="metro-btn primary" type="button" onclick="applyDiscoverMonthSelection()" style="flex:1;" disabled>apply</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
 
     <script>
@@ -4815,6 +4921,10 @@
         let studioWorksPage = 1;
         let yearStart = null;
         let yearEnd = null;
+        let discoverSelectedDate = null;
+        let discoverPickerDate = new Date();
+        let discoverPendingDate = null;
+        let discoverClearMonthRequested = false;
 
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -4913,6 +5023,9 @@
             document.getElementById('year-picker').style.display = 'none';
         }
         function selectYear(y) {
+            discoverSelectedDate = null;
+            const monthButton = document.getElementById('discover-month-button');
+            if (monthButton) monthButton.textContent = 'any month';
             if (yearPickerMode === 'start') {
                 yearStart = y;
                 document.getElementById('year-start-display').textContent = y || 'any';
@@ -4923,6 +5036,76 @@
         }
         function applyYearRange() {
             hideYearPicker();
+            applySearchFilters();
+        }
+        function showDiscoverMonthPicker() {
+            discoverPendingDate = discoverSelectedDate ? new Date(discoverSelectedDate) : null;
+            discoverPickerDate = discoverSelectedDate ? new Date(discoverSelectedDate) : new Date();
+            discoverClearMonthRequested = false;
+            renderDiscoverCalendar();
+            document.getElementById('discover-month-picker').style.display = 'flex';
+        }
+        function hideDiscoverMonthPicker() {
+            const picker = document.getElementById('discover-month-picker');
+            if (picker) picker.style.display = 'none';
+            discoverPendingDate = null;
+        }
+        function renderDiscoverCalendar() {
+            const label = document.getElementById('discover-month-label');
+            if (label) label.textContent = discoverPickerDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+            const applyButton = document.getElementById('discover-month-apply');
+            if (applyButton) applyButton.disabled = !discoverPendingDate && !discoverClearMonthRequested;
+            renderCalendarGrid(
+                document.getElementById('discover-month-calendar'),
+                discoverPickerDate,
+                discoverPendingDate,
+                selectDiscoverPickerDate
+            );
+        }
+        function shiftDiscoverCalendarMonth(offset) {
+            discoverPickerDate = new Date(discoverPickerDate.getFullYear(), discoverPickerDate.getMonth() + offset, 1);
+            if (discoverPendingDate && (discoverPendingDate.getFullYear() !== discoverPickerDate.getFullYear() || discoverPendingDate.getMonth() !== discoverPickerDate.getMonth())) {
+                discoverPendingDate = null;
+            }
+            discoverClearMonthRequested = false;
+            renderDiscoverCalendar();
+        }
+        function selectDiscoverPickerDate(date) {
+            discoverPendingDate = new Date(date);
+            discoverPickerDate = new Date(date);
+            discoverClearMonthRequested = false;
+            renderDiscoverCalendar();
+        }
+        function clearDiscoverMonthSelection() {
+            discoverPendingDate = null;
+            discoverClearMonthRequested = true;
+            renderDiscoverCalendar();
+        }
+        function applyDiscoverMonthSelection() {
+            if (!discoverPendingDate && !discoverClearMonthRequested) return;
+            discoverSelectedDate = discoverPendingDate ? new Date(discoverPendingDate) : null;
+            const monthButton = document.getElementById('discover-month-button');
+            if (discoverSelectedDate) {
+                const selectedYear = discoverSelectedDate.getFullYear();
+                yearStart = selectedYear;
+                yearEnd = selectedYear;
+                document.getElementById('year-start-display').textContent = selectedYear;
+                document.getElementById('year-end-display').textContent = selectedYear;
+                monthButton.textContent = discoverSelectedDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }).toLowerCase();
+                searchFilters.season = '';
+                const seasonButton = document.getElementById('season-btn');
+                if (seasonButton) seasonButton.innerHTML = 'all seasons <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
+                document.querySelectorAll('#season-dropdown .metro-select-opt').forEach(option => {
+                    const selected = option.dataset.value === '';
+                    option.classList.toggle('selected', selected);
+                    option.setAttribute('aria-selected', String(selected));
+                });
+            } else {
+                monthButton.textContent = 'any month';
+            }
+            document.getElementById('discover-month-picker').style.display = 'none';
+            discoverPendingDate = null;
+            discoverClearMonthRequested = false;
             applySearchFilters();
         }
         let isGuest = false;
@@ -4949,18 +5132,20 @@
         // FLIP TILES
         // ==========================================
         function toggleBlur(el) { el.classList.toggle('unblurred'); el.parentElement.parentElement.parentElement.classList.toggle('blur-unblurred'); }
-        function createFlipTile(id, type, coverImage, title, fullTitle, score, status, progressStr, isAdult = false) {
+        function createFlipTile(id, type, coverImage, title, fullTitle, score, status, progressStr, isAdult = false, bannerImage = '') {
             const blurClass = (isAdult && !showAdultContent) ? 'blur-adult' : '';
             const safeTitle = escapeHtml(title);
             const safeFullTitle = escapeHtml(fullTitle);
             const safeCover = escapeHtml(coverImage);
+            const safeBanner = escapeHtml(bannerImage || coverImage);
+            const displayImage = libraryLayout === 'list' ? safeBanner : safeCover;
             const safeStatus = escapeHtml(status || '');
             const safeProgress = escapeHtml(progressStr || '');
             return `
     <div class="tile flip-tile" onclick="openDetailById(${id},'${type}')">
         <div class="flip-tile-inner">
             <div class="flip-tile-front">
-                <img src="${safeCover}" alt="${safeTitle} cover" loading="lazy" decoding="async" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''} onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/media/placeholder_large.jpg';"/>
+                <img src="${displayImage}" data-cover-src="${safeCover}" data-banner-src="${safeBanner}" alt="${safeTitle} artwork" loading="lazy" decoding="async" class="${blurClass}" ${blurClass ? `onclick="event.stopPropagation(); toggleBlur(this)"` : ''} onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/media/placeholder_large.jpg';"/>
                 ${score ? `<div class="tile-score">${score}</div>` : ''}
                 ${status ? `<div class="tile-badge">${safeStatus}</div>` : ''}
                 <div class="tile-label">${safeTitle.toLowerCase()}</div>
@@ -5365,7 +5550,7 @@
             if (currentMode === 'system') applyThemeMode('system');
         });
 
-        function setAccentColor(color) {
+        function setAccentColor(color, toastMessage = 'accent updated') {
             document.documentElement.style.setProperty('--accent', color);
             document.documentElement.style.setProperty('--accent-rgb', hexToRgb(color));
             applyAccentContrast(color);
@@ -5374,7 +5559,80 @@
             const cb = document.getElementById('color-preview-box'); if (cb) cb.style.background = color;
             const cd = document.getElementById('color-hex-display'); if (cd) cd.innerText = color;
             updateThemeSubtitle();
-            showToast('accent updated');
+            showToast(toastMessage);
+        }
+
+        function extractWallpaperAccent() {
+            if (!wallpaperDataUrl) {
+                showToast('choose a wallpaper first');
+                return;
+            }
+
+            const image = new Image();
+            image.onload = () => {
+                try {
+                    const size = 56;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    const context = canvas.getContext('2d', { willReadFrequently: true });
+                    if (!context) throw new Error('canvas unavailable');
+                    context.drawImage(image, 0, 0, size, size);
+
+                    const pixels = context.getImageData(0, 0, size, size).data;
+                    const buckets = Array.from({ length: 24 }, () => ({ weight: 0, hue: 0, saturation: 0, lightness: 0 }));
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        if (pixels[i + 3] < 200) continue;
+                        const red = pixels[i] / 255, green = pixels[i + 1] / 255, blue = pixels[i + 2] / 255;
+                        const max = Math.max(red, green, blue), min = Math.min(red, green, blue);
+                        const delta = max - min;
+                        const lightness = (max + min) / 2;
+                        if (delta < 0.08 || lightness < 0.08 || lightness > 0.94) continue;
+
+                        let hue = 0;
+                        if (max === red) hue = 60 * (((green - blue) / delta) % 6);
+                        else if (max === green) hue = 60 * ((blue - red) / delta + 2);
+                        else hue = 60 * ((red - green) / delta + 4);
+                        if (hue < 0) hue += 360;
+                        const saturation = delta / (1 - Math.abs(2 * lightness - 1));
+                        if (saturation < 0.22) continue;
+
+                        const weight = saturation * (1 - Math.abs(lightness - 0.52) * 0.45);
+                        const bucket = buckets[Math.floor(hue / 15) % buckets.length];
+                        bucket.weight += weight;
+                        bucket.hue += hue * weight;
+                        bucket.saturation += saturation * weight;
+                        bucket.lightness += lightness * weight;
+                    }
+
+                    const dominant = buckets.reduce((best, bucket) => bucket.weight > best.weight ? bucket : best, { weight: 0 });
+                    if (!dominant.weight) {
+                        showToast('wallpaper has no clear accent color');
+                        return;
+                    }
+
+                    const hue = dominant.hue / dominant.weight;
+                    const saturation = Math.max(0.58, Math.min(0.9, dominant.saturation / dominant.weight));
+                    const lightness = Math.max(0.45, Math.min(0.58, dominant.lightness / dominant.weight));
+                    const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
+                    const secondary = chroma * (1 - Math.abs((hue / 60) % 2 - 1));
+                    const offset = lightness - chroma / 2;
+                    let rgb;
+                    if (hue < 60) rgb = [chroma, secondary, 0];
+                    else if (hue < 120) rgb = [secondary, chroma, 0];
+                    else if (hue < 180) rgb = [0, chroma, secondary];
+                    else if (hue < 240) rgb = [0, secondary, chroma];
+                    else if (hue < 300) rgb = [secondary, 0, chroma];
+                    else rgb = [chroma, 0, secondary];
+                    const color = '#' + rgb.map(channel => Math.round((channel + offset) * 255).toString(16).padStart(2, '0')).join('');
+                    setAccentColor(color, 'accent sampled from wallpaper');
+                } catch (error) {
+                    console.error('could not sample wallpaper accent:', error);
+                    showToast('could not sample wallpaper color');
+                }
+            };
+            image.onerror = () => showToast('could not load wallpaper to sample its color');
+            image.src = wallpaperDataUrl;
         }
 
         function updateThemeSubtitle() {
@@ -6448,8 +6706,7 @@
             label.innerText = airingSelectedDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
         }
 
-        function buildAiringCalendar(date) {
-            const calendar = document.getElementById('airing-calendar');
+        function renderCalendarGrid(calendar, date, selectedDate, onSelect) {
             if (!calendar) return;
             const year = date.getFullYear();
             const month = date.getMonth();
@@ -6478,16 +6735,25 @@
                 const cell = document.createElement('div');
                 cell.className = 'day-cell current';
                 cell.textContent = day;
-                const selectedDate = new Date(year, month, day);
-                if (selectedDate.toDateString() === airingSelectedDate.toDateString()) {
+                const cellDate = new Date(year, month, day);
+                if (selectedDate && cellDate.toDateString() === selectedDate.toDateString()) {
                     cell.classList.add('selected');
                 }
-                if (selectedDate.toDateString() === new Date().toDateString()) {
+                if (cellDate.toDateString() === new Date().toDateString()) {
                     cell.classList.add('today');
                 }
-                cell.addEventListener('click', () => selectAiringDate(selectedDate));
+                cell.addEventListener('click', () => onSelect(cellDate));
                 calendar.appendChild(cell);
             }
+        }
+
+        function buildAiringCalendar(date) {
+            renderCalendarGrid(
+                document.getElementById('airing-calendar'),
+                date,
+                airingSelectedDate,
+                selectAiringDate
+            );
         }
 
         function selectAiringDate(date) {
@@ -6591,7 +6857,7 @@
         async function loadLibrary(mediaType) {
             if (isGuest || !currentUserId) { renderLibrary(currentLibStatus); return; }
             try {
-                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status isCustomList entries { score(format:POINT_10) progress updatedAt media { id type format title { english romaji } coverImage { large } episodes chapters status genres countryOfOrigin startDate { year } tags { name } } } } } }`;
+                const q = `query ($userId:Int,$type:MediaType) { MediaListCollection(userId:$userId,type:$type) { lists { name status isCustomList entries { score(format:POINT_10) progress updatedAt media { id type format title { english romaji } coverImage { large } bannerImage episodes chapters status genres countryOfOrigin startDate { year } tags { name } } } } } }`;
                 const data = await fetchAPI(q, { userId: currentUserId, type: mediaType });
                 allListsData[mediaType] = {};
                 libraryGroups[mediaType] = [];
@@ -6843,6 +7109,10 @@
                 const explorer = document.getElementById(id);
                 if (explorer) explorer.dataset.layout = layout;
             });
+            document.querySelectorAll('.library-explorer .flip-tile-front img').forEach(image => {
+                const source = layout === 'list' ? image.dataset.bannerSrc : image.dataset.coverSrc;
+                if (source && image.getAttribute('src') !== source) image.setAttribute('src', source);
+            });
             const displaySetting = document.getElementById('list-display-select');
             if (displaySetting) displaySetting.value = layout === 'list' ? 'detail' : layout;
         }
@@ -6866,7 +7136,7 @@
                 const total = (currentMediaType === 'ANIME' ? media.episodes : media.chapters) || '?';
                 const progress = entry.progress || 0;
                 const badge = group.status === 'COMPLETED' ? (total === '?' ? 'done' : `${total}/${total}`) : (group.status === 'CURRENT' || group.status === 'REPEATING' ? `${progress}${total !== '?' ? `/${total}` : ''}` : '');
-                return createFlipTile(media.id, currentMediaType, media.coverImage?.large || '', title, title, entry.score, badge, `progress: ${progress} / ${total}`);
+                return createFlipTile(media.id, currentMediaType, media.coverImage?.large || '', title, title, entry.score, badge, `progress: ${progress} / ${total}`, false, media.bannerImage || '');
             }).join('');
             if (markup) tileGrid.insertAdjacentHTML('beforeend', markup);
             details.dataset.count = String(next.length);
@@ -7015,8 +7285,8 @@
             const startYear = Number(yearStart || 0);
             const endYear = Number(yearEnd || 0);
 
-            if (season) variables.season = season;
-            const selectedYear = startYear || endYear;
+            if (season && !discoverSelectedDate) variables.season = season;
+            const selectedYear = discoverSelectedDate?.getFullYear() || startYear || endYear;
             if (selectedYear) variables.seasonYear = selectedYear;
             if (format) variables.format = format;
             if (status) variables.status = status;
@@ -7024,8 +7294,16 @@
             if (country) variables.countryOfOrigin = country;
             if (scoreMin > 0) variables.averageScore_greater = scoreMin - 1;
             if (scoreMax < 100) variables.averageScore_lesser = scoreMax + 1;
-            if (startYear) variables.startDate_greater = (startYear - 1) * 10000 + 1231;
-            if (endYear) variables.startDate_lesser = (endYear + 1) * 10000;
+            if (discoverSelectedDate) {
+                const monthStart = discoverSelectedDate.getFullYear() * 10000 + (discoverSelectedDate.getMonth() + 1) * 100;
+                const nextMonth = new Date(discoverSelectedDate.getFullYear(), discoverSelectedDate.getMonth() + 1, 1);
+                const nextMonthStart = nextMonth.getFullYear() * 10000 + (nextMonth.getMonth() + 1) * 100 + 1;
+                variables.startDate_greater = monthStart;
+                variables.startDate_lesser = nextMonthStart;
+            } else {
+                if (startYear) variables.startDate_greater = (startYear - 1) * 10000 + 1231;
+                if (endYear) variables.startDate_lesser = (endYear + 1) * 10000;
+            }
             if (selectedGenres.length) variables.genre_in = selectedGenres;
             if (selectedTags.length) variables.tag_in = selectedTags;
             if (selectedTags.length && minTagPercent > 0) variables.minimumTagRank = minTagPercent;
@@ -7072,6 +7350,11 @@
 
         function setFilter(name, value, label) {
             if (!Object.prototype.hasOwnProperty.call(searchFilters, name)) return;
+            if (name === 'season' && value && discoverSelectedDate) {
+                discoverSelectedDate = null;
+                const monthButton = document.getElementById('discover-month-button');
+                if (monthButton) monthButton.textContent = 'any month';
+            }
             searchFilters[name] = value;
             const button = document.getElementById(`${name}-btn`);
             if (button) button.innerHTML = `${escapeHtml(label)} <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>`;
@@ -7088,7 +7371,11 @@
             if (!event.target.closest('.metro-select-wrap')) closeMetroSelects();
         });
         document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') closeMetroSelects();
+            if (event.key === 'Escape') {
+                closeMetroSelects();
+                hideYearPicker();
+                hideDiscoverMonthPicker();
+            }
             if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.metro-select-opt')) {
                 event.preventDefault();
                 event.target.click();
@@ -7497,7 +7784,7 @@
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading user list...</div>'; panel.style.display = 'block';
 
-            const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name status isCustomList entries { status score(format:POINT_10) progress updatedAt media { id type format title { english romaji } coverImage { large } episodes chapters status genres countryOfOrigin startDate { year } tags { name } } } } } }`;
+            const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name status isCustomList entries { status score(format:POINT_10) progress updatedAt media { id type format title { english romaji } coverImage { large } bannerImage episodes chapters status genres countryOfOrigin startDate { year } tags { name } } } } } }`;
             try {
                 const data = await fetchAPI(q, { userId, type });
                 viewedUserLibraryType = type;
@@ -7557,7 +7844,7 @@
             tileGrid.insertAdjacentHTML('beforeend',next.slice(rendered).map(entry=>{
                 const media=entry.media,title=libraryEntryTitle(entry),total=(viewedUserLibraryType==='ANIME'?media.episodes:media.chapters)||'?';
                 const progress=entry.progress||0,badge=entry.status==='COMPLETED'?(total==='?'?'done':`${total}/${total}`):`${progress}${total!=='?'?`/${total}`:''}`;
-                return createFlipTile(media.id,media.type||viewedUserLibraryType,media.coverImage?.large||'',title,title,entry.score,badge,`progress: ${progress} / ${total}`);
+                return createFlipTile(media.id,media.type||viewedUserLibraryType,media.coverImage?.large||'',title,title,entry.score,badge,`progress: ${progress} / ${total}`,false,media.bannerImage||'');
             }).join(''));
             details.dataset.count=String(next.length);details.dataset.rendered='true';
             more.hidden=next.length>=group.filteredEntries.length;
@@ -7892,7 +8179,6 @@
         Media(id:$id) {
             id title { english romaji } coverImage { extraLarge large } bannerImage description(asHtml:true) format status episodes chapters averageScore isAdult genres startDate { year }
             trailer { id site thumbnail }
-            studios(page:1,perPage:10) { nodes { id name isAnimationStudio isFavourite } }
             relations { edges { relationType(version:2) node { id title { english romaji } type coverImage { large } } } }
             characters(sort: [ROLE, RELEVANCE, ID], perPage: 16) {
                 pageInfo { total }
@@ -8031,11 +8317,13 @@
         // ==========================================
         // SUBVIEWS (Characters, Staff, Reviews)
         // ==========================================
-        function showSubview(type) {
+        async function showSubview(type) {
             const main = document.getElementById('metro-hub-main');
             const sub = document.getElementById('subview-panel');
             const m = currentMediaCache;
             if (!main || !sub || !m) return;
+            const viewToken = Number(sub.dataset.requestToken || 0) + 1;
+            sub.dataset.requestToken = String(viewToken);
             let contentHtml = '', title = '';
             const bannerImg = m.bannerImage || m.coverImage.extraLarge;
             const animeTitle = m.title.english || m.title.romaji;
@@ -8089,6 +8377,22 @@
                 contentHtml = bannerBase.replace('{SUBTITLE}', 'community reviews') + `<div>${reviews || '<div style="color:var(--text-dim);">no reviews found.</div>'}</div>`;
             } else if (type === 'info') {
                 title = 'media info';
+                if (!m.studiosLoaded) {
+                    main.classList.add('hidden');
+                    sub.classList.add('active');
+                    sub.innerHTML = `<div class="subview-header" style="padding-top:10px;"><button class="btn-back" onclick="hideSubview()"><i class="fa-solid fa-arrow-left"></i></button><div class="subview-title">${title}</div></div><p style="color:var(--text-dim);padding:20px;">loading studio details…</p>`;
+                    try {
+                        const studiosQuery = `query ($id: Int) { Media(id: $id) { studios(isMain: true) { nodes { id name isAnimationStudio isFavourite } } } }`;
+                        const studioData = await fetchAPI(studiosQuery, { id: m.id });
+                        if (currentMediaCache !== m || sub.dataset.requestToken !== String(viewToken)) return;
+                        m.studios = studioData?.Media?.studios || { nodes: [] };
+                    } catch (error) {
+                        console.warn('Studio details unavailable; keeping the media viewer open.', error);
+                        m.studios = { nodes: [] };
+                    }
+                    m.studiosLoaded = true;
+                    if (currentMediaCache !== m || sub.dataset.requestToken !== String(viewToken)) return;
+                }
                 const studioNodes = m.studios?.nodes || [];
                 const studios = studioNodes.length ? studioNodes.map(s => `<button class="filter-chip" type="button" onclick="openStudioDetail(${s.id})">${escapeHtml(s.name).toLowerCase()}${s.isAnimationStudio ? '' : ' · producer'}</button>`).join(' ') : 'unknown';
                 contentHtml = `
@@ -8147,7 +8451,7 @@
         function hideSubview() {
             const main = document.getElementById('metro-hub-main');
             const sub = document.getElementById('subview-panel');
-            if (main && sub) { sub.classList.remove('active'); main.classList.remove('hidden'); }
+            if (main && sub) { sub.dataset.requestToken = String(Number(sub.dataset.requestToken || 0) + 1); sub.classList.remove('active'); main.classList.remove('hidden'); }
         }
 
         async function openFullReview(reviewId) {
@@ -9732,6 +10036,266 @@
             iframe.src = '';
             Sfx.play('back');
         }
+
+        // Gamepad navigation follows the standard browser mapping shared by Xbox and PlayStation pads.
+        let controllerNavigationEnabled = localStorage.getItem('controller_navigation') !== 'false';
+        let controllerPromptStyle = ['auto', 'xbox', 'playstation'].includes(localStorage.getItem('controller_prompt_style'))
+            ? localStorage.getItem('controller_prompt_style') : 'auto';
+        let connectedGamepadIndex = null;
+        let controllerFrame = 0;
+        let controllerLastMove = 0;
+        let controllerLastDirection = '';
+        let controllerPreviousButtons = [];
+        let controllerFocusedElement = null;
+        let controllerHudStyle = '';
+
+        const CONTROLLER_FOCUSABLE = [
+            'button:not(:disabled)', 'a[href]', 'input:not(:disabled)', 'select:not(:disabled)', 'textarea:not(:disabled)',
+            '[role="button"]', '[role="switch"]', '[tabindex]:not([tabindex="-1"])', '[onclick]', 'summary',
+            '.detail-close', '.editor-close', '.btn-back', '.btn-back-text', '.wp-setting-item', '.status-btn', '.feed-tab', '.mts-btn', '.anime-poster', '.calendar-day',
+            '.nav-item', '.mobile-nav-item', '.metro-tile-start',
+            '.tile', '.browse-card', '.airing-tile', '.library-card', '.trending-tile', '.pivot-item', '.prog-item',
+            '.filter-chip', '.wide-info-tile', '.inbox-item'
+        ].join(',');
+
+        function controllerVisible(element) {
+            if (!element || !element.isConnected || element.closest('[aria-hidden="true"]')) return false;
+            const style = getComputedStyle(element);
+            return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0
+                && element.getClientRects().length > 0 && !element.disabled;
+        }
+
+        function controllerNavigationRoot() {
+            const visible = selector => {
+                const element = document.querySelector(selector);
+                return element && controllerVisible(element) ? element : null;
+            };
+            return visible('#video-subview.active')
+                || visible('#media-editor-overlay.open')
+                || visible('#library-list-manager.open')
+                || (document.getElementById('detail-panel')?.style.display !== 'none' && document.getElementById('detail-panel')?.style.display ? document.getElementById('detail-panel') : null)
+                || (document.getElementById('discover-month-picker')?.style.display === 'flex' ? document.getElementById('discover-month-picker') : null)
+                || (document.getElementById('year-picker')?.style.display === 'flex' ? document.getElementById('year-picker') : null)
+                || (document.getElementById('settings-subview-container')?.style.display !== 'none'
+                    ? document.querySelector('.settings-subview.active') : null)
+                || visible('#profile-dropdown.open .dropdown-content')
+                || visible('#login-overlay')
+                || document.querySelectorAll('.header-section')[getCurrentSectionIndex()]
+                || document.body;
+        }
+
+        function getControllerCandidates() {
+            const root = controllerNavigationRoot();
+            return [...root.querySelectorAll(CONTROLLER_FOCUSABLE)].filter(controllerVisible);
+        }
+
+        function clearControllerFocus() {
+            if (controllerFocusedElement) controllerFocusedElement.classList.remove('gamepad-focused');
+            controllerFocusedElement = null;
+        }
+
+        function setControllerFocus(element) {
+            if (!element) return;
+            clearControllerFocus();
+            if (!element.matches('button,a,input,select,textarea,[tabindex]')) element.tabIndex = 0;
+            element.focus({ preventScroll: true });
+            element.classList.add('gamepad-focused');
+            controllerFocusedElement = element;
+            element.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+        }
+
+        function moveControllerFocus(direction) {
+            const candidates = getControllerCandidates();
+            if (!candidates.length) return;
+            const active = controllerFocusedElement && candidates.includes(controllerFocusedElement)
+                ? controllerFocusedElement : (candidates.includes(document.activeElement) ? document.activeElement : null);
+            if (!active) {
+                const first = candidates.find(el => el.getClientRects()[0].top >= 0) || candidates[0];
+                setControllerFocus(first);
+                return;
+            }
+            if (active.tagName === 'SELECT' && (direction === 'up' || direction === 'down')) {
+                const delta = direction === 'down' ? 1 : -1;
+                active.selectedIndex = Math.max(0, Math.min(active.options.length - 1, active.selectedIndex + delta));
+                active.dispatchEvent(new Event('input', { bubbles: true }));
+                active.dispatchEvent(new Event('change', { bubbles: true }));
+                return;
+            }
+            const from = active.getBoundingClientRect();
+            const origin = { x: from.left + from.width / 2, y: from.top + from.height / 2 };
+            let best = null;
+            let bestScore = Infinity;
+            for (const candidate of candidates) {
+                if (candidate === active) continue;
+                const rect = candidate.getBoundingClientRect();
+                const point = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+                const dx = point.x - origin.x, dy = point.y - origin.y;
+                const primary = direction === 'left' ? -dx : direction === 'right' ? dx : direction === 'up' ? -dy : dy;
+                if (primary <= 8) continue;
+                const cross = direction === 'left' || direction === 'right' ? Math.abs(dy) : Math.abs(dx);
+                const score = primary + cross * 1.7 + (cross > primary ? cross * 0.8 : 0);
+                if (score < bestScore) { best = candidate; bestScore = score; }
+            }
+            if (best) setControllerFocus(best);
+            else if (direction === 'left' || direction === 'right') scrollPanorama(direction === 'right' ? 1 : -1);
+        }
+
+        function controllerBack() {
+            if (document.getElementById('library-list-manager')?.classList.contains('open')) return closeLibraryListManager();
+            if (document.getElementById('discover-month-picker')?.style.display === 'flex') return hideDiscoverMonthPicker();
+            if (document.getElementById('year-picker')?.style.display === 'flex') return hideYearPicker();
+            if (document.getElementById('media-editor-overlay')?.classList.contains('open')) return closeMediaEditor();
+            if (document.getElementById('video-subview')?.classList.contains('active')) return closeVideoSubview();
+            if (document.getElementById('detail-panel')?.style.display !== 'none' && document.getElementById('detail-panel')?.style.display) return closeDetail();
+            if (document.getElementById('settings-subview-container')?.style.display !== 'none') return closeSettingsView();
+            if (document.getElementById('profile-dropdown')?.classList.contains('open')) return closeDropdown();
+            if (document.querySelector('.metro-select-dropdown.open')) return closeMetroSelects();
+            if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+            clearControllerFocus();
+        }
+
+        function activateControllerFocus() {
+            const candidates = getControllerCandidates();
+            let target = controllerFocusedElement && candidates.includes(controllerFocusedElement) ? controllerFocusedElement : document.activeElement;
+            if (!target || target === document.body || !candidates.includes(target)) {
+                target = candidates[0];
+                if (target) setControllerFocus(target);
+            }
+            if (!target || typeof target.click !== 'function') return;
+            target.click();
+        }
+
+        function controllerUsesPlayStation(gamepad) {
+            if (controllerPromptStyle === 'playstation') return true;
+            if (controllerPromptStyle === 'xbox') return false;
+            return /playstation|dualshock|dualsense|sony|054c|0ce6|05c4|09cc|0ba0/i.test(gamepad?.id || '');
+        }
+
+        function updateControllerHud(gamepad) {
+            const hud = document.getElementById('controller-hud');
+            const visible = Boolean(gamepad && controllerNavigationEnabled);
+            hud?.classList.toggle('is-visible', visible);
+            if (!visible) { controllerHudStyle = ''; return; }
+            const playstation = controllerUsesPlayStation(gamepad);
+            const style = playstation ? 'playstation' : 'xbox';
+            if (controllerHudStyle === style) return;
+            controllerHudStyle = style;
+            document.getElementById('controller-confirm-label').textContent = playstation ? '×' : 'A';
+            document.getElementById('controller-back-label').textContent = playstation ? '○' : 'B';
+            document.getElementById('controller-prev-label').textContent = playstation ? 'L1' : 'LB';
+            document.getElementById('controller-next-label').textContent = playstation ? 'R1' : 'RB';
+        }
+
+        function stopControllerPolling() {
+            if (controllerFrame) cancelAnimationFrame(controllerFrame);
+            controllerFrame = 0;
+        }
+
+        function pollController() {
+            controllerFrame = 0;
+            if (!controllerNavigationEnabled || document.hidden || !navigator.getGamepads) return;
+            const pads = navigator.getGamepads();
+            let gamepad = pads[connectedGamepadIndex];
+            if (!gamepad || !gamepad.connected) gamepad = [...pads].find(pad => pad?.connected);
+            if (!gamepad) {
+                connectedGamepadIndex = null;
+                controllerPreviousButtons = [];
+                updateControllerHud(null);
+                return;
+            }
+            connectedGamepadIndex = gamepad.index;
+            updateControllerHud(gamepad);
+            const pressed = index => Boolean(gamepad.buttons[index]?.pressed);
+            const justPressed = index => pressed(index) && !controllerPreviousButtons[index];
+            if (justPressed(0)) activateControllerFocus();
+            if (justPressed(1)) controllerBack();
+            if (justPressed(4)) scrollToSection(Math.max(0, getCurrentSectionIndex() - 1));
+            if (justPressed(5)) scrollToSection(Math.min(7, getCurrentSectionIndex() + 1));
+            controllerPreviousButtons = gamepad.buttons.map(button => Boolean(button.pressed));
+
+            const left = pressed(14) || (gamepad.axes[0] < -0.55);
+            const right = pressed(15) || (gamepad.axes[0] > 0.55);
+            const up = pressed(12) || (gamepad.axes[1] < -0.55);
+            const down = pressed(13) || (gamepad.axes[1] > 0.55);
+            const direction = left ? 'left' : right ? 'right' : up ? 'up' : down ? 'down' : '';
+            if (direction) {
+                const now = performance.now();
+                if (direction !== controllerLastDirection || now - controllerLastMove > 240) {
+                    moveControllerFocus(direction);
+                    controllerLastMove = now;
+                }
+            }
+            controllerLastDirection = direction;
+            controllerFrame = requestAnimationFrame(pollController);
+        }
+
+        function startControllerPolling() {
+            if (controllerNavigationEnabled && !document.hidden && !controllerFrame && connectedGamepadIndex !== null) {
+                controllerFrame = requestAnimationFrame(pollController);
+            }
+        }
+
+        function setControllerNavigation(enabled) {
+            controllerNavigationEnabled = Boolean(enabled);
+            localStorage.setItem('controller_navigation', controllerNavigationEnabled ? 'true' : 'false');
+            document.querySelector('label[for="controller-navigation-toggle"]')?.setAttribute('aria-checked', String(controllerNavigationEnabled));
+            if (!controllerNavigationEnabled) {
+                stopControllerPolling();
+                clearControllerFocus();
+                updateControllerHud(null);
+            } else startControllerPolling();
+            showToast(controllerNavigationEnabled ? 'controller navigation enabled' : 'controller navigation disabled');
+        }
+
+        function setControllerPromptStyle(style) {
+            if (!['auto', 'xbox', 'playstation'].includes(style)) return;
+            controllerPromptStyle = style;
+            localStorage.setItem('controller_prompt_style', style);
+            if (navigator.getGamepads) updateControllerHud([...navigator.getGamepads()].find(pad => pad?.connected) || null);
+        }
+
+        function initControllerSupport() {
+            const toggle = document.getElementById('controller-navigation-toggle');
+            const style = document.getElementById('controller-prompt-style');
+            if (toggle) {
+                toggle.checked = controllerNavigationEnabled;
+                toggle.closest('label')?.setAttribute('aria-checked', String(controllerNavigationEnabled));
+                toggle.addEventListener('change', event => setControllerNavigation(event.target.checked));
+            }
+            if (style) {
+                style.value = controllerPromptStyle;
+                style.addEventListener('change', event => setControllerPromptStyle(event.target.value));
+            }
+            window.addEventListener('gamepadconnected', event => {
+                connectedGamepadIndex = event.gamepad.index;
+                updateControllerHud(event.gamepad);
+                startControllerPolling();
+            });
+            window.addEventListener('gamepaddisconnected', event => {
+                if (event.gamepad.index === connectedGamepadIndex) {
+                    connectedGamepadIndex = null;
+                    stopControllerPolling();
+                    updateControllerHud(null);
+                }
+            });
+            document.addEventListener('visibilitychange', () => document.hidden ? stopControllerPolling() : startControllerPolling());
+            document.addEventListener('pointerdown', event => {
+                if (controllerFocusedElement && !controllerFocusedElement.contains(event.target)) clearControllerFocus();
+            });
+            window.addEventListener('blur', stopControllerPolling);
+            window.addEventListener('focus', startControllerPolling);
+            if (navigator.getGamepads) {
+                const connected = [...navigator.getGamepads()].find(pad => pad?.connected);
+                if (connected) {
+                    connectedGamepadIndex = connected.index;
+                    updateControllerHud(connected);
+                    startControllerPolling();
+                }
+            }
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initControllerSupport, { once: true });
+        else initControllerSupport();
 
         function initSfxSystem() {
             const unlockAudio = () => {
