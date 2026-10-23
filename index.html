@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AniList Metro</title>
+    <title>AniList Metro Beta</title>
     <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -3521,17 +3521,18 @@
                 style="width:100%; max-width: 1200px; aspect-ratio: 16/9; box-shadow: 0 0 50px rgba(0,0,0,0.8); position:relative;">
                 <iframe id="video-iframe" src="" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen title="YouTube video player"
                     style="width:100%; height:100%;"></iframe>
             </div>
+            <a id="video-external-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" style="position:absolute;bottom:18px;right:24px;color:var(--text-dim);font-size:13px;">open on youtube <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
         </div>
     </div>
 
 
     <div id="login-overlay">
         <div style="margin-bottom: 40px;">
-            <h1 class="metro-huge-title" style="color: var(--accent); margin-bottom: 10px;">anilist metro</h1>
-            <p style="font-size: 32px; font-weight: 300; color: var(--text-dim); margin-bottom: 50px;">metro ui client
+            <h1 class="metro-huge-title" style="color: var(--accent); margin-bottom: 10px;">anilist metro <span style="font-size:16px;vertical-align:middle;letter-spacing:1px;color:var(--text-dim);">beta</span></h1>
+            <p style="font-size: 32px; font-weight: 300; color: var(--text-dim); margin-bottom: 50px;">experimental client
                 for anilist</p>
         </div>
         <div id="login-trending-slideshow"
@@ -3577,9 +3578,9 @@
     <div class="top-right-nav" id="top-right-nav">
         <div class="quick-search-container">
             <input type="text" class="quick-search-input" placeholder="search..."
-                onkeydown="if(event.key === 'Enter') { switchDiscoverMode('search', document.querySelector('#discover-pivots .pivot-item[data-mode=search]')); doSearch(this.value); scrollToSection(4); }">
+                onkeydown="if(event.key === 'Enter') submitQuickSearch(this.value)">
             <i class="fa-solid fa-magnifying-glass"
-                onclick="doSearch(document.querySelector('.quick-search-input').value)"></i>
+                onclick="submitQuickSearch(document.querySelector('.quick-search-input').value)"></i>
         </div>
         <div class="dropdown" id="profile-dropdown">
             <img id="top-right-avatar" class="dropbtn"
@@ -3891,6 +3892,7 @@
                         <button class="metro-btn small" onclick="openBrowseView('top100')"><i class="fa-solid fa-trophy"></i> top 100</button>
                         <button class="metro-btn small" onclick="openBrowseView('newreleases')"><i class="fa-solid fa-star"></i> new releases</button>
                         <button class="metro-btn small" onclick="openBrowseView('seasonal')"><i class="fa-solid fa-calendar-week"></i> seasonal chart</button>
+                        <button class="metro-btn small" onclick="openBrowseView('studio')"><i class="fa-solid fa-clapperboard"></i> studios</button>
                     </div>
                     <div
                         style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
@@ -3910,14 +3912,18 @@
                 </div>
 
                 <div id="discover-search" style="display: none;">
-                    <input type="text" class="metro-input" id="search-input" placeholder="search anime or manga...">
-                    <div class="search-filters">
+                    <input type="search" class="metro-input" id="search-input" placeholder="search anime, manga, people, or studios..." autocomplete="off">
+                    <div class="search-filters" id="search-type-filters" aria-label="search category">
                         <button class="filter-chip active" data-type="ANIME"
                             onclick="setSearchType('ANIME',this)">anime</button>
                         <button class="filter-chip" data-type="MANGA"
                             onclick="setSearchType('MANGA',this)">manga</button>
                         <button class="filter-chip" data-type="USER" onclick="setSearchType('USER',this)">user</button>
+                        <button class="filter-chip" data-type="CHARACTER" onclick="setSearchType('CHARACTER',this)">characters</button>
+                        <button class="filter-chip" data-type="STAFF" onclick="setSearchType('STAFF',this)">staff</button>
+                        <button class="filter-chip" data-type="STUDIO" onclick="setSearchType('STUDIO',this)">studios</button>
                     </div>
+                    <div class="search-filters" id="media-search-filters">
                     <div class="search-filters" id="advanced-filters">
                         <div class="metro-select-wrap">
                             <button class="metro-select-btn" onclick="toggleMetroSelect('season')" id="season-btn">all seasons <i class="fa-solid fa-chevron-down"></i></button>
@@ -4018,7 +4024,7 @@
                             <span style="font-size:11px;color:var(--text-dim);">18+</span>
                         </div>
                     </div>
-                    <div class="search-filters">
+                    <div class="search-filters" id="media-sort-filters">
                         <button class="filter-chip active" data-sort="SEARCH_MATCH"
                             onclick="setSort('SEARCH_MATCH',this)">relevance</button>
                         <button class="filter-chip" data-sort="TRENDING_DESC"
@@ -4029,6 +4035,7 @@
                             onclick="setSort('POPULARITY_DESC',this)">popular</button>
                         <button class="filter-chip" data-sort="FAVOURITES_DESC"
                             onclick="setSort('FAVOURITES_DESC',this)">most favorited</button>
+                    </div>
                     </div>
                     <div class="tile-grid" id="search-results" style="margin-bottom: 40px;"></div>
                 </div>
@@ -4329,10 +4336,10 @@
 
                     <div id="settings-tab-app" class="settings-subview">
                         <div class="settings-item">
-                            <div class="settings-item-header">experimental stable version</div>
-                            <div class="settings-item-sub">use index_v2.html for the stable experience after authentication</div>
+                            <div class="settings-item-header">version channel</div>
+                            <div class="settings-item-sub">this beta is experimental. open index_v2.html for the current stable experience.</div>
                             <button class="metro-btn primary" type="button" onclick="openStableVersion()">
-                                <i class="fa-solid fa-flask"></i> open stable version
+                                <i class="fa-solid fa-shield-halved"></i> open stable version
                             </button>
                         </div>
                         <div class="settings-item">
@@ -4465,8 +4472,83 @@
         let currentLibStatus = 'CURRENT';
         let searchType = 'ANIME';
         let searchSort = null;
+        let searchRequestSequence = 0;
+        let activeStaffDetailId = null;
+        let staffWorksPage = 1;
+        let staffRolesPage = 1;
+        let activeStudioDetailId = null;
+        let studioWorksPage = 1;
         let yearStart = null;
         let yearEnd = null;
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[char]);
+        }
+
+        function renderAniListDescription(value) {
+            if (!value) return '';
+            const parsed = new DOMParser().parseFromString(String(value), 'text/html');
+            const allowedTags = new Set(['A', 'B', 'BLOCKQUOTE', 'BR', 'CODE', 'EM', 'I', 'LI', 'OL', 'P', 'PRE', 'S', 'SPAN', 'STRONG', 'U', 'UL']);
+            const cleanNode = node => {
+                if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.nodeValue);
+                if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');
+                if (!allowedTags.has(node.tagName)) return document.createTextNode(node.textContent || '');
+                const clean = document.createElement(node.tagName.toLowerCase());
+                if (node.tagName === 'SPAN' && (node.classList.contains('spoiler') || node.classList.contains('markdown-spoiler')) && !showSpoilers) {
+                    clean.textContent = '[spoiler hidden]';
+                    return clean;
+                }
+                if (node.tagName === 'A') {
+                    const href = node.getAttribute('href') || '';
+                    if (href.startsWith('https://') || href.startsWith('http://')) {
+                        clean.setAttribute('href', href);
+                        clean.setAttribute('target', '_blank');
+                        clean.setAttribute('rel', 'noopener noreferrer');
+                    }
+                }
+                Array.from(node.childNodes).forEach(child => clean.appendChild(cleanNode(child)));
+                return clean;
+            };
+            return Array.from(parsed.body.childNodes).map(node => {
+                const clean = cleanNode(node);
+                if (clean.nodeType === Node.TEXT_NODE) {
+                    const wrapper = document.createElement('span');
+                    wrapper.textContent = clean.textContent;
+                    return wrapper.outerHTML;
+                }
+                return clean.outerHTML;
+            }).join('');
+        }
+
+        function submitQuickSearch(value) {
+            const term = String(value || '').trim();
+            const discoverSearch = document.getElementById('search-input');
+            const quickSearch = document.querySelector('.quick-search-input');
+            if (discoverSearch) discoverSearch.value = term;
+            if (quickSearch) quickSearch.value = term;
+            switchDiscoverMode('search', document.querySelector('#discover-pivots .pivot-item[data-mode="search"]'));
+            scrollToSection(4);
+            if (term.length >= 2) doSearch(term);
+            else {
+                searchRequestSequence++;
+                const results = document.getElementById('search-results');
+                if (results) results.innerHTML = '<div style="color:var(--text-dim);">enter at least two characters to search.</div>';
+            }
+        }
+
+        function updateSearchControls() {
+            const showMediaFilters = searchType === 'ANIME' || searchType === 'MANGA';
+            ['media-search-filters', 'filter-row-scores', 'media-sort-filters'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.style.display = showMediaFilters ? (id === 'media-search-filters' ? 'block' : 'flex') : 'none';
+            });
+            const input = document.getElementById('search-input');
+            if (input) input.placeholder = searchType === 'USER' ? 'search users...' :
+                searchType === 'CHARACTER' ? 'search characters...' : searchType === 'STAFF' ? 'search staff...' :
+                    searchType === 'STUDIO' ? 'search studios...' : `search ${searchType.toLowerCase()}...`;
+        }
 
         // Year picker
         let yearPickerMode = 'start';
@@ -4927,8 +5009,7 @@
         }
         function openStableVersion() {
             localStorage.setItem('metro_experimental_stable', 'true');
-            const hash = accessToken ? `#access_token=${encodeURIComponent(accessToken)}` : '';
-            window.location.href = `index_v2.html${hash}`;
+            window.location.href = 'index_v2.html';
         }
         function login() { window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`; }
         function guestMode() {
@@ -5946,20 +6027,37 @@
         // ==========================================
         let searchTimeout = null;
         document.getElementById('search-input').addEventListener('input', e => {
-            clearTimeout(searchTimeout); const term = e.target.value.trim();
-            if (term.length < 2) { document.getElementById('search-results').innerHTML = ''; return; }
+            clearTimeout(searchTimeout);
+            searchRequestSequence++;
+            const term = e.target.value.trim();
+            const quickSearch = document.querySelector('.quick-search-input');
+            if (quickSearch) quickSearch.value = e.target.value;
+            if (term.length < 2) {
+                document.getElementById('search-results').innerHTML = '';
+                return;
+            }
             searchTimeout = setTimeout(() => doSearch(term), 450);
         });
+        updateSearchControls();
 
         function applySearchFilters() {
             const term = document.getElementById('search-input').value.trim();
             if (term.length >= 2) doSearch(term);
-            else doSortedBrowse();
+            else if (searchType === 'ANIME' || searchType === 'MANGA') doSortedBrowse();
         }
 
         async function doSearch(term) {
-            const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">searching...</div>';
+            const el = document.getElementById('search-results');
+            const requestId = ++searchRequestSequence;
+            const requestedType = searchType;
+            const isCurrentRequest = () => requestId === searchRequestSequence && requestedType === searchType;
+            el.innerHTML = '<div style="color:var(--text-dim);">searching...</div>';
             el.classList.add('zoom-in');
+            if (!term || term.trim().length < 2) {
+                el.innerHTML = '<div style="color:var(--text-dim);">enter at least two characters to search.</div>';
+                return;
+            }
+            term = term.trim();
 
             // Sync range labels
             const scoreMinEl = document.getElementById('filter-score-min');
@@ -5967,154 +6065,168 @@
             if (scoreMinEl) document.getElementById('score-min-label').innerText = scoreMinEl.value;
             if (scoreMaxEl) document.getElementById('score-max-label').innerText = scoreMaxEl.value;
 
-            if (searchType === 'USER') {
+            if (requestedType === 'USER') {
                 const q = `query ($search: String) { Page(page:1,perPage:24) { users(search: $search) { id name avatar { large } } } }`;
                 try {
                     const data = await fetchAPI(q, { search: term });
-                    el.innerHTML = '';
-                    data.Page.users.forEach(u => {
-                        el.innerHTML += `
-                    <div class="metro-tile" style="background:var(--surface);" onclick="openUserDetail('${u.name}')">
-                        <div class="tile-bg" style="background-image: url('${u.avatar.large}'); position:absolute; top:0; left:0; width:100%; height:100%; background-size:cover; opacity:0.3;"></div>
-                        <div class="metro-tile-title" style="position:relative; z-index:2;">${u.name.toLowerCase()}</div>
-                    </div>`;
+                    if (!isCurrentRequest()) return;
+                    const users = data?.Page?.users || [];
+                    el.innerHTML = users.length ? users.map(u => `
+                        <div class="metro-tile" style="background:var(--surface);" data-user-name="${escapeHtml(u.name)}" role="button" tabindex="0">
+                            ${u.avatar?.large ? `<img src="${escapeHtml(u.avatar.large)}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;">` : ''}
+                            <div class="metro-tile-title" style="position:relative;z-index:2;">${escapeHtml(u.name).toLowerCase()}</div>
+                        </div>`).join('') : '<div style="color:var(--text-dim);">no users found.</div>';
+                    el.querySelectorAll('[data-user-name]').forEach(tile => {
+                        const open = () => openUserDetail(tile.dataset.userName);
+                        tile.addEventListener('click', open);
+                        tile.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } });
                     });
-                } catch (e) { showToast('error searching users'); }
-                setTimeout(() => el.classList.remove('zoom-in'), 300);
+                } catch (e) {
+                    if (!isCurrentRequest()) return;
+                    el.innerHTML = '<div style="color:var(--text-dim);">user search failed. try again.</div>';
+                    showToast('error searching users');
+                }
+                if (isCurrentRequest()) setTimeout(() => el.classList.remove('zoom-in'), 300);
                 return;
             }
 
-            if (searchType === 'CHARACTER' || searchType === 'STAFF' || searchType === 'STUDIO') {
-                const field = searchType === 'CHARACTER' ? 'characters(search: $search, sort: SEARCH_MATCH) { id name { full native } image { large } }'
-                    : searchType === 'STAFF' ? 'staff(search: $search, sort: SEARCH_MATCH) { id name { full native } image { large } }'
+            if (requestedType === 'CHARACTER' || requestedType === 'STAFF' || requestedType === 'STUDIO') {
+                const field = requestedType === 'CHARACTER' ? 'characters(search: $search, sort: SEARCH_MATCH) { id name { full native } image { large } }'
+                    : requestedType === 'STAFF' ? 'staff(search: $search, sort: SEARCH_MATCH) { id name { full native } image { large } }'
                         : 'studios(search: $search, sort: SEARCH_MATCH) { id name }';
                 const q = `query ($search: String) { Page(page: 1, perPage: 24) { ${field} } }`;
                 try {
                     const data = await fetchAPI(q, { search: term });
-                    el.innerHTML = '';
-                    const results = data.Page[searchType.toLowerCase() + (searchType === 'CHARACTER' ? 's' : searchType === 'STAFF' ? '' : 's')] || [];
-                    results.forEach(item => {
+                    if (!isCurrentRequest()) return;
+                    const resultKey = { CHARACTER: 'characters', STAFF: 'staff', STUDIO: 'studios' }[requestedType];
+                    const results = data?.Page?.[resultKey] || [];
+                    el.innerHTML = results.length ? results.map(item => {
                         const name = item.name?.full || item.name?.native || item.name || 'unknown';
-                        const action = searchType === 'CHARACTER'
-                            ? `openCharacterDetail(${item.id})`
-                            : searchType === 'STAFF'
-                                ? `openStaffDetail(${item.id})`
-                                : `openStudioDetail(${item.id})`;
                         const image = item.image?.large || '';
-                        el.innerHTML += `<div class="metro-tile" style="background:var(--surface);" onclick="${action}">
-                            ${image ? `<div class="tile-bg" style="background-image:url('${image}');position:absolute;inset:0;background-size:cover;opacity:.3;"></div>` : ''}
-                            <div class="metro-tile-title" style="position:relative;z-index:2;">${String(name).toLowerCase()}</div>
-                            <div class="metro-tile-subtitle" style="position:relative;z-index:2;">${searchType.toLowerCase()}</div>
+                        const action = requestedType === 'CHARACTER' ? `openCharacterDetail(${item.id})` :
+                            requestedType === 'STAFF' ? `openStaffDetail(${item.id})` : `openStudioDetail(${item.id})`;
+                        return `<div class="metro-tile" style="background:var(--surface);" onclick="${action}" role="button" tabindex="0">
+                            ${image ? `<img src="${escapeHtml(image)}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;">` : ''}
+                            <div class="metro-tile-title" style="position:relative;z-index:2;">${escapeHtml(name).toLowerCase()}</div>
+                            <div class="metro-tile-subtitle" style="position:relative;z-index:2;">${requestedType.toLowerCase()}</div>
                         </div>`;
-                    });
-                    if (!results.length) el.innerHTML = '<div style="color:var(--text-dim);">no results.</div>';
+                    }).join('') : '<div style="color:var(--text-dim);">no results.</div>';
                 } catch (e) {
+                    if (!isCurrentRequest()) return;
                     console.error(e);
-                    showToast(`error searching ${searchType.toLowerCase()}s`);
+                    el.innerHTML = `<div style="color:var(--text-dim);">${requestedType.toLowerCase()} search failed. try again.</div>`;
+                    showToast(`error searching ${requestedType.toLowerCase()}`);
                 }
-                setTimeout(() => el.classList.remove('zoom-in'), 300);
+                if (isCurrentRequest()) setTimeout(() => el.classList.remove('zoom-in'), 300);
                 return;
             }
 
-            const season = document.getElementById('filter-season').value;
-            const year = document.getElementById('filter-year').value;
-            const format = document.getElementById('filter-format').value;
-            const status = document.getElementById('filter-status').value;
-            const episodes = document.getElementById('filter-episodes').value;
-            const genre = document.getElementById('filter-genre')?.value || '';
+            try {
+                const { variables, query } = buildMediaSearch(searchType, term, searchSort || 'SEARCH_MATCH');
+                const data = await fetchAPI(query, variables);
+                if (isCurrentRequest()) renderSearchResults(data?.Page?.media || [], isCurrentRequest);
+            } catch (e) {
+                if (!isCurrentRequest()) return;
+                el.innerHTML = '<div style="color:var(--text-dim);">search failed. check your connection and try again.</div>';
+                showToast('search failed');
+                console.error(e);
+            }
+            if (isCurrentRequest()) setTimeout(() => el.classList.remove('zoom-in'), 300);
+        }
+        function buildMediaSearch(type, term, sort) {
+            const variables = { type, sort: [sort] };
+            if (term) variables.search = term;
+            const season = document.getElementById('filter-season')?.value || '';
+            const year = document.getElementById('filter-year')?.value || '';
+            const format = document.getElementById('filter-format')?.value || '';
+            const status = document.getElementById('filter-status')?.value || '';
+            const episodes = document.getElementById('filter-episodes')?.value || '';
             const source = document.getElementById('filter-source')?.value || '';
             const country = document.getElementById('filter-country')?.value || '';
-            const scoreMin = parseInt(document.getElementById('filter-score-min')?.value || 0);
-            const scoreMax = parseInt(document.getElementById('filter-score-max')?.value || 100);
-            const yearStartVal = yearStart || 0;
-            const yearEndVal = yearEnd || 0;
+            const scoreMin = Number(document.getElementById('filter-score-min')?.value || 0);
+            const scoreMax = Number(document.getElementById('filter-score-max')?.value || 100);
             const isAdultFilter = document.getElementById('filter-adult')?.checked || false;
+            const startYear = Number(yearStart || 0);
+            const endYear = Number(yearEnd || 0);
 
-            let variables = { search: term, type: searchType, sort: [searchSort || 'SEARCH_MATCH'] };
             if (season) variables.season = season;
-            if (year) variables.seasonYear = parseInt(year);
+            if (year) variables.seasonYear = Number(year);
             if (format) variables.format = format;
             if (status) variables.status = status;
-            if (genre) variables.genre = genre;
             if (source) variables.source = source;
             if (country) variables.countryOfOrigin = country;
-            if (scoreMin > 0) variables.averageScore_greater = scoreMin;
-            if (scoreMax < 100) variables.averageScore_lesser = scoreMax;
-            if (yearStartVal) variables.startDate_greater = yearStartVal.toString();
-            if (yearEndVal) variables.startDate_lesser = (yearEndVal + 1).toString();
+            if (scoreMin > 0) variables.averageScore_greater = scoreMin - 1;
+            if (scoreMax < 100) variables.averageScore_lesser = scoreMax + 1;
+            if (startYear) variables.startDate_greater = (startYear - 1) * 10000 + 1231;
+            if (endYear) variables.startDate_lesser = (endYear + 1) * 10000;
+            if (selectedGenres.length) variables.genre_in = selectedGenres;
+            if (selectedTags.length) variables.tag_in = selectedTags;
+            if (selectedTags.length && minTagPercent > 0) variables.minimumTagRank = minTagPercent;
             if (isAdultFilter) variables.isAdult = true;
+            if (episodes) {
+                const match = episodes.match(/^(\d+)-(\d*)$/);
+                if (match) {
+                    if (match[1]) variables.episodes_greater = Math.max(0, Number(match[1]) - 1);
+                    if (match[2]) variables.episodes_lesser = Number(match[2]) + 1;
+                }
+            }
 
-            const q = `query ($search:String,$type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$genre_in:String,$tag_in:String,$source:MediaSource,$countryOfOrigin:CountryCode,$averageScore_greater:Int,$averageScore_lesser:Int,$startDate_greater:String,$startDate_lesser:String,$isAdult:Boolean,$episodes_greater:Int,$episodes_lesser:Int) { 
-        Page(page:1,perPage:20) { 
-            media(search:$search,type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,format:$format,status:$status,genre:$genre,genre_in:[$genre_in],tag_in:[$tag_in],source:$source,countryOfOrigin:$countryOfOrigin,averageScore_greater:$averageScore_greater,averageScore_lesser:$averageScore_lesser,startDate_greater:$startDate_greater,startDate_lesser:$startDate_lesser,isAdult:$isAdult,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser) { 
-                id title { english romaji } coverImage { large } status averageScore isAdult
-            } 
-        } 
-    }`;
-
-            const data = await fetchAPI(q, variables);
-            renderSearchResults(data.Page.media);
+            const query = `query ($search:String,$type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$format:MediaFormat,$status:MediaStatus,$genre_in:[String],$tag_in:[String],$minimumTagRank:Int,$source:MediaSource,$countryOfOrigin:CountryCode,$averageScore_greater:Int,$averageScore_lesser:Int,$startDate_greater:FuzzyDateInt,$startDate_lesser:FuzzyDateInt,$isAdult:Boolean,$episodes_greater:Int,$episodes_lesser:Int) {
+                Page(page:1,perPage:24) {
+                    media(search:$search,type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,format:$format,status:$status,genre_in:$genre_in,tag_in:$tag_in,minimumTagRank:$minimumTagRank,source:$source,countryOfOrigin:$countryOfOrigin,averageScore_greater:$averageScore_greater,averageScore_lesser:$averageScore_lesser,startDate_greater:$startDate_greater,startDate_lesser:$startDate_lesser,isAdult:$isAdult,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser) {
+                        id type title { english romaji } coverImage { large } status averageScore isAdult
+                    }
+                }
+            }`;
+            return { variables, query };
         }
-        function renderSearchResults(media) {
+        function renderSearchResults(media, isCurrentRequest = () => true) {
             const el = document.getElementById('search-results'); el.innerHTML = '';
             if (!media.length) { el.innerHTML = '<div style="color:var(--text-dim);">no results.</div>'; return; }
             media.forEach(m => {
-                const title = m.title.english || m.title.romaji;
+                if (!isCurrentRequest()) return;
+                const title = m.title?.english || m.title?.romaji || 'unknown';
                 const score = m.averageScore ? (m.averageScore / 10).toFixed(1) : '';
                 const isAdult = m.isAdult || false;
-                el.innerHTML += createFlipTile(m.id, searchType, m.coverImage.large, title, title, score, (m.status || '').toLowerCase(), null, isAdult);
+                el.innerHTML += createFlipTile(m.id, m.type || searchType, m.coverImage?.large || '', title, title, score, (m.status || '').toLowerCase(), null, isAdult);
             });
         }
         async function doSortedBrowse() {
-            const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
-
-            const season = document.getElementById('filter-season').value;
-            const year = document.getElementById('filter-year').value;
-            const format = document.getElementById('filter-format').value;
-            const status = document.getElementById('filter-status').value;
-            const episodes = document.getElementById('filter-episodes').value;
-            const genre = document.getElementById('filter-genre')?.value || '';
-            const source = document.getElementById('filter-source')?.value || '';
-            const country = document.getElementById('filter-country')?.value || '';
-            const scoreMin = parseInt(document.getElementById('filter-score-min')?.value || 0);
-            const scoreMax = parseInt(document.getElementById('filter-score-max')?.value || 100);
-            const yearStartVal = yearStart || 0;
-            const yearEndVal = yearEnd || 0;
-            const isAdultFilter = document.getElementById('filter-adult')?.checked || false;
-
-            let variables = { type: searchType, sort: [searchSort || 'TRENDING_DESC'] };
-            if (season) variables.season = season;
-            if (year) variables.seasonYear = parseInt(year);
-            if (format) variables.format = format;
-            if (status) variables.status = status;
-            if (genre) variables.genre = genre;
-            if (source) variables.source = source;
-            if (country) variables.countryOfOrigin = country;
-            if (scoreMin > 0) variables.averageScore_greater = scoreMin;
-            if (scoreMax < 100) variables.averageScore_lesser = scoreMax;
-            if (yearStartVal) variables.startDate_greater = yearStartVal.toString();
-            if (yearEndVal) variables.startDate_lesser = (yearEndVal + 1).toString();
-            if (isAdultFilter) variables.isAdult = true;
-
-            const q = `query ($type:MediaType,$sort:[MediaSort],$season:MediaSeason,$seasonYear:Int,$format:MediaFormat,$status:MediaStatus,$genre:String,$source:MediaSource,$countryOfOrigin:CountryCode,$averageScore_greater:Int,$averageScore_lesser:Int,$startDate_greater:String,$startDate_lesser:String,$isAdult:Boolean,$episodes_greater:Int,$episodes_lesser:Int) { 
-        Page(page:1,perPage:24) { 
-            media(type:$type,sort:$sort,season:$season,seasonYear:$seasonYear,format:$format,status:$status,genre:$genre,source:$source,countryOfOrigin:$countryOfOrigin,averageScore_greater:$averageScore_greater,averageScore_lesser:$averageScore_lesser,startDate_greater:$startDate_greater,startDate_lesser:$startDate_lesser,isAdult:$isAdult,episodes_greater:$episodes_greater,episodes_lesser:$episodes_lesser) { 
-                id title { english romaji } coverImage { large } status averageScore 
-            } 
-        } 
-    }`;
-
-            const data = await fetchAPI(q, variables);
-            renderSearchResults(data.Page.media);
+            if (searchType !== 'ANIME' && searchType !== 'MANGA') return;
+            const el = document.getElementById('search-results');
+            const requestId = ++searchRequestSequence;
+            const requestedType = searchType;
+            const isCurrentRequest = () => requestId === searchRequestSequence && requestedType === searchType;
+            el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>';
+            try {
+                const { variables, query } = buildMediaSearch(searchType, '', searchSort || 'TRENDING_DESC');
+                const data = await fetchAPI(query, variables);
+                if (isCurrentRequest()) renderSearchResults(data?.Page?.media || [], isCurrentRequest);
+            } catch (e) {
+                if (!isCurrentRequest()) return;
+                el.innerHTML = '<div style="color:var(--text-dim);">browse request failed. check your connection and try again.</div>';
+                showToast('discover request failed');
+                console.error(e);
+            }
         }
         function setSearchType(type, el) {
-            searchType = type; document.querySelectorAll('.filter-chip[data-type]').forEach(c => c.classList.remove('active')); el.classList.add('active');
+            searchType = type;
+            document.querySelectorAll('.filter-chip[data-type]').forEach(c => c.classList.remove('active'));
+            if (el) el.classList.add('active');
+            searchRequestSequence++;
+            updateSearchControls();
             const term = document.getElementById('search-input').value.trim();
-            if (term.length >= 2) doSearch(term); else if (searchSort) doSortedBrowse();
+            if (term.length >= 2) doSearch(term);
+            else if (type === 'ANIME' || type === 'MANGA') {
+                if (searchSort) doSortedBrowse();
+                else document.getElementById('search-results').innerHTML = '';
+            } else document.getElementById('search-results').innerHTML = '<div style="color:var(--text-dim);">enter a name above to search.</div>';
         }
         function setSort(sort, el) {
+            if (searchType !== 'ANIME' && searchType !== 'MANGA') return;
             searchSort = sort; document.querySelectorAll('.filter-chip[data-sort]').forEach(c => c.classList.remove('active')); el.classList.add('active');
-            doSortedBrowse();
+            const term = document.getElementById('search-input').value.trim();
+            if (term.length >= 2) doSearch(term); else doSortedBrowse();
         }
 
         function switchDiscoverMode(mode, el) {
@@ -6322,7 +6434,7 @@
             } else if (/^\d+$/.test(rawIdentifier)) {
                 q = `query ($id: Int) {
                     User(id: $id) {
-                        id name about(asHtml: true) avatar { large } bannerImage
+                        id name isFollowing about(asHtml: true) avatar { large } bannerImage
                         statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } }
                         favourites {
                             anime(page: 1, perPage: 10) { nodes { id title { english romaji } coverImage { large } } }
@@ -6339,7 +6451,7 @@
             }
             if (!q) q = `query ($name: String) {
         User(name: $name) {
-            id name about(asHtml: true) avatar { large } bannerImage
+            id name isFollowing about(asHtml: true) avatar { large } bannerImage
             statistics { anime { count episodesWatched minutesWatched meanScore } manga { count chaptersRead volumesRead meanScore } }
             favourites {
                 anime(page: 1, perPage: 10) { nodes { id title { english romaji } coverImage { large } } }
@@ -6363,12 +6475,12 @@
 
                 content.innerHTML = `
             <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
-            <div style="position:relative; min-height:250px; background: url('${u.bannerImage || ''}') center/cover; display:flex; align-items:flex-end; padding:20px; gap:20px; border-bottom: 4px solid var(--accent); margin-bottom:40px; margin-top:50px;">
+            <div style="position:relative; min-height:250px; background: ${u.bannerImage ? `url('${escapeHtml(u.bannerImage)}') center/cover` : 'var(--surface)'}; display:flex; align-items:flex-end; padding:20px; gap:20px; border-bottom: 4px solid var(--accent); margin-bottom:40px; margin-top:50px;">
                 <div style="position:absolute; inset:0; background:linear-gradient(to top, var(--bg), transparent);"></div>
-                <img src="${u.avatar.large}" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';" style="width:120px; height:120px; border:4px solid var(--bg); position:relative; z-index:1;" />
+                <img src="${escapeHtml(u.avatar?.large || 'https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png')}" onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';" alt="${escapeHtml(u.name)}" style="width:120px; height:120px; border:4px solid var(--bg); position:relative; z-index:1;" />
                 <div style="position:relative; z-index:1; padding-bottom:5px; flex:1;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
-                        <div style="font-size: 4rem; font-weight:100; color:var(--accent); line-height:0.8; letter-spacing:-2px;">${u.name.toLowerCase()}</div>
+                        <div style="font-size: 4rem; font-weight:100; color:var(--accent); line-height:0.8; letter-spacing:-2px;">${escapeHtml(u.name).toLowerCase()}</div>
                         <div style="display:flex; gap:10px;">
                             ${!isGuest && u.id !== currentUserId ? `<button class="metro-btn ${u.isFollowing ? '' : 'primary'}" id="follow-btn" onclick="toggleFollow(${u.id})">${u.isFollowing ? 'unfollow' : 'follow'}</button>` : ''}
                             <button class="metro-btn" onclick="openUserLibrary(${u.id}, 'ANIME')">anime list</button>
@@ -6421,7 +6533,7 @@
                 ${u.about ? `
                 <div class="panel" style="grid-column: 1 / -1;">
                     <h3 style="font-weight:200; color:var(--accent); margin-bottom:15px;">about</h3>
-                    <div style="font-size:16px; font-weight:300; line-height:1.6; color:var(--text-main);">${u.about}</div>
+                    <div class="bio-copy" style="font-size:16px; font-weight:300; line-height:1.6; color:var(--text-main); text-transform:lowercase;">${renderAniListDescription(u.about)}</div>
                 </div>` : ''}
             </div>`;
 
@@ -6458,7 +6570,7 @@
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading user list...</div>'; panel.style.display = 'block';
 
-            const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name entries { score(format:POINT_10) progress media { id title { english romaji } coverImage { large } episodes chapters status } } } } }`;
+            const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name entries { status score(format:POINT_10) progress media { id type title { english romaji } coverImage { large } episodes chapters status } } } } }`;
             try {
                 const data = await fetchAPI(q, { userId, type });
                 content.innerHTML = `
@@ -6472,7 +6584,7 @@
                         const title = e.media.title.english || e.media.title.romaji;
                         const total = type === 'ANIME' ? e.media.episodes : e.media.chapters;
                         const badge = e.status === 'COMPLETED' ? (total ? `${total}/${total}` : 'done') : `${e.progress}${total ? '/' + total : ''}`;
-                        return createFlipTile(e.media.id, type, e.media.coverImage.large, title, title, e.score, badge, `progress: ${e.progress}/${total || '?'}`);
+                        return createFlipTile(e.media.id, e.media.type || type, e.media.coverImage?.large || '', title, title, e.score, badge, `progress: ${e.progress}/${total || '?'}`);
                     }).join('')}</div>`;
                 });
             } catch (e) { showToast('error loading user list'); }
@@ -6520,7 +6632,7 @@
 
             if (favs.studios?.nodes?.length) {
                 favs.studios.nodes.forEach(s => {
-                    studioEl.innerHTML += `<span class="filter-chip">${s.name.toLowerCase()}</span>`;
+                    studioEl.innerHTML += `<button class="filter-chip" type="button" onclick="openStudioDetail(${s.id})">${escapeHtml(s.name).toLowerCase()}</button>`;
                 });
             } else if (studioEl) studioEl.parentElement.style.display = 'none';
         }
@@ -6807,9 +6919,9 @@
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading...</div>'; panel.style.display = 'block';
             const q = `query ($id:Int) {
         Media(id:$id) {
-            id title { english romaji } coverImage { extraLarge large } bannerImage description(asHtml:false) format status episodes chapters averageScore isAdult genres startDate { year }
+            id title { english romaji } coverImage { extraLarge large } bannerImage description(asHtml:true) format status episodes chapters averageScore isAdult genres startDate { year }
             trailer { id site thumbnail }
-            studios(isMain: true) { nodes { name } }
+            studios(page:1,perPage:10) { nodes { id name isAnimationStudio isFavourite } }
             relations { edges { relationType(version:2) node { id title { english romaji } type coverImage { large } } } }
             characters(sort: [ROLE, RELEVANCE, ID], perPage: 16) {
                 pageInfo { total }
@@ -6904,7 +7016,7 @@
                         ${genresHtml}
                         ${m.isAdult ? `<span class="zune-tag" style="border-color:var(--accent-red); color:var(--accent-red);">18+</span>` : ''}
                     </div>
-                    <p style="font-size:20px; font-weight:300; line-height:1.6; color:var(--text-main); margin-bottom:40px; max-width:900px;">${m.description || 'no description available.'}</p>
+                    <div class="bio-copy" style="font-size:20px; font-weight:300; line-height:1.6; color:var(--text-main); margin-bottom:40px; max-width:900px;">${renderAniListDescription(m.description) || 'no description available.'}</div>
 
                     <h2 style="font-weight:200; color:var(--text-main); margin-bottom:15px; font-size:36px;">explore</h2>
                     <div class="metro-hub" id="metro-hub-main">
@@ -6959,30 +7071,24 @@
             if (type === 'characters') {
                 title = 'characters';
                 let chars = m.characters.edges.map(c => {
-                    const va = c.voiceActors && c.voiceActors[0] ? c.voiceActors[0] : null;
-                    const charDesc = c.node.description ? c.node.description.substring(0, 100) + '...' : 'no description';
-                    return `<div class="char-card" onclick="openCharacterDetail(${c.node.id}, '${c.node.name.full.replace(/'/g, "\\'")}', '${charDesc.replace(/'/g, "\\'")}', '${va ? va.name.full : ''}', '${va ? va.id : ''}')">
-                <img src="${c.node.image.large}" class="char-img">
+                    const actors = c.voiceActors || [];
+                    return `<div class="char-card" role="button" tabindex="0" onclick="openCharacterDetail(${c.node.id})">
+                <img src="${escapeHtml(c.node.image?.large || '')}" class="char-img" alt="">
                 <div class="char-info">
-                    <div class="char-name">${c.node.name.full.toLowerCase()}</div>
-                    <div class="char-role">${c.role.toLowerCase()}</div>
-                    ${c.node.description ? `<div style="font-size:12px; color:var(--text-dim); margin-top:5px;">${charDesc.toLowerCase()}</div>` : ''}
+                    <div class="char-name">${escapeHtml(c.node.name?.full || 'unknown').toLowerCase()}</div>
+                    <div class="char-role">${escapeHtml(c.role || 'character').toLowerCase()}</div>
+                    ${actors.length ? `<div class="char-role" style="margin-top:5px;">voice actors</div>${actors.slice(0, 3).map(va => `<button class="filter-chip" type="button" onclick="event.stopPropagation();openVADetail(${va.id})">${escapeHtml(va.name?.full || 'unknown').toLowerCase()}${va.languageV2 ? ` · ${escapeHtml(va.languageV2).toLowerCase()}` : ''}</button>`).join('')}` : ''}
                 </div>
-                ${va ? `<div class="char-info" style="text-align:right;">
-                    <div class="char-name">${va.name.full.toLowerCase()}</div>
-                    <div class="char-role">${va.languageV2 || 'japanese'}</div>
-                </div>
-                <img src="${va.image.large}" class="char-img">` : ''}
             </div>`;
                 }).join('');
                 contentHtml = bannerBase.replace('{SUBTITLE}', 'characters') + `<div class="char-grid">${chars || '<div style="color:var(--text-dim);">no characters found.</div>'}</div>`;
             } else if (type === 'staff') {
                 title = 'staff & cast';
-                let staff = m.staff.edges.map(s => `<div class="char-card">
-            <img src="${s.node.image.large}" class="char-img">
+                let staff = m.staff.edges.map(s => `<div class="char-card" role="button" tabindex="0" onclick="openStaffDetail(${s.node.id})">
+            <img src="${escapeHtml(s.node.image?.large || '')}" class="char-img" alt="">
             <div class="char-info">
-                <div class="char-name">${s.node.name.full.toLowerCase()}</div>
-                <div class="char-role">${s.role.toLowerCase()}</div>
+                <div class="char-name">${escapeHtml(s.node.name?.full || 'unknown').toLowerCase()}</div>
+                <div class="char-role">${escapeHtml(s.role || 'staff').toLowerCase()}</div>
             </div>
         </div>`).join('');
                 contentHtml = bannerBase.replace('{SUBTITLE}', 'staff & cast') + `<div class="char-grid">${staff || '<div style="color:var(--text-dim);">no staff found.</div>'}</div>`;
@@ -7003,7 +7109,8 @@
                 contentHtml = bannerBase.replace('{SUBTITLE}', 'community reviews') + `<div>${reviews || '<div style="color:var(--text-dim);">no reviews found.</div>'}</div>`;
             } else if (type === 'info') {
                 title = 'media info';
-                const studios = m.studios?.nodes?.map(s => s.name).join(', ') || 'unknown';
+                const studioNodes = m.studios?.nodes || [];
+                const studios = studioNodes.length ? studioNodes.map(s => `<button class="filter-chip" type="button" onclick="openStudioDetail(${s.id})">${escapeHtml(s.name).toLowerCase()}${s.isAnimationStudio ? '' : ' · producer'}</button>`).join(' ') : 'unknown';
                 contentHtml = `
             <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:15px; margin-top:20px;">
                 <div class="panel" style="background-color: #1ba1e2; color: #fff; border: none;">
@@ -7101,91 +7208,95 @@
             }
         }
 
-        async function openCharacterDetail(charId, charName, charDesc, vaName, vaId) {
+        async function openCharacterDetail(charId) {
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading character...</div>'; panel.style.display = 'block';
 
-            // Get more character details including VA info
             const q = `query ($id: Int) {
         Character(id: $id) {
-            name { full native }
+            id name { full native }
             image { large }
-            description
+            description(asHtml: true)
             gender
             dateOfBirth { year month day }
             age
             bloodType
             media(page: 1, perPage: 12, sort: POPULARITY_DESC) {
-                nodes { id type title { english romaji } coverImage { large } }
-                edges { voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) { id name { full } image { large } } }
+                edges {
+                    node { id type title { english romaji } coverImage { large } }
+                    japanese: voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) { id name { full native } image { large } languageV2 }
+                    english: voiceActors(language: ENGLISH, sort: [RELEVANCE, ID]) { id name { full native } image { large } languageV2 }
+                }
             }
         }
     }`;
             try {
                 const data = await fetchAPI(q, { id: charId });
-                const c = data.Character;
-                const desc = showSpoilers ? (c.description || 'no description.') : (c.description ? c.description.replace(/<span class="spoiler">[^<]*<\/span>/gi, '[spoiler]') : 'no description.');
+                const c = data?.Character;
+                if (!c) throw new Error('Character not found');
+                const voicesById = new Map();
+                (c.media?.edges || []).forEach(edge => {
+                    ['japanese', 'english'].forEach(language => {
+                        (edge[language] || []).forEach(actor => {
+                            const actorData = voicesById.get(actor.id) || { ...actor, languages: new Set(), works: new Set() };
+                            actorData.languages.add(actor.languageV2 || language);
+                            const workTitle = edge.node?.title?.english || edge.node?.title?.romaji;
+                            if (workTitle) actorData.works.add(workTitle);
+                            voicesById.set(actor.id, actorData);
+                        });
+                    });
+                });
+                const voiceActors = Array.from(voicesById.values());
+                const voiceActorsHtml = voiceActors.length ? voiceActors.map(actor => `
+                    <div class="char-card" role="button" tabindex="0" onclick="openVADetail(${actor.id})">
+                        <img src="${escapeHtml(actor.image?.large || '')}" class="char-img" alt="">
+                        <div class="char-info">
+                            <div class="char-name">${escapeHtml(actor.name?.full || 'unknown').toLowerCase()}</div>
+                            <div class="char-role">${Array.from(actor.languages).map(escapeHtml).join(' · ').toLowerCase()}</div>
+                            <div class="char-role">${Array.from(actor.works).slice(0, 2).map(name => escapeHtml(name).toLowerCase()).join(', ')}</div>
+                        </div>
+                    </div>`).join('') : '<div style="color:var(--text-dim);">no voice actor data listed.</div>';
                 content.innerHTML = `
             <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
             <div style="max-width:900px; margin: 60px auto 0; padding: 20px;">
                 <div style="display:flex; gap:30px; flex-wrap:wrap; margin-bottom:40px;">
-                    <img src="${c.image.large}" style="width:200px; height:300px; object-fit:cover; border:4px solid var(--surface-hover);">
+                    <img src="${escapeHtml(c.image?.large || '')}" alt="" style="width:200px; height:300px; object-fit:cover; border:4px solid var(--surface-hover);">
                     <div style="flex:1; min-width:300px;">
-                        <div style="font-size:3rem; font-weight:100; color:var(--accent); margin-bottom:10px;">${c.name.full.toLowerCase()}</div>
-                        ${c.name.native ? `<div style="font-size:1.2rem; color:var(--text-dim); margin-bottom:20px;">${c.name.native}</div>` : ''}
+                        <div style="font-size:3rem; font-weight:100; color:var(--accent); margin-bottom:10px;">${escapeHtml(c.name?.full || 'unknown').toLowerCase()}</div>
+                        ${c.name?.native ? `<div style="font-size:1.2rem; color:var(--text-dim); margin-bottom:20px;">${escapeHtml(c.name.native)}</div>` : ''}
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
-                            ${c.gender ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">gender</div><div style="font-size:16px;">${c.gender.toLowerCase()}</div></div>` : ''}
+                            ${c.gender ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">gender</div><div style="font-size:16px;">${escapeHtml(c.gender).toLowerCase()}</div></div>` : ''}
                             ${c.age ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">age</div><div style="font-size:16px;">${c.age}</div></div>` : ''}
-                            ${c.bloodType ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">blood type</div><div style="font-size:16px;">${c.bloodType.toLowerCase()}</div></div>` : ''}
+                            ${c.bloodType ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">blood type</div><div style="font-size:16px;">${escapeHtml(c.bloodType).toLowerCase()}</div></div>` : ''}
                             ${c.dateOfBirth?.year ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">birthday</div><div style="font-size:16px;">${c.dateOfBirth.year}${c.dateOfBirth.month ? '-' + c.dateOfBirth.month : ''}${c.dateOfBirth.day ? '-' + c.dateOfBirth.day : ''}</div></div>` : ''}
                         </div>
                     </div>
                 </div>
                 <div class="panel" style="margin-bottom:20px;">
                     <h3 style="color:var(--accent); font-weight:200; margin-bottom:15px;">bio</h3>
-                    <p style="font-size:16px; font-weight:300; line-height:1.8; color:var(--text-main);">${desc ? desc.toLowerCase() : 'no bio available.'}</p>
+                    <div class="bio-copy" style="font-size:16px; font-weight:300; line-height:1.8; color:var(--text-main); text-transform:lowercase;">${renderAniListDescription(c.description) || 'no bio available.'}</div>
                 </div>
-                ${vaId ? `
                 <div class="panel">
-                    <h3 style="color:var(--accent); font-weight:200; margin-bottom:15px;">voice actor</h3>
-                    <div style="display:flex; align-items:center; gap:20px; cursor:pointer;" onclick="openVADetail(${vaId}, '${vaName.replace(/'/g, "\\'")}')">
-                        <div class="char-card" style="grid-template-columns: 80px 1fr;">
-                            <img src="" class="char-img" id="va-img-${vaId}">
-                            <div class="char-info">
-                                <div class="char-name">${vaName.toLowerCase()}</div>
-                                <div class="char-role">click for details</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>` : ''}
-                ${c.media?.nodes?.length ? `<div class="panel" style="margin-top:20px;">
+                    <h3 style="color:var(--accent); font-weight:200; margin-bottom:15px;">voice actors</h3>
+                    <div class="char-grid">${voiceActorsHtml}</div>
+                </div>
+                ${c.media?.edges?.length ? `<div class="panel" style="margin-top:20px;">
                     <h3 style="color:var(--accent); font-weight:200; margin-bottom:15px;">appearances</h3>
-                    <div class="tile-grid mini">${c.media.nodes.map(m => `<div class="metro-tile" onclick="openDetailById(${m.id}, '${m.type}')">
-                        <div class="tile-bg" style="background-image:url('${m.coverImage?.large || ''}');position:absolute;inset:0;background-size:cover;opacity:.3;"></div>
-                        <div class="metro-tile-title" style="position:relative;z-index:2;">${(m.title?.english || m.title?.romaji || 'unknown').toLowerCase()}</div>
+                    <div class="tile-grid mini">${c.media.edges.map(edge => edge.node).filter(Boolean).map(m => `<div class="metro-tile" onclick="openDetailById(${m.id}, '${m.type}')">
+                        <img src="${escapeHtml(m.coverImage?.large || '')}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;">
+                        <div class="metro-tile-title" style="position:relative;z-index:2;">${escapeHtml(m.title?.english || m.title?.romaji || 'unknown').toLowerCase()}</div>
                     </div>`).join('')}</div>
                 </div>` : ''}
             </div>`;
-                // Load VA image if available
-                if (vaId) {
-                    const vaQ = `query($id: Int) { Staff(id: $id) { image { large } } }`;
-                    try {
-                        const vaData = await fetchAPI(vaQ, { id: parseInt(vaId) });
-                        if (vaData.Staff?.image?.large) {
-                            const imgEl = document.getElementById(`va-img-${vaId}`);
-                            if (imgEl) imgEl.src = vaData.Staff.image.large;
-                        }
-                    } catch (e) { }
-                }
             } catch (e) {
                 content.innerHTML = '<div style="color:var(--text-dim);">error loading character.</div>';
                 console.error(e);
             }
         }
 
-        async function openVADetail(vaId, vaName) {
+        async function openVADetail(vaId) {
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
@@ -7193,60 +7304,69 @@
 
             const q = `query ($id: Int) {
         Staff(id: $id) {
-            name { full native }
+            id name { full native }
             image { large }
-            description
+            description(asHtml: true)
+            languageV2 primaryOccupations age yearsActive homeTown favourites isFavourite siteUrl
             gender
             dateOfBirth { year month day }
             bloodType
-            staff { edges { role node { id title { english romaji } type } } }
-            characterVoices(sort: [RELEVANCE, ID], perPage: 10) { nodes { role node { id name { full } image { large } } } }
+            staffMedia(page: 1, perPage: 24, sort: [POPULARITY_DESC, ID]) {
+                edges { staffRole node { id type title { english romaji } coverImage { large } startDate { year } } }
+            }
+            characters(page: 1, perPage: 24, sort: [FAVOURITES_DESC, ID]) {
+                edges { role node { id name { full } image { large } } }
+            }
         }
     }`;
             try {
                 const data = await fetchAPI(q, { id: vaId });
-                const s = data.Staff;
-                const desc = showSpoilers ? (s.description || 'no description.') : (s.description ? s.description.replace(/<span class="spoiler">[^<]*<\/span>/gi, '[spoiler]') : 'no description.');
-
-                // Get character's they've played
-                let rolesHtml = '';
-                if (s.characterVoices?.nodes?.length) {
-                    rolesHtml = s.characterVoices.nodes.map(c => `
-                <div class="char-card" onclick="openCharacterDetail(${c.node.id}, '${c.node.name.full.replace(/'/g, "\\'")}', '', '', '')">
-                    <img src="${c.node.image.large}" class="char-img">
-                    <div class="char-info">
-                        <div class="char-name">${c.node.name.full.toLowerCase()}</div>
-                        <div class="char-role">${c.role.toLowerCase()}</div>
-                    </div>
-                </div>
-            `).join('');
-                } else {
-                    rolesHtml = '<div style="color:var(--text-dim);">no roles listed.</div>';
-                }
+                const s = data?.Staff;
+                if (!s) throw new Error('Staff member not found');
+                const roles = s.characters?.edges || [];
+                const rolesHtml = roles.length ? roles.map(edge => `
+                    <div class="char-card" role="button" tabindex="0" onclick="openCharacterDetail(${edge.node.id})">
+                        <img src="${escapeHtml(edge.node.image?.large || '')}" class="char-img" alt="">
+                        <div class="char-info"><div class="char-name">${escapeHtml(edge.node.name?.full || 'unknown').toLowerCase()}</div><div class="char-role">${escapeHtml(edge.role || 'voice role').toLowerCase()}</div></div>
+                    </div>`).join('') : '<div style="color:var(--text-dim);">no character roles listed.</div>';
+                const worksHtml = s.staffMedia?.edges?.length ? s.staffMedia.edges.map(edge => {
+                    const work = edge.node;
+                    if (!work) return '';
+                    return `<div class="char-card" role="button" tabindex="0" onclick="openDetailById(${work.id},'${work.type}')">
+                        <img src="${escapeHtml(work.coverImage?.large || '')}" class="char-img" alt="">
+                        <div class="char-info"><div class="char-name">${escapeHtml(work.title?.english || work.title?.romaji || 'unknown').toLowerCase()}</div><div class="char-role">${escapeHtml(edge.staffRole || 'production').toLowerCase()}${work.startDate?.year ? ` · ${work.startDate.year}` : ''}</div></div>
+                    </div>`;
+                }).join('') : '<div style="color:var(--text-dim);">no production works listed.</div>';
 
                 content.innerHTML = `
             <div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
             <div style="max-width:900px; margin: 60px auto 0; padding: 20px;">
                 <div style="display:flex; gap:30px; flex-wrap:wrap; margin-bottom:40px;">
-                    <img src="${s.image.large}" style="width:200px; height:300px; object-fit:cover; border:4px solid var(--surface-hover);">
+                    <img src="${escapeHtml(s.image?.large || '')}" alt="" style="width:200px; height:300px; object-fit:cover; border:4px solid var(--surface-hover);">
                     <div style="flex:1; min-width:300px;">
-                        <div style="font-size:3rem; font-weight:100; color:var(--accent); margin-bottom:10px;">${s.name.full.toLowerCase()}</div>
-                        ${s.name.native ? `<div style="font-size:1.2rem; color:var(--text-dim); margin-bottom:20px;">${s.name.native}</div>` : ''}
+                        <div style="font-size:3rem; font-weight:100; color:var(--accent); margin-bottom:10px;">${escapeHtml(s.name?.full || 'unknown').toLowerCase()}</div>
+                        ${s.name?.native ? `<div style="font-size:1.2rem; color:var(--text-dim); margin-bottom:20px;">${escapeHtml(s.name.native)}</div>` : ''}
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
-                            ${s.gender ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">gender</div><div style="font-size:16px;">${s.gender.toLowerCase()}</div></div>` : ''}
+                            ${s.languageV2 ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">language</div><div style="font-size:16px;">${escapeHtml(s.languageV2).toLowerCase()}</div></div>` : ''}
+                            ${s.gender ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">gender</div><div style="font-size:16px;">${escapeHtml(s.gender).toLowerCase()}</div></div>` : ''}
+                            ${s.age ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">age</div><div style="font-size:16px;">${s.age}</div></div>` : ''}
                             ${s.bloodType ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">blood type</div><div style="font-size:16px;">${s.bloodType.toLowerCase()}</div></div>` : ''}
+                            ${s.primaryOccupations?.length ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">occupations</div><div style="font-size:16px;">${s.primaryOccupations.map(item => escapeHtml(item).toLowerCase()).join(', ')}</div></div>` : ''}
+                            ${s.homeTown ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">hometown</div><div style="font-size:16px;">${escapeHtml(s.homeTown).toLowerCase()}</div></div>` : ''}
+                            ${s.yearsActive?.length ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">years active</div><div style="font-size:16px;">${s.yearsActive.join(' – ')}</div></div>` : ''}
                             ${s.dateOfBirth?.year ? `<div class="panel"><div style="color:var(--text-dim); font-size:12px;">birthday</div><div style="font-size:16px;">${s.dateOfBirth.year}${s.dateOfBirth.month ? '-' + s.dateOfBirth.month : ''}${s.dateOfBirth.day ? '-' + s.dateOfBirth.day : ''}</div></div>` : ''}
                         </div>
+                        <div style="margin-top:10px;color:var(--text-dim);font-size:13px;">❤ ${s.favourites || 0} favourites</div>
                     </div>
                 </div>
                 <div class="panel" style="margin-bottom:20px;">
                     <h3 style="color:var(--accent); font-weight:200; margin-bottom:15px;">bio</h3>
-                    <p style="font-size:16px; font-weight:300; line-height:1.8; color:var(--text-main);">${desc ? desc.toLowerCase() : 'no bio available.'}</p>
+                    <div class="bio-copy" style="font-size:16px; font-weight:300; line-height:1.8; color:var(--text-main); text-transform:lowercase;">${renderAniListDescription(s.description) || 'no bio available.'}</div>
                 </div>
-                <div class="panel">
-                    <h3 style="color:var(--accent); font-weight:200; margin-bottom:15px;">known roles</h3>
-                    <div class="char-grid">${rolesHtml}</div>
-                </div>
+                <div class="panel" style="margin-bottom:20px;"><h3 style="color:var(--accent);font-weight:200;margin-bottom:15px;">production works</h3><div class="char-grid">${worksHtml}</div></div>
+                <div class="panel"><h3 style="color:var(--accent);font-weight:200;margin-bottom:15px;">voice roles</h3><div class="char-grid">${rolesHtml}</div></div>
+                ${s.siteUrl ? `<a class="metro-btn" href="${escapeHtml(s.siteUrl)}" target="_blank" rel="noopener noreferrer" style="margin-top:20px;">open on anilist</a>` : ''}
+                ${!isGuest ? `<button class="metro-btn small" data-favourite="${s.isFavourite ? 'true' : 'false'}" onclick="toggleFavourite(${s.id},'STAFF',this)" style="margin-top:20px;">${s.isFavourite ? '♥ favourited' : '♡ favourite'}</button>` : ''}
             </div>`;
             } catch (e) {
                 content.innerHTML = '<div style="color:var(--text-dim);">error loading voice actor.</div>';
@@ -7259,12 +7379,22 @@
         }
 
         function playVideo(youtubeId) {
-            const id = String(youtubeId || '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
+            const raw = String(youtubeId || '').trim();
+            let candidate = raw;
+            if (raw.includes('://')) {
+                try {
+                    const url = new URL(raw);
+                    candidate = url.hostname.endsWith('youtu.be') ? url.pathname.slice(1) :
+                        (url.searchParams.get('v') || url.pathname.match(/\/(?:embed|shorts|live)\/([^/]+)/)?.[1] || '');
+                } catch (e) { candidate = ''; }
+            }
+            const id = candidate.match(/[a-zA-Z0-9_-]{11}/)?.[0] || '';
             if (!id) {
                 showToast('trailer unavailable');
                 return;
             }
-            openVideoSubview(`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`);
+            const origin = /^https?:$/.test(window.location.protocol) ? `&origin=${encodeURIComponent(window.location.origin)}` : '';
+            openVideoSubview(`https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0${origin}`, `https://www.youtube.com/watch?v=${id}`);
         }
 
         async function openGenreOverview(genre, type) {
@@ -7508,11 +7638,22 @@
                 q = `query { Page(page:1,perPage:30) { media(sort:ID_DESC,type:ANIME,status:RELEASING) { id title { english romaji } coverImage { large } averageScore isAdult } } }`;
             } else if (view === 'seasonal') {
                 q = `query { Page(page:1,perPage:40) { airingSchedules(airingAt_greater:0,sort:TIME,perPage:40) { media { id title { english romaji } coverImage { large } averageScore isAdult } airingAt episode } } }`;
+            } else if (view === 'studio') {
+                q = `query { Page(page:1,perPage:50) { studios { id name isAnimationStudio favourites } } }`;
             }
             try {
                 const data = await fetchAPI(q);
                 grid.innerHTML = '';
-                if (view === 'seasonal') {
+                if (view === 'studio') {
+                    const studios = data?.Page?.studios || [];
+                    studios.forEach(studio => {
+                        grid.innerHTML += `<div class="browse-card" role="button" tabindex="0" onclick="openStudioDetail(${studio.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStudioDetail(${studio.id})}">
+                            <div class="browse-card-title">${escapeHtml(studio.name || 'unknown').toLowerCase()}</div>
+                            <div class="browse-card-sub">${studio.isAnimationStudio ? 'animation studio' : 'producer'} · ♥ ${studio.favourites || 0}</div>
+                        </div>`;
+                    });
+                    if (!studios.length) grid.innerHTML = '<div style="color:var(--text-dim);">no studios found.</div>';
+                } else if (view === 'seasonal') {
                     const schedules = data?.Page?.airingSchedules || [];
                     const byDay = {};
                     schedules.forEach(s => {
@@ -7873,9 +8014,9 @@
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
             content.innerHTML = '<div style="color:var(--text-dim);">loading staff...</div>'; panel.style.display = 'block';
-            const q = `query($id:Int){Staff(id:$id){id name{full native}image{large}description(asHtml:false)language primaryOccupations gender dateOfBirth{year month day}dateOfDeath{year month day}age yearsActive hometown bloodType favourites
-                staffMedia(page:1,perPage:12,sort:START_DATE_DESC){nodes{id type title{english romaji}coverImage{large}startDate{year}}}
-                characterMedia(page:1,perPage:12,sort:START_DATE_DESC){nodes{id type title{english romaji}coverImage{large}}role}
+            const q = `query($id:Int){Staff(id:$id){id name{full native}image{large}description(asHtml:true)languageV2 primaryOccupations gender dateOfBirth{year month day}dateOfDeath{year month day}age yearsActive homeTown bloodType favourites isFavourite siteUrl
+                staffMedia(page:1,perPage:24,sort:[START_DATE_DESC,ID]){edges{staffRole node{id type title{english romaji}coverImage{large}startDate{year}}}}
+                characters(page:1,perPage:24,sort:[FAVOURITES_DESC,ID]){edges{role node{id name{full}image{large}}}}
             }}`;
             try {
                 const d = await fetchAPI(q,{id:staffId}); const s = d.Staff;
@@ -7887,11 +8028,12 @@
                             <div style="font-size:3rem;font-weight:100;color:var(--accent);">${s.name?.full?.toLowerCase()||'unknown'}</div>
                             ${s.name?.native?`<div style="font-size:1.2rem;color:var(--text-dim);">${s.name.native}</div>`:''}
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;">
-                                ${s.language?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">language</div><div>${s.language}</div></div>`:''}
+                                ${s.languageV2?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">language</div><div>${s.languageV2}</div></div>`:''}
+                                ${s.primaryOccupations?.length?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">occupations</div><div>${s.primaryOccupations.map(item=>escapeHtml(item).toLowerCase()).join(', ')}</div></div>`:''}
                                 ${s.gender?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">gender</div><div>${s.gender.toLowerCase()}</div></div>`:''}
                                 ${s.age?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">age</div><div>${s.age}</div></div>`:''}
                                 ${s.bloodType?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">blood type</div><div>${s.bloodType}</div></div>`:''}
-                                ${s.hometown?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">hometown</div><div>${s.hometown.toLowerCase()}</div></div>`:''}
+                                ${s.homeTown?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">hometown</div><div>${s.homeTown.toLowerCase()}</div></div>`:''}
                                 ${s.yearsActive?.length?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">years active</div><div>${s.yearsActive.join(' - ')}</div></div>`:''}
                                 ${s.dateOfBirth?.year?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">birthday</div><div>${s.dateOfBirth.year}${s.dateOfBirth.month?'-'+s.dateOfBirth.month:''}${s.dateOfBirth.day?'-'+s.dateOfBirth.day:''}</div></div>`:''}
                                 ${s.dateOfDeath?.year?`<div class="panel"><div style="font-size:12px;color:var(--text-dim);">death</div><div>${s.dateOfDeath.year}${s.dateOfDeath.month?'-'+s.dateOfDeath.month:''}${s.dateOfDeath.day?'-'+s.dateOfDeath.day:''}</div></div>`:''}
@@ -7899,56 +8041,104 @@
                             <div style="margin-top:10px;color:var(--text-dim);font-size:13px;">❤ ${s.favourites||0} favourites</div>
                         </div>
                     </div>
-                    ${s.description?`<div class="panel" style="margin-bottom:20px;"><h3 style="color:var(--accent);font-weight:200;margin-bottom:10px;">bio</h3><p style="font-size:16px;line-height:1.8;">${s.description.toLowerCase()}</p></div>`:''}
+                    ${s.description?`<div class="panel" style="margin-bottom:20px;"><h3 style="color:var(--accent);font-weight:200;margin-bottom:10px;">bio</h3><div class="bio-copy" style="font-size:16px;line-height:1.8;text-transform:lowercase;">${renderAniListDescription(s.description)}</div></div>`:''}
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">`;
-                if (s.staffMedia?.nodes?.length) {
+                if (s.staffMedia?.edges?.length) {
                     html += `<div class="panel"><h3 style="color:var(--accent);font-weight:200;margin-bottom:10px;">works</h3>`;
-                    s.staffMedia.nodes.forEach(m => {
+                    s.staffMedia.edges.forEach(edge => {
+                        const m = edge.node;
+                        if (!m) return;
                         const t = m.title?.english||m.title?.romaji||'unknown';
-                        html += `<div style="cursor:pointer;padding:6px 0;border-bottom:1px solid var(--surface-hover);font-size:14px;" onclick="openDetailById(${m.id},'${m.type}')">${t.toLowerCase()}${m.startDate?.year?' ('+m.startDate.year+')':''}</div>`;
+                        html += `<div style="cursor:pointer;padding:6px 0;border-bottom:1px solid var(--surface-hover);font-size:14px;" onclick="openDetailById(${m.id},'${m.type}')">${escapeHtml(t).toLowerCase()}${m.startDate?.year?' ('+m.startDate.year+')':''}${edge.staffRole?` · ${escapeHtml(edge.staffRole).toLowerCase()}`:''}</div>`;
                     });
                     html += `</div>`;
                 }
-                if (s.characterMedia?.nodes?.length) {
+                if (s.characters?.edges?.length) {
                     html += `<div class="panel"><h3 style="color:var(--accent);font-weight:200;margin-bottom:10px;">voice roles</h3>`;
-                    s.characterMedia.nodes.forEach(m => {
-                        const t = m.title?.english||m.title?.romaji||'unknown';
-                        html += `<div style="cursor:pointer;padding:6px 0;border-bottom:1px solid var(--surface-hover);font-size:14px;" onclick="openDetailById(${m.id},'${m.type}')">${t.toLowerCase()}${m.role?' • '+m.role.toLowerCase():''}</div>`;
+                    s.characters.edges.forEach(edge => {
+                        const character = edge.node;
+                        if (!character) return;
+                        const name = character.name?.full || 'unknown';
+                        html += `<div style="cursor:pointer;padding:6px 0;border-bottom:1px solid var(--surface-hover);font-size:14px;display:flex;align-items:center;gap:10px;" onclick="openCharacterDetail(${character.id})"><img src="${escapeHtml(character.image?.large||'')}" alt="" style="width:36px;height:48px;object-fit:cover;"><span>${escapeHtml(name).toLowerCase()}${edge.role?' · '+escapeHtml(edge.role).toLowerCase():''}</span></div>`;
                     });
                     html += `</div>`;
                 }
-                html += `</div>${!isGuest?`<div style="margin-top:20px;"><button class="metro-btn small" onclick="toggleFavourite(${s.id},'STAFF')">❤ favourite</button></div>`:''}</div>`;
+                html += `</div>${s.siteUrl?`<a href="${escapeHtml(s.siteUrl)}" target="_blank" rel="noopener noreferrer" class="metro-btn" style="margin-top:20px;">open on anilist</a>`:''}${!isGuest?`<div style="margin-top:20px;"><button class="metro-btn small" data-favourite="${s.isFavourite?'true':'false'}" onclick="toggleFavourite(${s.id},'STAFF',this)">${s.isFavourite?'♥ favourited':'♡ favourite'}</button></div>`:''}</div>`;
                 content.innerHTML = html;
             } catch(e) { content.innerHTML = '<div style="color:var(--text-dim);">error loading staff.</div>'; console.error(e); }
         }
-        async function openStudioDetail(studioId) {
-            document.getElementById('main-nav').classList.add('ui-hidden');
-            document.getElementById('top-right-nav').classList.add('ui-hidden');
-            const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
-            content.innerHTML = '<div style="color:var(--text-dim);">loading studio...</div>'; panel.style.display = 'block';
-            const q = `query($id:Int){Studio(id:$id){id name isAnimationStudio favouritesCount media(page:1,perPage:24,sort:START_DATE_DESC){nodes{id type title{english romaji}coverImage{large}startDate{year}}}}}`;
+        async function openStudioDetail(studioId, page = 1, append = false) {
+            if (!append) {
+                activeStudioDetailId = Number(studioId);
+                studioWorksPage = 1;
+                document.getElementById('main-nav').classList.add('ui-hidden');
+                document.getElementById('top-right-nav').classList.add('ui-hidden');
+                const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+                content.innerHTML = '<div style="color:var(--text-dim);">loading studio...</div>'; panel.style.display = 'block';
+            }
+            const content = document.getElementById('detail-content');
+            const q = `query($id:Int,$page:Int){Studio(id:$id){id name isAnimationStudio favourites isFavourite siteUrl media(page:$page,perPage:24,sort:[START_DATE_DESC,ID]){pageInfo{hasNextPage}edges{isMainStudio node{id type title{english romaji}coverImage{large}startDate{year}}}}}}`;
             try {
-                const d = await fetchAPI(q,{id:studioId}); const s = d.Studio;
-                let html = `<div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
-                    <div style="max-width:900px;margin:60px auto 0;padding:20px;">
-                    <div style="font-size:3rem;font-weight:100;color:var(--accent);margin-bottom:5px;">${s.name?.toLowerCase()||'unknown'}</div>
-                    <div style="color:var(--text-dim);font-size:14px;margin-bottom:20px;">${s.isAnimationStudio?'animation studio':'producer'} • ❤ ${s.favouritesCount||0}</div>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">`;
-                (s.media?.nodes||[]).forEach(m => {
-                    const t = m.title?.english||m.title?.romaji||'unknown';
-                    html += `<div class="metro-tile" style="background:var(--surface);" onclick="openDetailById(${m.id},'${m.type}')">
-                        <div class="tile-bg" style="background-image:url('${m.coverImage?.large||''}');background-size:cover;opacity:0.3;"></div>
-                        <div class="metro-tile-title" style="position:relative;z-index:2;">${t.toLowerCase()}</div>
-                        <div class="metro-tile-subtitle" style="position:relative;z-index:2;">${m.startDate?.year||''}</div>
+                const d = await fetchAPI(q, { id: activeStudioDetailId, page });
+                const s = d?.Studio;
+                if (!s) throw new Error('Studio not found');
+                const works = (s.media?.edges || []).map(edge => {
+                    const m = edge.node;
+                    if (!m) return '';
+                    const title = m.title?.english || m.title?.romaji || 'unknown';
+                    return `<div class="metro-tile" style="background:var(--surface);" onclick="openDetailById(${m.id},'${m.type}')">
+                        <img src="${escapeHtml(m.coverImage?.large || '')}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;">
+                        <div class="metro-tile-title" style="position:relative;z-index:2;">${escapeHtml(title).toLowerCase()}</div>
+                        <div class="metro-tile-subtitle" style="position:relative;z-index:2;">${edge.isMainStudio ? 'main studio' : 'producer'}${m.startDate?.year ? ` · ${m.startDate.year}` : ''}</div>
                     </div>`;
-                });
-                html += `</div>${!isGuest?`<div style="margin-top:20px;"><button class="metro-btn small" onclick="toggleFavourite(${s.id},'STUDIO')">❤ favourite</button></div>`:''}</div>`;
-                content.innerHTML = html;
-            } catch(e) { content.innerHTML = '<div style="color:var(--text-dim);">error loading studio.</div>'; console.error(e); }
+                }).join('');
+                if (append) {
+                    document.getElementById('studio-works-grid')?.insertAdjacentHTML('beforeend', works);
+                    studioWorksPage = page;
+                    const moreButton = document.getElementById('studio-works-more');
+                    if (s.media?.pageInfo?.hasNextPage) {
+                        if (moreButton) {
+                            moreButton.disabled = false;
+                            moreButton.textContent = 'load more works';
+                        }
+                    } else moreButton?.remove();
+                    return;
+                }
+                content.innerHTML = `<div class="detail-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></div>
+                    <div style="max-width:1000px;margin:60px auto 0;padding:20px;">
+                        <div style="font-size:3rem;font-weight:100;color:var(--accent);margin-bottom:5px;">${escapeHtml(s.name || 'unknown').toLowerCase()}</div>
+                        <div style="color:var(--text-dim);font-size:14px;margin-bottom:20px;">${s.isAnimationStudio ? 'animation studio' : 'producer'} · ♥ ${s.favourites || 0}</div>
+                        <div class="panel" style="margin-bottom:20px;"><h3 style="color:var(--accent);font-weight:200;margin-bottom:10px;">studio details</h3><div>${s.isAnimationStudio ? 'animation production studio' : 'production company'}</div>${s.siteUrl ? `<a href="${escapeHtml(s.siteUrl)}" target="_blank" rel="noopener noreferrer" class="metro-btn" style="margin-top:12px;">open on anilist</a>` : ''}</div>
+                        <div class="panel"><h3 style="color:var(--accent);font-weight:200;margin-bottom:15px;">works</h3><div id="studio-works-grid" class="tile-grid">${works || '<div style="color:var(--text-dim);">no works listed.</div>'}</div>${s.media?.pageInfo?.hasNextPage ? '<button class="load-more-btn" id="studio-works-more" onclick="loadMoreStudioWorks()">load more works</button>' : ''}</div>
+                        ${!isGuest ? `<button class="metro-btn small" data-favourite="${s.isFavourite ? 'true' : 'false'}" onclick="toggleFavourite(${s.id},'STUDIO',this)" style="margin-top:20px;">${s.isFavourite ? '♥ favourited' : '♡ favourite'}</button>` : ''}
+                    </div>`;
+            } catch(e) {
+                if (append) {
+                    const button = document.getElementById('studio-works-more');
+                    if (button) { button.disabled = false; button.textContent = 'retry loading works'; }
+                } else content.innerHTML = '<div style="color:var(--text-dim);">error loading studio.</div>';
+                console.error(e);
+            }
         }
-        async function toggleFavourite(id,type) {
-            const q = `mutation($id:Int){ToggleFavourite(animeId:$id,${type.toLowerCase()}Id:$id){...onFavourites{${type==='ANIME'?'anime':type==='MANGA'?'manga':type==='CHARACTER'?'characters':type==='STAFF'?'staff':'studios'}{nodes{id}}}}}`;
-            try { await fetchAPI(q,{id}); showToast('favourite toggled'); } catch(e) { showToast('error'); }
+        function loadMoreStudioWorks() {
+            const button = document.getElementById('studio-works-more');
+            if (button) { button.disabled = true; button.textContent = 'loading...'; }
+            openStudioDetail(activeStudioDetailId, studioWorksPage + 1, true);
+        }
+        async function toggleFavourite(id,type,button) {
+            const fields = { ANIME: ['animeId', 'anime'], MANGA: ['mangaId', 'manga'], CHARACTER: ['characterId', 'characters'], STAFF: ['staffId', 'staff'], STUDIO: ['studioId', 'studios'] };
+            const field = fields[type];
+            if (!field) return;
+            const q = `mutation($id:Int){ToggleFavourite(${field[0]}:$id){... on Favourites{${field[1]}{nodes{id}}}}}`;
+            try {
+                await fetchAPI(q,{id});
+                if (button) {
+                    const isFavourite = button.dataset.favourite !== 'true';
+                    button.dataset.favourite = isFavourite ? 'true' : 'false';
+                    button.textContent = isFavourite ? '♥ favourited' : '♡ favourite';
+                }
+                showToast('favourite updated');
+            } catch(e) { showToast('error updating favourite'); console.error(e); }
         }
 
         // ==========================================
@@ -8471,10 +8661,12 @@
             Sfx.toggle(!Sfx.enabled);
         };
 
-        function openVideoSubview(url) {
+        function openVideoSubview(url, externalUrl = 'https://www.youtube.com/') {
             const sub = document.getElementById('video-subview');
             const iframe = document.getElementById('video-iframe');
+            const externalLink = document.getElementById('video-external-link');
             iframe.src = url;
+            if (externalLink) externalLink.href = externalUrl;
             sub.classList.add('active');
             Sfx.play('select');
         }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AniList Metro</title>
+    <title>AniList Metro Stable</title>
     <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -3509,7 +3509,7 @@
     </style>
 </head>
 
-<body class="m4-cloak">
+<body>
     <div id="video-subview" class="metro-subview">
         <div class="subview-header">
             <button class="btn-back" onclick="closeVideoSubview()"><i class="fa-solid fa-arrow-left"></i></button>
@@ -4327,6 +4327,13 @@
 
                     <div id="settings-tab-app" class="settings-subview">
                         <div class="settings-item">
+                            <div class="settings-item-header">experimental beta version</div>
+                            <div class="settings-item-sub">switch to the beta client in index.html to try unfinished changes</div>
+                            <button class="metro-btn" type="button" onclick="openBetaVersion()">
+                                <i class="fa-solid fa-flask"></i> open beta version
+                            </button>
+                        </div>
+                        <div class="settings-item">
                             <div class="settings-item-header">default home tab</div>
                             <div class="settings-item-sub">which section to show on launch</div>
                             <select class="metro-select" id="default-home-select">
@@ -4448,6 +4455,8 @@
         // CONFIG & STATE
         // ==========================================
         const CLIENT_ID = 40698;
+        // OAuth returns to index.html; this flag routes that callback back to the stable client.
+        localStorage.setItem('metro_experimental_stable', 'true');
         let accessToken = localStorage.getItem('anilist_token');
         let currentUserId = null;
         let allListsData = { ANIME: {}, MANGA: {} };
@@ -4913,6 +4922,10 @@
             }
         }
         function login() { window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`; }
+        function openBetaVersion() {
+            localStorage.removeItem('metro_experimental_stable');
+            window.location.href = 'index.html';
+        }
         function guestMode() {
             isGuest = true;
             document.getElementById('login-overlay').style.display = 'none';

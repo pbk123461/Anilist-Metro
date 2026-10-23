@@ -8,6 +8,8 @@ AniList Metro is a browser-based anime and manga tracker with a Windows Phone an
 
 Open the demo and choose **Guest Mode** to browse without an AniList account. Sign in to sync your anime and manga lists with AniList.
 
+`index.html` is the experimental beta. Use `index_v2.html` for the stable version; the beta and stable settings menus link between them.
+
 ## Features
 
 - Browse seasonal anime, search anime and manga, and view airing schedules.
@@ -29,7 +31,7 @@ Then visit [http://localhost:8000](http://localhost:8000).
 
 ## Project structure
 
-- `index.html` contains the application markup, styles, and JavaScript.
+- `index.html` contains the beta application; `index_v2.html` is the stable version.
 - `vendor/metro-ui/` contains the vendored Metro UI assets.
 - `docs/` contains notes on the app's main modules.
 - `xbox360 metro soundeffects/` contains the sound files used by the app.
