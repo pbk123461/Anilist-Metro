@@ -2,7 +2,7 @@
 
 AniList Metro is a browser-based anime and manga tracker with a Windows Phone and Zune-inspired interface. It uses the AniList GraphQL API and supports browsing without signing in.
 
-[Open the live demo](https://pbk123461.github.io/Anilist-Metro/)
+[Open the live demo](https://anilist-metro.netlify.app/)
 
 ## Use the app
 
