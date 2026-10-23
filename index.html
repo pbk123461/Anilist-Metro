@@ -5,13 +5,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AniList Metro</title>
-    <!-- Metro UI v4 (vendored locally; metro-bootstrap.css is ~240KB, metro.js needs jQuery) -->
-    <link rel="stylesheet" href="vendor/metro-ui/dist/css/metro-bootstrap.css">
-    <link rel="stylesheet" href="vendor/metro-ui/dist/css/iconFont.css">
+    <!-- Metro UI v4 (CDN - stable, working version) -->
+    <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- AMOLED / zero-radius override (must come after Metro CSS) -->
-    <link rel="stylesheet" href="vendor/metro-ui/dist/css/metro-override.css">
     <style>
+        /* =========================================
+           AMOLED / ZERO-RADIUS METRO UI OVERRIDES
+           (Replaces metro-override.css — inline for reliability)
+           ========================================= */
+
+        /* Hard reset — defeat Metro's white defaults */
+        html, body, .metro {
+            background-color: var(--bg, #000) !important;
+            color: var(--text-main, #fff) !important;
+        }
+        html { font-size: 100% !important; }
+        body { font-size: 16px !important; font-family: 'Segoe UI Light', 'Segoe UI Variable Display', system-ui, sans-serif; font-weight: 300; }
+
+        /* Zero radius + zero shadow on EVERYTHING */
+        *, *::before, *::after {
+            border-radius: 0 !important;
+        }
+        .tile, .button, .input-control, .tabs, .dialog, .streamer,
+        .calendar, .carousel, .dropdown-menu, .panel, .listview,
+        .tabs li a, .navview .navview-menu .caption, .dialog .dialog-title,
+        .panel .panel-header, .dropdown-menu li a, .input-control .caption {
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        /* Metro button reset — proper sizing (not the 1/3-size bug) */
+        body .button, body button.button, body a.button, body label.button {
+            margin: 0 !important;
+            font-family: inherit !important;
+            font-size: 16px !important;
+            font-weight: 400 !important;
+            line-height: 1 !important;
+            color: #ffffff !important;
+            text-align: center;
+            cursor: pointer;
+            background-color: var(--surface, #111) !important;
+            border: 2px solid transparent !important;
+            border-radius: 0 !important;
+            outline: none;
+            text-transform: lowercase;
+            padding: 12px 24px !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        body .button:hover { background-color: var(--surface-hover, #1a1a1a) !important; border-color: var(--accent, #1ba1e2) !important; box-shadow: none !important; }
+        body .button:active, body .button:focus { transform: scale(0.96); outline: none; border-color: var(--accent, #1ba1e2) !important; background-color: var(--accent, #1ba1e2) !important; color: #fff !important; box-shadow: none !important; }
+        body .button.primary { background-color: var(--accent, #1ba1e2) !important; color: #fff !important; }
+        body .button.primary:hover { filter: brightness(1.1); box-shadow: none !important; }
+        body .button.success { background-color: #60a917 !important; color: #fff !important; }
+        body .button.warning { background-color: #f0a30a !important; color: #000 !important; }
+        body .button.danger { background-color: #a20025 !important; color: #fff !important; }
+        body .button.small { font-size: 13px !important; padding: 7px 14px !important; }
+        body .button:disabled, body .button.disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Tiles — strip Metro's float, keep our grid layout (NO size overrides) */
+        .tile {
+            position: relative !important;
+            display: block !important;
+            float: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden;
+            cursor: pointer;
+            background-color: var(--surface, #111);
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            color: var(--text-main, #fff) !important;
+            outline: none !important;
+            /* DO NOT set width/height — let the grid control sizing */
+        }
+        .tile:hover { box-shadow: inset 0 0 0 2px var(--accent, #1ba1e2) !important; outline: 0 !important; }
+        .tile:active { outline: none !important; box-shadow: none !important; }
+
+        /* Start screen tiles — keep our grid (not Metro's float) */
+        .start-screen-grid .tile { float: none !important; margin: 0 !important; }
+
+        /* Panorama must stay horizontal scroll */
+        .panorama-container { display: flex !important; flex-direction: row !important; }
+        .panorama-container .header-section {
+            flex: 0 0 85vw !important;
+            width: 85vw !important;
+            min-width: 85vw !important;
+            max-width: 85vw !important;
+            margin-right: 15vw !important;
+        }
+
+        /* Inputs */
+        .input-control.text input, .input-control.password input,
+        .input-control.select select, .input-control.textarea textarea {
+            background: var(--input-bg, #111) !important;
+            color: var(--text-main, #fff) !important;
+            border: 2px solid transparent !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            font-family: inherit;
+        }
+        .input-control.text input:focus, .input-control.password input:focus,
+        .input-control.select select:focus, .input-control.textarea textarea:focus {
+            border-color: var(--accent, #1ba1e2) !important;
+        }
+
+        /* Switch toggle (flat square, no pill) */
+        .input-control.switch .check {
+            background: var(--surface, #111);
+            border: 2px solid var(--text-dim, rgba(255,255,255,0.4));
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+        .input-control.switch input:checked ~ .check { background: var(--accent, #1ba1e2); border-color: var(--accent, #1ba1e2); }
+
+        /* Navview (mobile side pane) */
+        .navview, .navview .navview-pane { background: var(--bg, #000) !important; color: var(--text-main, #fff) !important; }
+        .navview .navview-menu li a { color: var(--text-main, #fff) !important; text-transform: lowercase; }
+        .navview .navview-menu li.active { background: var(--surface, #111) !important; }
+        .navview .navview-menu li a:hover { background: var(--surface-hover, #1a1a1a) !important; }
+        .navview .suggest-box input { background: var(--surface, #111) !important; color: var(--text-main, #fff) !important; border: 0 !important; }
+        .navview .pull-button { background: var(--accent, #1ba1e2) !important; color: #fff !important; }
+
+        /* Dialogs */
+        .dialog { background: var(--bg, #000) !important; color: var(--text-main, #fff) !important; border: 2px solid var(--accent, #1ba1e2) !important; box-shadow: none !important; }
+        .dialog .dialog-title { background: var(--bg, #000) !important; color: var(--text-main, #fff) !important; border-bottom: 2px solid var(--accent, #1ba1e2) !important; }
+        .dialog .dialog-content { background: var(--bg, #000) !important; color: var(--text-main, #fff) !important; padding: 20px !important; }
+
+        /* Nav arrows — keep our custom round arrows (not Metro's) */
+        .nav-arrow-btn { border-radius: 50% !important; }
+
+        /* Nav items z-index fix */
+        .xbox-nav { z-index: 200 !important; opacity: 1 !important; visibility: visible !important; }
+        .top-right-nav { z-index: 1100 !important; }
+        .nav-arrows { z-index: 1100 !important; }
+        #login-overlay { z-index: 9999 !important; }
+        #top-right-nav[data-shown="1"] { display: flex !important; }
+
+        /* Inline background wins on colored tiles */
+        .tile[style*="background-color"] { background-color: inherit !important; }
+
+        /* Tile sizes: .double = 2x2, .half = 1x1 in our grid */
+        .start-screen-grid .tile.double { grid-column: span 2; grid-row: span 2; }
+        .start-screen-grid .tile.half { grid-column: span 1; grid-row: span 1; }
+        @media (max-width: 768px) {
+            .start-screen-grid .tile.double { grid-column: span 1; grid-row: span 1; }
+        }
+
+
         /* =========================================
            CORE VARIABLES (AMOLED + data-theme)
            ========================================= */
@@ -4136,9 +4277,7 @@
     </div>
 
     <!-- Metro UI v4 needs jQuery, then metro.js -->
-    <script src="vendor/metro-ui/dist/js/jquery/jquery.min.js"></script>
-    <script src="vendor/metro-ui/dist/js/jquery/jquery.widget.min.js"></script>
-    <script src="vendor/metro-ui/dist/js/metro.js"></script>
+    <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.32.2/dist/date-fns.min.js"></script>
 
     <script>
@@ -6635,7 +6774,7 @@
                             id: ${u.id} • <a href="https://anilist.co/user/${u.name}" target="_blank" style="color:var(--accent);">anilist.co/user/${u.name.toLowerCase()}</a>
                         </div>
                         <div style="display:flex; gap:10px;">
-                            ${!isGuest && u.id !== currentUserId ? `<button class="button ${u.isFollowing ? '' : primary" data-role="button" id="follow-btn" onclick="toggleFollow(${u.id})">${u.isFollowing ? 'unfollow' : 'follow'}</button>` : ''}
+                            ${!isGuest && u.id !== currentUserId ? `<button class="button ${u.isFollowing ? '' : 'primary'}" data-role="button" id="follow-btn" onclick="toggleFollow(${u.id})">${u.isFollowing ? 'unfollow' : 'follow'}</button>` : ''}
                             <button class="button" data-role="button" onclick="openUserLibrary(${u.id}, 'ANIME')">anime list</button>
                             <button class="button" data-role="button" onclick="openUserLibrary(${u.id}, 'MANGA')">manga list</button>
                         </div>
