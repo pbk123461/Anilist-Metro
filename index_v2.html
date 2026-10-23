@@ -3042,70 +3042,390 @@
         .metro-select-opt:hover { background: var(--accent); color: #fff; }
 
         /* =========================================
-           FLUENT 1 DESIGN SYSTEM OVERRIDES
+           FLUENT 1 (WINDOWS 11) DESIGN SYSTEM
+           Authentic Fluent design overrides
            ========================================= */
         [data-ui="fluent"] {
-            --fluent-radius: 4px;
-            --fluent-card-radius: 6px;
-            --fluent-acrylic-bg: rgba(17, 17, 17, 0.7);
-            --fluent-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            --fluent-elevation: 0 4px 16px rgba(0,0,0,0.4);
+            --fluent-radius-xs: 4px;
+            --fluent-radius-sm: 6px;
+            --fluent-radius-md: 8px;
+            --fluent-radius-lg: 12px;
+            --fluent-radius-xl: 16px;
+            --fluent-radius-pill: 9999px;
+
+            --fluent-acrylic-bg: rgba(28, 28, 34, 0.78);
+            --fluent-acrylic-nav: rgba(18, 18, 22, 0.88);
+            --fluent-acrylic-card: rgba(36, 36, 44, 0.74);
+            --fluent-acrylic-modal: rgba(24, 24, 30, 0.94);
+
+            --fluent-border: rgba(255, 255, 255, 0.09);
+            --fluent-border-light: rgba(255, 255, 255, 0.16);
+            --fluent-border-hover: rgba(255, 255, 255, 0.26);
+
+            --fluent-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
+            --fluent-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.36), 0 1px 4px rgba(0, 0, 0, 0.2);
+            --fluent-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.46), 0 2px 8px rgba(0, 0, 0, 0.26);
+            --fluent-shadow-flyout: 0 20px 50px rgba(0, 0, 0, 0.65), 0 4px 16px rgba(0, 0, 0, 0.35);
+
+            --fluent-font: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
+
+        /* 1. Global Typography & Atmosphere in Fluent Mode */
+        [data-ui="fluent"] body,
+        [data-ui="fluent"] html {
+            font-family: var(--fluent-font) !important;
+            letter-spacing: -0.01em;
+        }
+        [data-ui="fluent"] .metro-huge-title {
+            font-family: var(--fluent-font) !important;
+            font-weight: 600 !important;
+            text-transform: none !important;
+            letter-spacing: -0.03em !important;
+        }
+        [data-ui="fluent"] .nav-item,
+        [data-ui="fluent"] .pivot-item,
+        [data-ui="fluent"] .settings-item-header,
+        [data-ui="fluent"] .settings-title,
+        [data-ui="fluent"] .button,
+        [data-ui="fluent"] .metro-btn,
+        [data-ui="fluent"] .status-btn,
+        [data-ui="fluent"] .mts-btn,
+        [data-ui="fluent"] .toggle-label,
+        [data-ui="fluent"] h1, [data-ui="fluent"] h2, [data-ui="fluent"] h3, [data-ui="fluent"] h4 {
+            text-transform: none !important;
+        }
+
+        /* 2. Tiles, Cards, Grid Items */
         [data-ui="fluent"] .metro-tile-start,
         [data-ui="fluent"] .tile,
         [data-ui="fluent"] .metro-tile,
-        [data-ui="fluent"] .char-card,
-        [data-ui="fluent"] .prog-item,
-        [data-ui="fluent"] .airing-tile,
         [data-ui="fluent"] .wide-info-tile,
         [data-ui="fluent"] .user-stat-tile,
+        [data-ui="fluent"] .airing-tile,
         [data-ui="fluent"] .browse-card,
+        [data-ui="fluent"] .char-card,
+        [data-ui="fluent"] .prog-item,
+        [data-ui="fluent"] .trending-tile,
         [data-ui="fluent"] .inbox-item,
-        [data-ui="fluent"] .metro-btn,
-        [data-ui="fluent"] .filter-chip,
-        [data-ui="fluent"] .metro-input,
-        [data-ui="fluent"] select {
-            border-radius: var(--fluent-radius);
-            box-shadow: var(--fluent-shadow);
-            transition: box-shadow 0.2s, transform 0.1s, background 0.2s;
+        [data-ui="fluent"] .media-card,
+        [data-ui="fluent"] .calendar-day-cell {
+            border-radius: var(--fluent-radius-md) !important;
+            background: var(--fluent-acrylic-card) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border: 1px solid var(--fluent-border) !important;
+            box-shadow: var(--fluent-shadow-sm) !important;
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, background-color 0.2s !important;
         }
+
         [data-ui="fluent"] .metro-tile-start:hover,
         [data-ui="fluent"] .tile:hover,
         [data-ui="fluent"] .metro-tile:hover,
+        [data-ui="fluent"] .wide-info-tile:hover,
+        [data-ui="fluent"] .user-stat-tile:hover,
+        [data-ui="fluent"] .airing-tile:hover,
+        [data-ui="fluent"] .browse-card:hover,
         [data-ui="fluent"] .char-card:hover,
-        [data-ui="fluent"] .prog-item:hover {
-            box-shadow: var(--fluent-elevation);
-            transform: translateY(-1px);
+        [data-ui="fluent"] .prog-item:hover,
+        [data-ui="fluent"] .trending-tile:hover,
+        [data-ui="fluent"] .inbox-item:hover {
+            transform: translateY(-3px) scale(1.01) !important;
+            box-shadow: var(--fluent-shadow-md) !important;
+            border-color: var(--fluent-border-hover) !important;
+            background: rgba(48, 48, 58, 0.84) !important;
         }
+
+        [data-ui="fluent"] .metro-tile-start:active,
+        [data-ui="fluent"] .tile:active,
+        [data-ui="fluent"] .metro-tile:active,
+        [data-ui="fluent"] .browse-card:active {
+            transform: scale(0.98) !important;
+            box-shadow: var(--fluent-shadow-sm) !important;
+        }
+
+        /* 3. Panels & Subviews */
+        [data-ui="fluent"] .panel,
+        [data-ui="fluent"] .settings-item,
+        [data-ui="fluent"] .settings-subview,
+        [data-ui="fluent"] .metro-panel,
+        [data-ui="fluent"] .feed-item,
+        [data-ui="fluent"] .reply-box,
+        [data-ui="fluent"] .wallpaper-preview {
+            border-radius: var(--fluent-radius-lg) !important;
+            background: var(--fluent-acrylic-bg) !important;
+            backdrop-filter: blur(24px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            border: 1px solid var(--fluent-border) !important;
+            box-shadow: var(--fluent-shadow-sm) !important;
+        }
+
+        /* 4. Interactive Buttons */
+        [data-ui="fluent"] .button,
+        [data-ui="fluent"] button.button,
+        [data-ui="fluent"] .metro-btn,
+        [data-ui="fluent"] .status-btn,
+        [data-ui="fluent"] .load-more-btn,
+        [data-ui="fluent"] .mts-btn,
+        [data-ui="fluent"] .btn-back,
+        [data-ui="fluent"] .btn-back-text,
+        [data-ui="fluent"] .wallpaper-button {
+            border-radius: var(--fluent-radius-sm) !important;
+            border: 1px solid var(--fluent-border) !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            box-shadow: var(--fluent-shadow-sm) !important;
+            font-weight: 500 !important;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        [data-ui="fluent"] .button:hover,
+        [data-ui="fluent"] button.button:hover,
         [data-ui="fluent"] .metro-btn:hover,
-        [data-ui="fluent"] .filter-chip:hover {
-            box-shadow: var(--fluent-elevation);
-            transform: translateY(-1px);
+        [data-ui="fluent"] .status-btn:hover,
+        [data-ui="fluent"] .load-more-btn:hover,
+        [data-ui="fluent"] .mts-btn:hover,
+        [data-ui="fluent"] .btn-back:hover,
+        [data-ui="fluent"] .btn-back-text:hover,
+        [data-ui="fluent"] .wallpaper-button:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: var(--fluent-border-hover) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: var(--fluent-shadow-md) !important;
         }
+
+        [data-ui="fluent"] .button:active,
+        [data-ui="fluent"] button.button:active,
         [data-ui="fluent"] .metro-btn:active,
-        [data-ui="fluent"] .filter-chip:active {
-            transform: translateY(0);
-            box-shadow: var(--fluent-shadow);
+        [data-ui="fluent"] .status-btn:active,
+        [data-ui="fluent"] .mts-btn:active {
+            transform: scale(0.97) !important;
+            box-shadow: var(--fluent-shadow-sm) !important;
         }
-        [data-ui="fluent"] .dropbtn {
-            border-radius: var(--fluent-radius);
+
+        [data-ui="fluent"] .button.primary,
+        [data-ui="fluent"] .metro-btn.primary,
+        [data-ui="fluent"] .mts-btn.active {
+            background: var(--accent) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 2px 10px rgba(var(--accent-rgb, 27, 161, 226), 0.45) !important;
         }
-        [data-ui="fluent"] .dropdown-content {
-            border-radius: var(--fluent-radius);
-            box-shadow: var(--fluent-elevation);
+        [data-ui="fluent"] .button.primary:hover,
+        [data-ui="fluent"] .metro-btn.primary:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 4px 16px rgba(var(--accent-rgb, 27, 161, 226), 0.6) !important;
         }
+
+        /* 5. Inputs, Selects, and Dropdowns */
+        [data-ui="fluent"] input[type="text"],
+        [data-ui="fluent"] input[type="search"],
+        [data-ui="fluent"] input[type="password"],
+        [data-ui="fluent"] input[type="number"],
+        [data-ui="fluent"] textarea,
+        [data-ui="fluent"] select,
+        [data-ui="fluent"] .metro-input,
+        [data-ui="fluent"] .metro-select,
+        [data-ui="fluent"] .metro-select-btn {
+            border-radius: var(--fluent-radius-sm) !important;
+            background: rgba(24, 24, 28, 0.75) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid var(--fluent-border) !important;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            padding: 8px 14px !important;
+        }
+
+        [data-ui="fluent"] input:focus,
+        [data-ui="fluent"] textarea:focus,
+        [data-ui="fluent"] select:focus,
+        [data-ui="fluent"] .metro-input:focus,
+        [data-ui="fluent"] .metro-select:focus {
+            border-bottom: 2px solid var(--accent) !important;
+            border-color: var(--fluent-border-hover) !important;
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 27, 161, 226), 0.25) !important;
+            outline: none !important;
+        }
+
+        /* 6. Filter Chips & Badges */
+        [data-ui="fluent"] .filter-chip,
+        [data-ui="fluent"] .genre-chip,
+        [data-ui="fluent"] .studio-chip,
+        [data-ui="fluent"] .badge,
+        [data-ui="fluent"] .status-chip {
+            border-radius: var(--fluent-radius-pill) !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid var(--fluent-border) !important;
+            padding: 6px 14px !important;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        [data-ui="fluent"] .filter-chip:hover,
+        [data-ui="fluent"] .genre-chip:hover,
+        [data-ui="fluent"] .studio-chip:hover {
+            background: rgba(255, 255, 255, 0.14) !important;
+            border-color: var(--fluent-border-hover) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        [data-ui="fluent"] .filter-chip.active,
+        [data-ui="fluent"] .genre-chip.active,
+        [data-ui="fluent"] .studio-chip.active {
+            background: var(--accent) !important;
+            color: #ffffff !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 2px 8px rgba(var(--accent-rgb, 27, 161, 226), 0.4) !important;
+        }
+
+        /* 7. Fluent Toggle Buttons & Switches */
+        [data-ui="fluent"] .metro-toggle-btn,
+        [data-ui="fluent"] .toggle-track {
+            border-radius: var(--fluent-radius-pill) !important;
+            border: 1px solid var(--fluent-border) !important;
+            background: rgba(255, 255, 255, 0.16) !important;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        [data-ui="fluent"] .metro-toggle-btn::after,
+        [data-ui="fluent"] .toggle-track::after {
+            border-radius: 50% !important;
+            background: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        [data-ui="fluent"] .metro-toggle-btn.active,
+        [data-ui="fluent"] input:checked + .toggle-track {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 2px 8px rgba(var(--accent-rgb, 27, 161, 226), 0.4) !important;
+        }
+
+        /* 8. Top Navigation & Nav Items */
+        [data-ui="fluent"] #main-nav {
+            background: var(--fluent-acrylic-nav) !important;
+            backdrop-filter: blur(28px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+            border-bottom: 1px solid var(--fluent-border) !important;
+            box-shadow: var(--fluent-shadow-sm) !important;
+        }
+
+        [data-ui="fluent"] .nav-item {
+            border-radius: var(--fluent-radius-sm) !important;
+            padding: 8px 18px !important;
+            margin: 0 2px !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            font-size: 1.15rem !important;
+        }
+
+        [data-ui="fluent"] .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+        }
+
+        [data-ui="fluent"] .nav-item.active {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+            box-shadow: inset 0 -2px 0 var(--accent) !important;
+        }
+
+        [data-ui="fluent"] #top-right-nav {
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+        }
+
+        /* 9. Section Navigation Arrows */
+        [data-ui="fluent"] #main-arrows button,
+        [data-ui="fluent"] .section-nav-arrow {
+            border-radius: 50% !important;
+            background: rgba(30, 30, 36, 0.8) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid var(--fluent-border) !important;
+            box-shadow: var(--fluent-shadow-md) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        [data-ui="fluent"] #main-arrows button:hover,
+        [data-ui="fluent"] .section-nav-arrow:hover {
+            transform: scale(1.1) !important;
+            background: rgba(45, 45, 54, 0.95) !important;
+            border-color: var(--fluent-border-hover) !important;
+            box-shadow: var(--fluent-shadow-lg) !important;
+        }
+
+        /* 10. Detail View & Flyouts & Modals */
+        [data-ui="fluent"] #detail-panel,
+        [data-ui="fluent"] .detail-panel,
+        [data-ui="fluent"] #media-editor-overlay,
+        [data-ui="fluent"] #bulk-edit-modal-content,
+        [data-ui="fluent"] .dropdown-content,
+        [data-ui="fluent"] .metro-select-dropdown,
+        [data-ui="fluent"] #video-subview {
+            border-radius: var(--fluent-radius-xl) !important;
+            background: var(--fluent-acrylic-modal) !important;
+            backdrop-filter: blur(36px) saturate(190%) !important;
+            -webkit-backdrop-filter: blur(36px) saturate(190%) !important;
+            border: 1px solid var(--fluent-border-light) !important;
+            box-shadow: var(--fluent-shadow-flyout) !important;
+        }
+
+        [data-ui="fluent"] .detail-close,
+        [data-ui="fluent"] .editor-close {
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            width: 40px !important;
+            height: 40px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.18s !important;
+        }
+        [data-ui="fluent"] .detail-close:hover,
+        [data-ui="fluent"] .editor-close:hover {
+            background: rgba(255, 255, 255, 0.18) !important;
+            transform: rotate(90deg) !important;
+        }
+
+        /* 11. Posters & Media Images */
+        [data-ui="fluent"] .anime-poster,
+        [data-ui="fluent"] .poster-img,
+        [data-ui="fluent"] .char-card img,
+        [data-ui="fluent"] .tile img,
+        [data-ui="fluent"] .detail-cover {
+            border-radius: var(--fluent-radius-sm) !important;
+            box-shadow: var(--fluent-shadow-sm) !important;
+        }
+
+        /* 12. Progress Bars */
+        [data-ui="fluent"] .progress-bar,
+        [data-ui="fluent"] .prog-bar-fill,
+        [data-ui="fluent"] .volume-bar {
+            border-radius: var(--fluent-radius-xs) !important;
+        }
+
+        /* 13. Mobile Bottom Navigation */
         [data-ui="fluent"] .mobile-bottom-nav {
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            background: var(--fluent-acrylic-bg);
+            background: var(--fluent-acrylic-nav) !important;
+            backdrop-filter: blur(28px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+            border-top: 1px solid var(--fluent-border) !important;
         }
-        [data-ui="fluent"] body,
-        [data-ui="fluent"] html {
-            font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif !important;
+        [data-ui="fluent"] .mobile-bottom-nav .button {
+            border-radius: var(--fluent-radius-pill) !important;
         }
-        [data-ui="fluent"] .metro-huge-title {
-            font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif !important;
-            font-weight: 600;
+
+        /* 14. Smooth Fluent Scrollbars */
+        [data-ui="fluent"] ::-webkit-scrollbar-thumb {
+            border-radius: var(--fluent-radius-pill) !important;
+            background: rgba(255, 255, 255, 0.22) !important;
+            border: 2px solid transparent !important;
+            background-clip: padding-box !important;
+        }
+        [data-ui="fluent"] ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.38) !important;
         }
 
         /* Browse page tiles */
@@ -4331,37 +4651,41 @@
             if (select) select.value = mode;
         }
         function setThemeMode(mode) { localStorage.setItem('theme_mode', mode); applyThemeMode(mode); updateThemeSubtitle(); }
+        function hexToRgb(hex) {
+            if (!hex) return '27, 161, 226';
+            hex = hex.replace('#', '');
+            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            const num = parseInt(hex, 16);
+            if (isNaN(num)) return '27, 161, 226';
+            return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+        }
+
         function setUIStyle(style) {
-            localStorage.setItem('ui_style', style);
-            if (style === 'fluent') {
+            const currentStyle = style === 'fluent' ? 'fluent' : 'metro';
+            localStorage.setItem('ui_style', currentStyle);
+            if (currentStyle === 'fluent') {
                 document.documentElement.setAttribute('data-ui', 'fluent');
-                // Apply Fluent-specific overrides
-                document.documentElement.style.setProperty('--metro-radius', '4px');
-                document.documentElement.style.setProperty('--metro-card-radius', '6px');
-                // Add acrylic effect to panels
-                document.querySelectorAll('.panel, .settings-item, .wide-info-tile, .browse-card').forEach(el => {
-                    el.style.backdropFilter = 'blur(15px)';
-                    el.style.webkitBackdropFilter = 'blur(15px)';
-                });
-                
             } else {
                 document.documentElement.removeAttribute('data-ui');
-                document.documentElement.style.removeProperty('--metro-radius');
-                document.documentElement.style.removeProperty('--metro-card-radius');
-                document.documentElement.style.removeProperty('--metro-blur');
-                // Remove acrylic overrides
-                document.querySelectorAll('.panel, .settings-item, .wide-info-tile, .browse-card').forEach(el => {
-                    el.style.backdropFilter = '';
-                    el.style.webkitBackdropFilter = '';
-                });
-                
             }
+            const sel = document.getElementById('ui-style-select');
+            if (sel) sel.value = currentStyle;
+            updateThemeSubtitle();
+            if (typeof showToast === 'function') {
+                showToast('ui style: ' + (currentStyle === 'fluent' ? 'fluent 1 (windows 11)' : 'metro (classic)'));
+            }
+            if (window.Sfx && typeof Sfx.play === 'function') Sfx.play('select');
         }
+
         function applyUIStyle() {
             const saved = localStorage.getItem('ui_style') || 'metro';
             const sel = document.getElementById('ui-style-select');
             if (sel) sel.value = saved;
-            setUIStyle(saved);
+            if (saved === 'fluent') {
+                document.documentElement.setAttribute('data-ui', 'fluent');
+            } else {
+                document.documentElement.removeAttribute('data-ui');
+            }
         }
         window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
             const currentMode = localStorage.getItem('theme_mode') || 'system';
@@ -4370,6 +4694,7 @@
 
         function setAccentColor(color) {
             document.documentElement.style.setProperty('--accent', color);
+            document.documentElement.style.setProperty('--accent-rgb', hexToRgb(color));
             localStorage.setItem('metro_theme', color);
             wheelPickedColor = color;
             const cb = document.getElementById('color-preview-box'); if (cb) cb.style.background = color;
@@ -7909,77 +8234,159 @@
             buffers: {},
             lastPlay: {},
             get sounds() { return SFX_PACKS[this.currentPack] || SFX_PACKS.classic; },
-            async init() {
-                if (this.ctx) {
-                    if (this.ctx.state === 'suspended') await this.ctx.resume();
-                    return;
-                }
-                try {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    await this._loadBuffers();
-                } catch (e) {
-                    console.warn('AudioContext failed to initialize:', e);
-                }
-            },
-            async _loadBuffers() {
-                if (!this.ctx) return;
-                this.buffers = {};
-                for (const [key, url] of Object.entries(this.sounds)) {
+            init() {
+                if (!this.ctx) {
                     try {
-                        const resp = await fetch(url);
-                        const arrayBuffer = await resp.arrayBuffer();
-                        this.buffers[key] = await this.ctx.decodeAudioData(arrayBuffer);
+                        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                     } catch (e) {
-                        console.warn(`Failed to load sound ${key} (${url}):`, e);
+                        console.warn('AudioContext not supported, using HTMLAudioElement fallback:', e);
                     }
                 }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume().catch(() => {});
+                }
+                this._loadBuffers();
             },
-            async switchPack(packName) {
+            async _loadBuffers() {
+                if (!this.ctx || window.location.protocol === 'file:') return;
+                try {
+                    for (const [key, url] of Object.entries(this.sounds)) {
+                        try {
+                            const resp = await fetch(url);
+                            if (resp.ok) {
+                                const arrayBuffer = await resp.arrayBuffer();
+                                this.buffers[key] = await this.ctx.decodeAudioData(arrayBuffer);
+                            }
+                        } catch (e) {}
+                    }
+                } catch (e) {}
+            },
+            switchPack(packName) {
                 if (!SFX_PACKS[packName]) return;
                 this.currentPack = packName;
                 localStorage.setItem('metro_sfx_pack', packName);
-                if (this.ctx) {
-                    await this._loadBuffers();
+                this.buffers = {};
+                this._loadBuffers();
+                if (typeof showToast === 'function') {
+                    showToast('sound pack: ' + packName);
                 }
-                showToast('sound pack: ' + packName);
                 this.play('select');
             },
-            async play(type) {
+            synth(type, vol = 0.12) {
+                try {
+                    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    if (type === 'select') {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(587.33, now);
+                        osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+                        gain.gain.setValueAtTime(vol, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                        osc.start(now);
+                        osc.stop(now + 0.12);
+                    } else if (type === 'back') {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(783.99, now);
+                        osc.frequency.exponentialRampToValueAtTime(440, now + 0.1);
+                        gain.gain.setValueAtTime(vol, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+                        osc.start(now);
+                        osc.stop(now + 0.14);
+                    } else if (type === 'hover') {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(520, now);
+                        gain.gain.setValueAtTime(vol * 0.35, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                        osc.start(now);
+                        osc.stop(now + 0.04);
+                    } else { // pan
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(320, now);
+                        osc.frequency.linearRampToValueAtTime(540, now + 0.06);
+                        gain.gain.setValueAtTime(vol * 0.6, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                        osc.start(now);
+                        osc.stop(now + 0.1);
+                    }
+                } catch(e) {}
+            },
+            play(type) {
                 if (!this.enabled) return;
                 const now = Date.now();
                 if (this.lastPlay[type] && now - this.lastPlay[type] < (type === 'hover' ? 80 : 50)) return;
                 this.lastPlay[type] = now;
 
-                if (!this.ctx) await this.init();
-                if (!this.ctx || !this.buffers[type]) return;
-                if (this.ctx.state === 'suspended') await this.ctx.resume();
+                const volumes = { hover: 0.04, pan: 0.10, select: 0.16, back: 0.16 };
+                const vol = volumes[type] || 0.14;
 
+                // 1. Try decoded Web Audio buffer if available
+                if (this.ctx && this.buffers[type]) {
+                    try {
+                        if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+                        const source = this.ctx.createBufferSource();
+                        source.buffer = this.buffers[type];
+                        const gain = this.ctx.createGain();
+                        gain.gain.value = vol;
+                        if (type === 'pan' || type === 'hover' || type === 'select') {
+                            source.playbackRate.value = 0.96 + Math.random() * 0.08;
+                        }
+                        source.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        source.start(0);
+                        return;
+                    } catch (e) {}
+                }
+
+                // 2. Try HTMLAudioElement
                 try {
-                    const source = this.ctx.createBufferSource();
-                    source.buffer = this.buffers[type];
-
-                    const gain = this.ctx.createGain();
-                    // Extremely soft volumes as requested
-                    const volumes = { hover: 0.04, pan: 0.08, select: 0.12, back: 0.12 };
-                    gain.gain.value = volumes[type] || 0.1;
-
-                    if (type === 'pan' || type === 'hover' || type === 'select') {
-                        source.playbackRate.value = 0.96 + Math.random() * 0.08;
+                    const url = this.sounds[type];
+                    if (url) {
+                        const audio = new Audio(encodeURI(url));
+                        audio.volume = vol;
+                        if (type === 'pan' || type === 'hover' || type === 'select') {
+                            audio.playbackRate = 0.96 + Math.random() * 0.08;
+                        }
+                        const p = audio.play();
+                        if (p && p.catch) {
+                            p.catch(() => this.synth(type, vol));
+                        }
+                        return;
                     }
-
-                    source.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    source.start(0);
                 } catch (e) {
-                    console.warn(`Sfx ${type} play failed:`, e);
+                    this.synth(type, vol);
                 }
             },
             toggle(enabled) {
-                this.enabled = enabled;
-                localStorage.setItem('metro_sfx', enabled ? 'true' : 'false');
-                showToast(enabled ? 'ui sounds enabled' : 'ui sounds disabled');
-                if (enabled) this.play('select');
+                this.enabled = !!enabled;
+                localStorage.setItem('metro_sfx', this.enabled ? 'true' : 'false');
+                updateSfxToggleUI(this.enabled);
+                if (typeof showToast === 'function') {
+                    showToast(this.enabled ? 'ui sounds enabled' : 'ui sounds disabled');
+                }
+                if (this.enabled) this.play('select');
             }
+        };
+
+        function updateSfxToggleUI(enabled) {
+            const btn = document.getElementById('sfx-toggle-btn');
+            if (btn) {
+                btn.classList.toggle('active', !!enabled);
+                btn.setAttribute('aria-checked', enabled ? 'true' : 'false');
+            }
+            const sfxToggle = document.getElementById('sfx-toggle');
+            if (sfxToggle) {
+                sfxToggle.checked = !!enabled;
+            }
+        }
+
+        window.toggleSfxBtn = function() {
+            Sfx.toggle(!Sfx.enabled);
         };
 
         function openVideoSubview(url) {
@@ -7998,11 +8405,17 @@
             Sfx.play('back');
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Bind SFX Events
-            // Use capture phase for clicks to ensure we catch them even if stopped by children
+        function initSfxSystem() {
+            const unlockAudio = () => {
+                Sfx.init();
+                window.removeEventListener('pointerdown', unlockAudio);
+                window.removeEventListener('keydown', unlockAudio);
+            };
+            window.addEventListener('pointerdown', unlockAudio, { once: true });
+            window.addEventListener('keydown', unlockAudio, { once: true });
+
             document.body.addEventListener('click', e => {
-                const target = e.target.closest('button, .btn-back, .btn-back-text, .detail-close, .metro-btn, .metro-tile, .nav-item, .pivot-item, .filter-chip, .color-swatch, .inbox-item, .switch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .wide-info-tile');
+                const target = e.target.closest('button, .btn-back, .btn-back-text, .detail-close, .metro-btn, .metro-tile, .nav-item, .pivot-item, .filter-chip, .color-swatch, .inbox-item, .switch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .wide-info-tile, .metro-toggle-btn');
                 if (!target) return;
 
                 if (target.matches('.btn-back, .btn-back-text, .detail-close')) {
@@ -8013,7 +8426,7 @@
             }, true);
 
             document.body.addEventListener('mouseover', e => {
-                const target = e.target.closest('button, .metro-btn, .metro-tile, .nav-item, .pivot-item, .color-swatch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .filter-chip, .wide-info-tile');
+                const target = e.target.closest('button, .metro-btn, .metro-tile, .nav-item, .pivot-item, .color-swatch, .status-btn, .dropbtn, .tile, .flip-tile, .load-more-btn, .filter-chip, .wide-info-tile, .metro-toggle-btn');
                 if (target && target !== Sfx.lastHoverTarget) {
                     Sfx.play('hover');
                     Sfx.lastHoverTarget = target;
@@ -8022,21 +8435,19 @@
                 }
             });
 
-            // SFX Toggle Init
+            updateSfxToggleUI(Sfx.enabled);
             const sfxToggle = document.getElementById('sfx-toggle');
             if (sfxToggle) {
                 sfxToggle.checked = Sfx.enabled;
                 sfxToggle.addEventListener('change', e => Sfx.toggle(e.target.checked));
             }
 
-            // SFX Pack Selector Init
             const packSelect = document.getElementById('sfx-pack-select');
             if (packSelect) {
                 packSelect.value = Sfx.currentPack;
                 packSelect.addEventListener('change', e => Sfx.switchPack(e.target.value));
             }
 
-            // Blur Toggle Init
             const blurLayer = document.getElementById('top-blur-layer');
             const blurToggle = document.getElementById('blur-toggle');
             const blurEnabled = localStorage.getItem('metro_blur') !== 'false';
@@ -8047,10 +8458,18 @@
                     const on = e.target.checked;
                     localStorage.setItem('metro_blur', on ? 'true' : 'false');
                     if (blurLayer) blurLayer.classList.toggle('blur-disabled', !on);
-                    showToast(on ? 'blur effect enabled' : 'blur effect disabled');
+                    if (typeof showToast === 'function') {
+                        showToast(on ? 'blur effect enabled' : 'blur effect disabled');
+                    }
                 });
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSfxSystem);
+        } else {
+            initSfxSystem();
+        }
     </script>
 </body>
 
