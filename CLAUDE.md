@@ -110,6 +110,7 @@ No centered modal dialogs — ever.
 | `show_adult` | Adult content toggle |
 | `show_spoilers` | Spoiler reveal toggle |
 | `title_language` | Title language preference |
+| `metro_start_tile_order` | Start-screen tile order (drag & drop) |
 
 ### 3.2 Global JS Variables — DO NOT REMOVE
 ```js
