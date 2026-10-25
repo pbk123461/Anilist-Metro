@@ -465,6 +465,27 @@
             transform: scale(0.88);
         }
 
+        /* Home button - next to arrow keys */
+        .home-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.1s, border-color 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .home-btn:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-ink);
+        }
+
         #controller-hud {
             position: fixed;
             left: 50%;
@@ -649,6 +670,24 @@
 
         .metro-tile-start:active {
             transform: scale(0.95);
+        }
+
+        .metro-tile-start[draggable="true"] {
+            cursor: grab;
+        }
+
+        .metro-tile-start.is-dragging {
+            opacity: 0.45;
+            cursor: grabbing;
+        }
+
+        .metro-tile-start.drag-over {
+            outline: 3px dashed var(--accent);
+            outline-offset: -3px;
+        }
+
+        .start-screen-grid.reordering .metro-tile-start:active {
+            transform: none;
         }
 
         .metro-tile-start.small {
@@ -3975,6 +4014,7 @@
 
     <div class="nav-arrows" id="main-arrows" style="display: none;">
         <button class="nav-arrow-btn" onclick="scrollPanorama(-1)"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="home-btn" type="button" onclick="scrollToSection(0)" title="home" aria-label="Back to start"><i class="fa-solid fa-house"></i></button>
         <button class="nav-arrow-btn" onclick="scrollPanorama(1)"><i class="fa-solid fa-arrow-right"></i></button>
     </div>
 
@@ -5228,6 +5268,8 @@
 
         const liveTileContent = {};
         let liveTileRotationIndex = -1;
+        let liveTileMediaQueue = [];
+        let liveTileMediaIndex = -1;
         function getLiveTileState(name) {
             const username = document.getElementById('start-tile-user')?.textContent?.trim() || 'guest';
             const profileSummary = document.getElementById('user-page-sub')?.textContent?.trim() || 'browse without syncing';
@@ -5308,12 +5350,117 @@
                 }
                 tiles.forEach(renderLiveTile);
                 tiles.forEach(tile => tile.classList.remove('live-flipped'));
+                if (liveTileMediaQueue.length > 1) {
+                    liveTileMediaIndex = (liveTileMediaIndex + 1) % liveTileMediaQueue.length;
+                    const media = liveTileMediaQueue[liveTileMediaIndex];
+                    if (media) updateLiveTile('discover', {
+                        heading: 'trending now',
+                        detail: media.title?.english || media.title?.romaji || 'popular anime',
+                        image: media.coverImage?.large || ''
+                    });
+                    tiles.forEach(renderLiveTile);
+                }
                 liveTileRotationIndex = (liveTileRotationIndex + 1) % tiles.length;
                 tiles[liveTileRotationIndex]?.classList.add('live-flipped');
                 window.setTimeout(() => tiles[liveTileRotationIndex]?.classList.remove('live-flipped'), 3600);
             }, 7200);
         }
         initLiveTiles();
+
+        // ==========================================
+        // START TILE REORDERING (drag & drop)
+        // ==========================================
+        const START_TILE_ORDER_KEY = 'metro_start_tile_order';
+
+        function saveStartTileOrder() {
+            const grid = document.querySelector('.start-screen-grid');
+            if (!grid) return;
+            const order = Array.from(grid.children)
+                .map(tile => tile.dataset.liveTile)
+                .filter(Boolean);
+            try {
+                localStorage.setItem(START_TILE_ORDER_KEY, JSON.stringify(order));
+            } catch (error) {
+                console.warn('could not save start tile order:', error);
+            }
+        }
+
+        function applySavedStartTileOrder() {
+            const grid = document.querySelector('.start-screen-grid');
+            if (!grid) return;
+            let order;
+            try {
+                order = JSON.parse(localStorage.getItem(START_TILE_ORDER_KEY) || '[]');
+            } catch (error) {
+                order = [];
+            }
+            if (!Array.isArray(order) || !order.length) return;
+            const tiles = Array.from(grid.children);
+            order.forEach(name => {
+                const tile = tiles.find(candidate => candidate.dataset.liveTile === name && !candidate.dataset.reordered);
+                if (tile) {
+                    tile.dataset.reordered = 'true';
+                    grid.appendChild(tile);
+                }
+            });
+        }
+
+        function initStartTileReorder() {
+            const grid = document.querySelector('.start-screen-grid');
+            if (!grid) return;
+            applySavedStartTileOrder();
+            let draggedTile = null;
+            let dragActive = false;
+            let lastDragEndedAt = 0;
+
+            grid.querySelectorAll('.metro-tile-start').forEach(tile => {
+                tile.setAttribute('draggable', 'true');
+
+                tile.addEventListener('dragstart', event => {
+                    draggedTile = tile;
+                    dragActive = true;
+                    grid.classList.add('reordering');
+                    tile.classList.add('is-dragging');
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', tile.dataset.liveTile || '');
+                });
+
+                tile.addEventListener('dragend', () => {
+                    tile.classList.remove('is-dragging');
+                    grid.classList.remove('reordering');
+                    lastDragEndedAt = Date.now();
+                    grid.querySelectorAll('.metro-tile-start').forEach(candidate => candidate.classList.remove('drag-over'));
+                    window.setTimeout(() => { dragActive = false; draggedTile = null; }, 0);
+                });
+
+                tile.addEventListener('dragover', event => {
+                    if (!draggedTile || draggedTile === tile) return;
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = 'move';
+                    tile.classList.add('drag-over');
+                });
+
+                tile.addEventListener('dragleave', () => tile.classList.remove('drag-over'));
+
+                tile.addEventListener('drop', event => {
+                    event.preventDefault();
+                    tile.classList.remove('drag-over');
+                    if (!draggedTile || draggedTile === tile) return;
+                    const rect = tile.getBoundingClientRect();
+                    const insertAfter = event.clientX > rect.left + rect.width / 2;
+                    grid.insertBefore(draggedTile, insertAfter ? tile.nextSibling : tile);
+                    saveStartTileOrder();
+                });
+
+                // Suppress the tile's inline onclick after a drag gesture.
+                tile.addEventListener('click', event => {
+                    if (!dragActive && Date.now() - lastDragEndedAt > 300) return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                }, true);
+            });
+        }
+        initStartTileReorder();
 
         let hoverWallpaperTimer = null;
         let hoverWallpaperHideTimer = null;
@@ -5324,7 +5471,7 @@
         function findAnimeCard(target) {
             for (let node = target instanceof Element ? target : null; node && node !== document.documentElement; node = node.parentElement) {
                 const action = node.getAttribute('onclick') || '';
-                const match = action.match(/openDetailById\s*\(\s*(\d+)\s*,\s*['"]ANIME['"]\s*\)/i);
+                const match = action.match(/open(?:AdultAware)?Detail(?:ById)?\s*\(\s*(\d+)\s*,\s*['"]ANIME['"]/i);
                 if (match) return { id: Number(match[1]), element: node };
             }
             return null;
@@ -5906,6 +6053,7 @@
                     showToast('welcome back (limited profile data)');
                 });
                 ensureSectionContent(getCurrentSectionIndex());
+                preloadDiscoverSection();
             }
         }
 
@@ -5925,7 +6073,16 @@
             else if (index === 6 && !isGuest) load = () => loadNotifications(inboxMode);
             if (!load) return;
             loadedSections.add(index);
-            Promise.resolve().then(load).catch(error => console.error(`section ${index} failed to load:`, error));
+            Promise.resolve().then(load).then(result => {
+                // A loader may report failure so the section can retry on the next visit.
+                if (result === false) loadedSections.delete(index);
+            }).catch(error => {
+                loadedSections.delete(index);
+                console.error(`section ${index} failed to load:`, error);
+            });
+        }
+        function preloadDiscoverSection() {
+            ensureSectionContent(4);
         }
         function openStableVersion() {
             localStorage.setItem('metro_experimental_stable', 'true');
@@ -5966,6 +6123,7 @@
             updateLibraryListNav();
             refreshLiveTiles();
             ensureSectionContent(getCurrentSectionIndex());
+            preloadDiscoverSection();
         }
         function initLoginSlideshow() {
             const slideshow = document.getElementById('slideshow-content');
@@ -6658,6 +6816,7 @@
             const adultFilter = showAdultContent ? '' : ',isAdult:false';
             const tq = `query { Page(page:1,perPage:12) { media(sort:TRENDING_DESC,type:ANIME,status:RELEASING${adultFilter}) { id title { english romaji } coverImage { large } description(asHtml:false) averageScore isAdult } } }`;
             const tRow = document.getElementById('trending-row');
+            let trendingFailed = false;
             try {
                 const data = await fetchAPI(tq);
                 tRow.innerHTML = ''; tRow.classList.add('zoom-in');
@@ -6666,6 +6825,8 @@
                     return;
                 }
                 const featured = data.Page.media.find(Boolean);
+                liveTileMediaQueue = data.Page.media.filter(Boolean);
+                liveTileMediaIndex = 0;
                 if (featured) updateLiveTile('discover', {
                     heading: 'trending now',
                     detail: featured.title?.english || featured.title?.romaji || 'popular anime',
@@ -6696,20 +6857,20 @@
             </div>`;
                 });
                 setTimeout(() => { tRow.classList.remove('zoom-in'); }, 300);
-            } catch (e) { tRow.innerHTML = '<div style="color:var(--text-dim);">could not load.</div>'; }
+            } catch (e) { trendingFailed = true; tRow.innerHTML = '<div style="color:var(--text-dim);">could not load.</div>'; }
 
             const wRow = document.getElementById('watching-row');
-            if (isGuest || !currentUserId) { wRow.innerHTML = loginRequiredMarkup('see your currently watching list', 'Sign in to show your personal anime progress here.'); return; }
+            if (isGuest || !currentUserId) { wRow.innerHTML = loginRequiredMarkup('see your currently watching list', 'Sign in to show your personal anime progress here.'); return !trendingFailed; }
             const wq = `query ($userId:Int) { MediaListCollection(userId:$userId,type:ANIME,status:CURRENT) { lists { entries { media { id title { english romaji } coverImage { large } episodes } progress score(format:POINT_10) } } } }`;
             try {
                 const wdata = await fetchAPI(wq, { userId: currentUserId });
                 wRow.innerHTML = ''; wRow.classList.add('zoom-in');
                 if (!wdata || !wdata.MediaListCollection || !wdata.MediaListCollection.lists || !wdata.MediaListCollection.lists[0]) {
                     wRow.innerHTML = '<div style="color:var(--text-dim);">not watching anything.</div>';
-                    return;
+                    return !trendingFailed;
                 }
                 const entries = wdata.MediaListCollection.lists[0]?.entries || [];
-                if (!entries.length) { wRow.innerHTML = '<div style="color:var(--text-dim);">not watching anything.</div>'; return; }
+                if (!entries.length) { wRow.innerHTML = '<div style="color:var(--text-dim);">not watching anything.</div>'; return !trendingFailed; }
                 const currentEntry = entries[0];
                 const currentTitle = currentEntry.media.title.english || currentEntry.media.title.romaji || 'currently watching';
                 updateLiveTile('library', {
@@ -6739,6 +6900,7 @@
                 });
                 setTimeout(() => { wRow.classList.remove('zoom-in'); }, 300);
             } catch (e) { wRow.innerHTML = '<div style="color:var(--text-dim);">could not load.</div>'; }
+            return !trendingFailed;
         }
 
         // ==========================================
@@ -7518,6 +7680,12 @@
 
             if (mode === 'discussions') {
                 loadDiscussionsContent();
+            } else if (mode === 'trending') {
+                const row = document.getElementById('trending-row');
+                if (row && (!row.querySelector('.trending-tile') || !loadedSections.has(4))) {
+                    loadedSections.delete(4);
+                    ensureSectionContent(4);
+                }
             }
         }
 
@@ -7692,7 +7860,37 @@
         // ==========================================
         // DETAIL PANEL: USER & ANIME
         // ==========================================
+        // Detail-panel history so nested views (studio, review, character, etc.)
+        // return to the pane the user came from instead of the panorama.
+        const detailPanelHistory = [];
+
+        function pushDetailPanelHistory() {
+            const panel = document.getElementById('detail-panel');
+            const content = document.getElementById('detail-content');
+            if (!panel || panel.style.display === 'none' || !content) return false;
+            const html = content.innerHTML.trim();
+            if (!html || /^loading\b/i.test(content.textContent.trim())) return false;
+            detailPanelHistory.push({ html: content.innerHTML, scrollTop: panel.scrollTop, media: currentMediaCache });
+            if (detailPanelHistory.length > 25) detailPanelHistory.shift();
+            return true;
+        }
+
+        function restoreDetailPanelHistory() {
+            const previous = detailPanelHistory.pop();
+            if (!previous) return false;
+            const panel = document.getElementById('detail-panel');
+            const content = document.getElementById('detail-content');
+            content.innerHTML = previous.html;
+            panel.style.display = 'block';
+            panel.scrollTop = previous.scrollTop || 0;
+            if (Object.prototype.hasOwnProperty.call(previous, 'media')) currentMediaCache = previous.media;
+            document.getElementById('main-nav').classList.add('ui-hidden');
+            document.getElementById('top-right-nav').classList.add('ui-hidden');
+            return true;
+        }
+
         function closeDetail() {
+            if (restoreDetailPanelHistory()) return;
             document.getElementById('detail-panel').style.display = 'none';
             document.getElementById('main-nav').classList.remove('ui-hidden');
             document.getElementById('top-right-nav').classList.remove('ui-hidden');
@@ -7704,6 +7902,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading user...</div>'; panel.style.display = 'block';
 
             let q, vars;
@@ -7847,6 +8046,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading user list...</div>'; panel.style.display = 'block';
 
             const q = `query ($userId: Int, $type: MediaType) { MediaListCollection(userId: $userId, type: $type) { lists { name status isCustomList entries { status score(format:POINT_10) progress updatedAt media { id type format title { english romaji } coverImage { large } bannerImage episodes chapters status genres countryOfOrigin startDate { year } tags { name } } } } } }`;
@@ -8241,6 +8441,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading...</div>'; panel.style.display = 'block';
             const q = `query ($id:Int) {
         Media(id:$id) {
@@ -8596,6 +8797,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading review...</div>'; panel.style.display = 'block';
 
             const q = `query ($id: Int) {
@@ -8634,6 +8836,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading character...</div>'; panel.style.display = 'block';
 
             const q = `query ($id: Int) {
@@ -8722,6 +8925,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading voice actor...</div>'; panel.style.display = 'block';
 
             const q = `query ($id: Int) {
@@ -8823,6 +9027,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim); margin-top:20px;">loading genre...</div>'; panel.style.display = 'block';
 
             const q = `query ($genre: String, $type: MediaType) { Page(page:1,perPage:20) { media(genre: $genre, type: $type, sort: TRENDING_DESC) { id title { english romaji } coverImage { large } averageScore isAdult status } } }`;
@@ -9335,6 +9540,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim);">loading thread...</div>'; panel.style.display = 'block';
             const q = `query($id:Int){Thread(id:$id){id title body(asHtml:false)createdAtviewCountreplyCountlikeCountisLikedisLockeduser{idnameavatar{large}}categories{name}}}`;
             const q2 = `query($id:Int,$page:Int){Page(page:$page,perPage:20){pageInfo{hasNextPage}threadComments(threadId:$id,sort:ID_DESC){idcomment(asHtml:false)createdAtlikeslikeCountisLikeduser{idnameavatar{large}}childComments{idcomment(asHtml:false)createdAtlikeCountisLikeduser{idnameavatar{large}}}}}}`;
@@ -9435,6 +9641,7 @@
             document.getElementById('main-nav').classList.add('ui-hidden');
             document.getElementById('top-right-nav').classList.add('ui-hidden');
             const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+            pushDetailPanelHistory();
             content.innerHTML = '<div style="color:var(--text-dim);">loading staff...</div>'; panel.style.display = 'block';
             const q = `query($id:Int){Staff(id:$id){id name{full native}image{large}description(asHtml:true)languageV2 primaryOccupations gender dateOfBirth{year month day}dateOfDeath{year month day}age yearsActive homeTown bloodType favourites isFavourite siteUrl
                 staffMedia(page:1,perPage:24,sort:[START_DATE_DESC,ID]){edges{staffRole node{id type title{english romaji}coverImage{large}startDate{year}}}}
@@ -9496,6 +9703,7 @@
                 document.getElementById('main-nav').classList.add('ui-hidden');
                 document.getElementById('top-right-nav').classList.add('ui-hidden');
                 const panel = document.getElementById('detail-panel'), content = document.getElementById('detail-content');
+                pushDetailPanelHistory();
                 content.innerHTML = '<div style="color:var(--text-dim);">loading studio...</div>'; panel.style.display = 'block';
             }
             const content = document.getElementById('detail-content');
