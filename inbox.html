@@ -1,0 +1,18 @@
+<!-- SECTION 5: INBOX -->
+        <section class="header-section">
+            <h1 class="metro-huge-title" id="notif-page-title">inbox</h1>
+            <div class="content-scroll">
+                <div class="pivot-headers"
+                    style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:20px;">
+                    <div style="display:flex; gap:30px;">
+                        <div class="pivot-item active" onclick="switchInboxCategory('unread', this)">unread</div>
+                        <div class="pivot-item" onclick="switchInboxCategory('read', this)">read</div>
+                    </div>
+                    <button class="metro-btn small" onclick="markAllNotificationsRead()"><i
+                            class="fa-solid fa-check-double"></i> mark all as read</button>
+                </div>
+                <div class="inbox-list" id="notif-list">
+                    <div style="color:var(--text-dim);">loading...</div>
+                </div>
+            </div>
+        </section>

@@ -1,0 +1,47 @@
+<!-- SECTION 4.5: AIRING SCHEDULE -->
+        <section class="header-section">
+            <h1 class="metro-huge-title">airing</h1>
+            <div class="content-scroll">
+                <div class="airing-toolbar">
+                    <div class="airing-calendar-panel">
+                        <div class="airing-calendar-header">
+                            <button class="metro-btn small" onclick="shiftAiringMonth(-1)"><i
+                                    class="fa-solid fa-chevron-left"></i></button>
+                            <div class="airing-month-label" id="airing-month-label">loading month</div>
+                            <button class="metro-btn small" onclick="shiftAiringMonth(1)"> <i
+                                    class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <div class="airing-calendar" id="airing-calendar"></div>
+                    </div>
+                    <div class="airing-date-panel">
+                        <div class="airing-date-label">selected day</div>
+                        <div class="airing-date-value" id="airing-date-label">loading...</div>
+                        <div class="airing-date-meta">
+                            <div class="airing-meta-badge" id="airing-day-count">loading events</div>
+                            <div class="airing-meta-badge" id="airing-day-next">next in —</div>
+                        </div>
+                        <div class="airing-nav">
+                            <button class="metro-btn" onclick="shiftAiringDate(-1)"><i
+                                    class="fa-solid fa-chevron-left"></i> prev</button>
+                            <button class="metro-btn" onclick="shiftAiringDate(1)">next <i
+                                    class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pivot-headers" id="airing-pivots">
+                    <div class="pivot-item active" onclick="switchAiringView('today', this)">today</div>
+                    <div class="pivot-item" onclick="switchAiringView('week', this)">this week</div>
+                </div>
+                <div class="airing-list-wrapper">
+                    <div class="prog-list airing-tile-grid" id="airing-list">
+                        <div style="color:var(--text-dim);">loading...</div>
+                    </div>
+                    <div class="airing-timeline" id="airing-timeline" style="width:100%;">
+                        <div class="airing-timeline-title"
+                            style="font-size:1.2rem; font-weight:300; color:var(--accent); margin-bottom:15px; text-transform:lowercase;">
+                            timeline</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>

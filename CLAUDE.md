@@ -6,10 +6,12 @@
 
 ## 1. Project Summary
 
-**AniList Metro** is a single-file (`index.html`) Vanilla HTML/CSS/JS web application that provides a Windows Phone 7 / Zune HD–style interface for the AniList anime/manga tracking platform. It is AMOLED-optimized, strictly Metro-designed, and authentication-aware.
+**AniList Metro** is a legacy-first Vanilla HTML/CSS/JS web application with preserved split-section fragments. It provides a Windows Phone 7 / Zune HD–style interface for the AniList anime/manga tracking platform. It is AMOLED-optimized, strictly Metro-designed, and authentication-aware.
 
 - **Main file:** `/Users/BrijeshKrishnan/BRIJESH KRISHNAN/projectgobrr/index.html`
-- **Stack:** Vanilla HTML5 + CSS3 + ES6+ JavaScript — **no build tools, no Node, no framework**
+- **Comparison entry:** `/Users/BrijeshKrishnan/BRIJESH KRISHNAN/projectgobrr/index_v2.html`
+- **Preserved legacy source:** `/Users/BrijeshKrishnan/BRIJESH KRISHNAN/projectgobrr/index-legacy.html`
+- **Stack:** Vanilla HTML5 + CSS3 + ES6+ JavaScript — **no build tools, no package manager, no framework**
 - **API:** AniList GraphQL v2 — `https://graphql.anilist.co`
 - **UI Framework:** Vendored Metro UI v4 (`vendor/metro-ui/dist/`) with custom AMOLED overrides
 - **Sounds:** `xbox360 metro soundeffects/` directory (`.wav` files via Web Audio API)
@@ -344,16 +346,17 @@ To maintain consistency when adding new components, use the following `data-role
 
 | File | Purpose |
 |------|---------|
-| `index.html` | Main application — all logic, styles, and markup |
-| `index_v2.html` | Extended version (may lag behind `index.html`)
+| `index.html` | Primary legacy-first application — shared shell, styles, and runtime |
+| `index-legacy.html` | Preserved monolithic legacy source/reference |
+| `index_v2.html` | Stable comparison/reference entry |
 | `CLAUDEREF3.html` | Layout structure reference |
 | `gemini-code-*.html` | Additional layout references |
 | `anilist_app_features_spec.html` | Full feature specification |
 | `rules.txt` | Full Metro UI design bible (canonical) |
 | `handoff.md` | May 2026 session state and architecture notes |
 | `todo.txt` | Task history and full feature backlog |
-| `restoresesh.txt` | Session state snapshot |
-| `metroui.txt` | Metro UI v4 Technical Implementation Guide |
+| `docs/notes/restoresesh.txt` | Session state snapshot |
+| `docs/notes/metroui.txt` | Metro UI v4 Technical Implementation Guide |
 | `vendor/metro-ui/` | Vendored Metro UI framework files |
 | `xbox360 metro soundeffects/` | `.wav` SFX files |
 

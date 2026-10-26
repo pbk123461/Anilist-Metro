@@ -2,6 +2,52 @@
 
 This document provides an overview of the current state of the project, technical architecture, and recent critical updates.
 
+## Legacy-first rebuild (October 2026)
+
+- `index.html` is now the primary legacy-first entry and is based on the
+  complete working implementation preserved in `index-legacy.html`.
+- `index_v2.html` remains the stable comparison/reference entry. The split
+  section files remain available for migration/reference work, but the primary
+  entry no longer depends on the fragile synchronous fragment loader.
+- The primary entry preserves the original panorama, authentication, guest
+  mode, settings, library, discover, community, airing, inbox, and detail
+  runtime. The approved tile editor, independent icon-color setting, fuzzy
+  search/activity compatibility hooks, and responsive overrides are layered
+  after the legacy runtime.
+- Loose historical notes were organized under `docs/notes/` without deleting
+  Markdown or text materials. See `info.txt` for the current stack, file
+  structure, runtime flow, and validation commands.
+- Restored geometry-based panorama targets so desktop and mobile navigation use
+  actual section offsets instead of assuming every section is viewport width.
+  Added mobile active-nav synchronization and restored a compact horizontal top
+  flow bar on mobile. Start-tile layout keeps row flow explicit and was not
+  vertically resized or reordered by this fix.
+- Restored the legacy sound-pack selector and its classic Xbox 360 mappings.
+  Navigation icon styling now keeps active icons accent-colored and inactive
+  icons visible gray, including when the dark icon preference is selected.
+- Live start tiles now share one cached anime item across discover and optional
+  anime tiles, and rotate up to three available anime tiles together every
+  2.8 seconds instead of moving only one tile every 7.2 seconds.
+- Start-screen grid packing now uses dense responsive tracks so mixed tile spans
+  fill available space instead of leaving sparse rows and large empty gaps.
+  The tile editor follows the full grid width while retaining flat Metro
+  surfaces and the existing tile size choices.
+- Live anime content is now assigned to one available anime tile at a time.
+  Discover, airing, watching, and random tiles no longer all display and flip
+  the same anime card simultaneously; inactive tiles retain distinct labels.
+- Mobile panorama swipes now use an explicit horizontal gesture guard and snap
+  back to the nearest full section after scrolling settles. Nested content
+  scrollers and controls are excluded, and mobile navigation state is updated
+  from the same section target so clipped half-panel states do not persist.
+- Inbox section loading now handles guest mode, missing API responses, and
+  request failures with visible sign-in, empty, or retry states. Failed loads
+  return `false` so section initialization can retry on a later visit.
+- Start-screen layout now uses compact Metro span tracks instead of expanding
+  auto-fill rows, with a content-sized start scroller and tighter grid padding
+  to reduce unused blank space while preserving small, medium, wide, and large
+  tile spans. Scrollbars now use thin accent/surface tracks and themed thumbs
+  across WebKit and Firefox-compatible paths.
+
 ## Project Overview
 AniList Metro is a single-file web application that provides a high-performance, Xbox 360 and Zune-inspired interface for the AniList platform. It adheres strictly to the Metro Design Language (zero rounded corners, zero shadows, lowercase typography, and AMOLED-optimized colors).
 
@@ -11,7 +57,8 @@ AniList Metro is a single-file web application that provides a high-performance,
 - **Refactor**: Switched from `new Audio()` to the **Web Audio API (`AudioContext`)**.
 - **Impact**: Eliminated audio crackling and performance stutters during rapid navigation.
 - **Volume**: Calibrated to "Soft" levels (4% to 12% gain) to avoid headphone fatigue.
-- **Features**: Real-time pitch randomization on navigation triggers (pan, select, hover) for a more organic feel.
+- **Features**: Legacy WAV assets use conservative per-cue volume, ±1.5% variation
+  for short navigation cues, and original pitch for welcome/login/achievement cues.
 - **Sound Packs**: Added a selector in Settings to switch between 'classic' (Xbox 360), 'soft', and 'minimal' sound packs.
 - **Source**: SFX assets are located in `xbox360 metro soundeffects/`.
 
@@ -46,6 +93,156 @@ AniList Metro is a single-file web application that provides a high-performance,
 
 ---
 *Last updated: May 2026*
+
+## Planned Feature and Architecture Work (October 2026)
+
+The following requirements were selected for the next implementation pass:
+
+### User-selected settings and start-screen behavior
+- Theme settings provide dark mode, light mode, and automatic system detection.
+- Icon color is independently configurable; users can choose white or dark icons regardless of the active theme.
+- Start-screen tiles support small, medium, wide, and large presets.
+- Start-screen tiles remain reorderable with mouse drag-and-drop.
+- A tile picker lets users enable or disable optional AniList-related tiles, including:
+  - airing today
+  - currently watching
+  - quick search
+  - random anime
+  - unread notifications
+- Search keeps exact matches first and ranks approximate title matches afterward.
+
+### Bug-fix scope
+- Correct mobile scaling and prevent overlapping content in dense sections.
+- Keep the navigation bar synchronized when users swipe or scroll between panorama sections.
+- Make mouse-drag panorama navigation settle reliably and update the active navigation item.
+- Show useful date/activity information when hovering activity-list entries.
+
+### Approved and implemented multi-file migration
+The current monolithic application will be split into an organized shared-shell structure:
+
+```text
+index.html                 # new shared panorama shell and application entry point
+index-legacy.html          # preserved monolithic fallback during migration
+start.html                 # start-screen section markup
+user.html                  # user section markup
+library.html               # library section markup
+community.html             # community section markup
+discover.html              # discover/search section markup
+airing.html                # airing section markup
+inbox.html                 # inbox/notifications section markup
+system.html                # settings/system section markup
+css/
+  metro.css                # shared Metro layout, theme, responsive, and component styles
+js/
+  app.js                   # bootstrap and shared application state
+  api.js                   # AniList GraphQL and API/cache helpers
+  navigation.js             # panorama, swipe, mouse-drag, and nav synchronization
+  settings.js               # theme, icon color, tile-picker, and user settings
+  tiles.js                  # start-screen tiles, sizes, ordering, and live tile behavior
+```
+
+The split app will preserve the current horizontal panorama and load section markup
+into the shared shell without full-page reloads. The new `index.html` becomes the
+default entry point, while `index-legacy.html` remains available as a backward-
+compatible fallback until the split version is verified.
+
+The migration must preserve all existing localStorage keys, global JavaScript
+variables, eight zero-indexed sections, AniList authentication behavior, API
+error/rate-limit handling, and Metro visual invariants. No existing data or
+authentication state may be reset as part of the split.
+
+The initial split is now present in the repository. The legacy file remains
+available while the new shell and section files are verified. Shared modules
+also provide the icon-color preference, tile preference helpers, panorama drag
+and navigation synchronization, approximate title ranking, random-anime tile
+behavior, and activity hover labels.
+
+### Browser verification follow-up (October 2026)
+- Reset authenticated and guest startup to section 0 so the top navigation
+  does not open with `system` selected while the start screen is visible.
+- Changed panorama target calculations to use actual section offsets, fixing
+  navigation for the full-width library section and the mobile layout.
+- Added an explicit `edit tiles` / `done editing` control on the start screen;
+  drag-and-drop is enabled only while editing.
+- Added start-screen tile size and optional-tile controls to system settings.
+- Added mobile overflow bounds for user stats, activity, settings, and tile
+  grids to prevent scaling overlap.
+
+### Compatibility repair (October 2026)
+- Restored the original five start tiles as the default visible layout. Optional
+  AniList shortcuts are no longer rendered into the start grid on first load.
+- Added a discreet `edit tiles` pane with add/remove controls for airing today,
+  currently watching, quick search, random anime, and unread notifications.
+- Tile dragging is disabled unless the `edit tiles` mode is active. Dynamic
+  optional tiles reuse the same guarded reorder initialization and preserve
+  `metro_start_tile_order`.
+- Hardened settings subview open/close handling so missing or not-yet-loaded
+  views fail explicitly instead of throwing a null-reference error.
+- Changed start-grid rows and gaps to bounded viewport-relative values, with
+  mobile-safe fractional columns and clamped row sizes to prevent overlap.
+- Validation completed: JavaScript syntax checks, `git diff --check`, HTTP
+  serving checks for all split section/module assets, and static verification
+  that optional tiles are absent from the default start markup.
+
+### Metro live tiles and complete tile removal (October 2026)
+- Updated start tiles to use Metro UI v4's documented `data-role="live-tile"`
+  structure with `data-effect`, `data-period`, `tile-content`, and
+  `event-content` frames.
+- Preserved AniList-driven tile content and custom wallpaper/live updates while
+  allowing Metro UI to initialize the documented live-tile widget.
+- All default tiles can now be removed from the editor, not only optional
+  shortcuts. Visibility is persisted under the new `metro_tile_visibility`
+  preference key; existing storage keys remain unchanged.
+- Added `restore defaults` to recreate profile, library, discover, inbox, and
+  community tiles.
+- Dynamic tiles reinitialize both the shared reorder behavior and Metro's tile
+  initialization without duplicating live-tile wrappers or rotation timers.
+
+### Mobile layout contract (October 2026)
+- Added a final mobile-first override block to prevent earlier desktop/tablet
+  breakpoints from reintroducing fixed widths or multi-column layouts.
+- Mobile panorama sections are exactly viewport width, use dynamic viewport
+  height, and reserve space for the bottom navigation safe area.
+- User, library, discover, airing, settings, editor, and detail content now
+  collapse to contained layouts with bounded controls and internal vertical
+  scrolling.
+- Mobile library shelves use two-column poster grids or one-column list mode;
+  user statistics, activity heatmaps, favorites, and quick links are sized to
+  avoid horizontal overflow.
+- Mobile navigation labels are clipped safely and the bottom bar accounts for
+  device safe-area insets.
+- Validation completed with JavaScript syntax checks, `git diff --check`, HTTP
+  asset serving checks, and browser loading verification at the local server.
+
+### Legacy-backed split rebuild (October 2026)
+- Rebuilt the active [index.html](./index.html) entry around the complete
+  legacy runtime instead of the earlier reduced shell. This restores the
+  legacy user, library, community, discover, airing, inbox, settings, detail,
+  authentication, and interaction surfaces while keeping section markup in
+  separate files.
+- Regenerated [start.html](./start.html), [user.html](./user.html),
+  [library.html](./library.html), [community.html](./community.html),
+  [discover.html](./discover.html), [airing.html](./airing.html),
+  [inbox.html](./inbox.html), and [system.html](./system.html) from the
+  complete legacy sections. [index-legacy.html](./index-legacy.html) remains
+  as the untouched monolithic fallback/source of truth.
+- The start editor now preserves the original default tiles, keeps all tile
+  dragging locked until edit mode is enabled, supports removing both default
+  and optional tiles, restores defaults, persists tile order/visibility/size,
+  and uses Metro UI v4 live-tile markup (`data-role="live-tile"`,
+  `tile-content`, and `event-content`).
+- Restored compatibility modules are loaded after the legacy runtime:
+  [js/api.js](./js/api.js), [js/settings.js](./js/settings.js),
+  [js/tiles.js](./js/tiles.js), and [js/app.js](./js/app.js). This preserves
+  the fuzzy title ranking, random-anime action, activity hover labels, icon
+  preference, and tile editor behavior without replacing legacy functions.
+- Removed the obsolete reduced-shell prototype. The synchronous fragment
+  loader remains transitional and should be replaced only after the legacy
+  initialization order is covered by browser regression checks.
+- Validation completed for JavaScript syntax, `git diff --check`, local HTTP
+  serving, section/module asset availability, and initial browser rendering.
+  Full guest/authenticated interaction coverage and narrow-viewport checks
+  remain the next validation pass.
 
 
 ## Metro UI v4 Rebuild (June 2026)

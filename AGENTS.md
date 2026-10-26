@@ -2,7 +2,7 @@
 
 ## Project Structure
 
-AniList Metro is a static, browser-based application built with vanilla HTML, CSS, and JavaScript. `index.html` is the experimental beta; `index_v2.html` is the stable version. Module design notes are in `docs/`, while `vendor/metro-ui/` contains the Metro UI assets. Sound effects are in `xbox360 metro soundeffects/`. `Indexhtmlextract/` is an extracted/reference copy, not the primary app. See `README.md` for user-facing setup and `CLAUDE.md` for detailed architecture and design constraints.
+AniList Metro is a static, browser-based application built with vanilla HTML, CSS, and JavaScript. `index.html` is the primary legacy-first entry; `index_v2.html` is the stable comparison entry and `index-legacy.html` is the preserved legacy source. Module design notes are in `docs/`, while `vendor/metro-ui/` contains the Metro UI assets. Sound effects are in `xbox360 metro soundeffects/`. `Indexhtmlextract/` is an extracted/reference copy, not the primary app. See `README.md`, `info.txt`, and `CLAUDE.md` for setup and architecture.
 
 ## Development Commands
 

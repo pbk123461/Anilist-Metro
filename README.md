@@ -18,7 +18,7 @@ AniList Metro is a browser-based anime and manga tracker with a Windows Phone an
 
 Open the demo and choose **Guest Mode** to browse without an AniList account. Sign in to sync your anime and manga lists with AniList.
 
-`index.html` is the experimental beta. Use `index_v2.html` for the stable version; the beta and stable settings menus link between them.
+`index.html` is the primary legacy-first entry. Use `index_v2.html` as the stable comparison entry; `index-legacy.html` preserves the legacy source implementation.
 
 ## Features
 
@@ -41,9 +41,13 @@ Then visit [http://localhost:8000](http://localhost:8000).
 
 ## Project structure
 
-- `index.html` contains the beta application; `index_v2.html` is the stable version.
+- `index.html` contains the primary legacy-first application; `index_v2.html` is the stable comparison entry and `index-legacy.html` is the preserved legacy source.
 - `vendor/metro-ui/` contains the vendored Metro UI assets.
 - `docs/` contains notes on the app's main modules.
+- `docs/notes/` contains historical implementation notes and function inventories.
+- `info.txt` documents the stack, runtime, file structure, and validation workflow.
+- `.github/copilot-instructions.md` contains repository-local guidance for coding agents.
+- `hooks/validate-static.sh` contains an optional static validation hook.
 - `xbox360 metro soundeffects/` contains the sound files used by the app.
 
 ## Development notes

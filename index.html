@@ -617,6 +617,7 @@
             line-height: 1.2;
             margin-bottom: 6px;
             display: -webkit-box;
+            line-clamp: 2;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
@@ -626,6 +627,7 @@
             font-size: .9rem;
             line-height: 1.35;
             display: -webkit-box;
+            line-clamp: 2;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
@@ -1539,7 +1541,6 @@
             font-size: 14px;
             cursor: pointer;
             transition: all 0.1s;
-        }
         }
 
         .status-btn:hover {
@@ -3902,7 +3903,27 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        .xbox-nav .nav-item:not(.active),
+        .xbox-nav .nav-item:not(.active) i,
+        .mobile-bottom-nav .mobile-nav-item:not(.active),
+        .mobile-bottom-nav .mobile-nav-item:not(.active) i {
+            color: var(--text-dim);
+        }
+
+        .xbox-nav .nav-item.active,
+        .xbox-nav .nav-item.active i,
+        .mobile-bottom-nav .mobile-nav-item.active,
+        .mobile-bottom-nav .mobile-nav-item.active i {
+            color: var(--accent);
+        }
+
+        [data-icon-color="dark"] .xbox-nav .nav-item:not(.active) i,
+        [data-icon-color="dark"] .mobile-bottom-nav .mobile-nav-item:not(.active) i {
+            color: #000;
+        }
     </style>
+    <link rel="stylesheet" href="css/metro.css">
 </head>
 
 <body>
@@ -4035,8 +4056,14 @@
         <!-- SECTION 0: START -->
         <section class="header-section">
             <div class="content-scroll">
+                <div class="start-screen-toolbar">
+                    <button class="metro-btn small" type="button" id="start-tile-edit-btn" onclick="toggleTileEditMode()">
+                        <i class="fa-solid fa-pen"></i> edit tiles
+                    </button>
+                    <span id="start-tile-edit-help" class="start-tile-edit-help">drag to reorder tiles or manage tiles</span>
+                </div>
                 <div class="start-screen-grid">
-                    <div class="metro-tile-start wide profile-tile" data-live-tile="profile" style="background-color: var(--surface);"
+                    <div class="metro-tile-start tile wide profile-tile" data-role="live-tile" data-effect="slideUp" data-period="7200" data-live-tile="profile" data-tile-default="true" style="background-color: var(--surface);"
                         onclick="scrollToSection(1)">
                         <img id="start-tile-avatar"
                             src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png"
@@ -4045,28 +4072,54 @@
                         <div class="start-title" id="start-tile-user"
                             style="padding: 10px; background: var(--wallpaper-overlay); width: 100%;">guest</div>
                     </div>
-                    <div class="metro-tile-start medium" data-live-tile="library" style="background-color: #60a917;"
+                    <div class="metro-tile-start tile medium" data-role="live-tile" data-effect="slideUp" data-period="7200" data-live-tile="library" data-tile-default="true" style="background-color: #60a917;"
                         onclick="scrollToSection(2)">
                         <i class="fa-solid fa-book-open start-icon"></i>
                         <span class="start-title">library</span>
                     </div>
-                    <div class="metro-tile-start medium" data-live-tile="discover" style="background-color: #f39c12;"
+                    <div class="metro-tile-start tile medium" data-role="live-tile" data-effect="slideUp" data-period="7200" data-live-tile="discover" data-tile-default="true" style="background-color: #f39c12;"
                         onclick="scrollToSection(4)">
                         <i class="fa-solid fa-magnifying-glass start-icon"></i>
                         <span class="start-title">discover</span>
                     </div>
-                    <div class="metro-tile-start medium" data-live-tile="inbox" style="background-color: #d80073;"
+                    <div class="metro-tile-start tile medium" data-role="live-tile" data-effect="slideUp" data-period="7200" data-live-tile="inbox" data-tile-default="true" style="background-color: #d80073;"
                         onclick="scrollToSection(6)">
                         <span class="start-title"
                             style="font-size: 4rem; align-self: center; margin: auto; font-weight: 200; line-height: 1;"
                             id="start-tile-notif">0</span>
                         <span class="start-title">inbox</span>
                     </div>
-                    <div class="metro-tile-start wide" data-live-tile="community" style="background-color: #a20025;" onclick="scrollToSection(3)">
+                    <div class="metro-tile-start tile wide" data-role="live-tile" data-effect="slideUp" data-period="7200" data-live-tile="community" data-tile-default="true" style="background-color: #a20025;" onclick="scrollToSection(3)">
                         <i class="fa-solid fa-users start-icon"></i>
                         <span class="start-title">community</span>
                     </div>
                 </div>
+                <aside id="start-tile-editor" class="start-tile-editor" aria-hidden="true">
+                    <div class="start-tile-editor-header">
+                        <div>
+                            <div class="start-tile-editor-title">edit tiles</div>
+                            <div class="start-tile-editor-sub">manage default and optional anilist tiles</div>
+                        </div>
+                        <div class="start-tile-editor-actions">
+                            <button class="metro-btn small" type="button" onclick="restoreDefaultTiles()">restore defaults</button>
+                            <button class="metro-btn small" type="button" onclick="toggleTileEditMode()">done</button>
+                        </div>
+                    </div>
+                    <div class="start-tile-options" aria-label="manage default tiles">
+                        <button class="start-tile-option" type="button" data-tile-option="profile" onclick="toggleStartTile('profile')"><i class="fa-solid fa-user"></i><span>profile</span></button>
+                        <button class="start-tile-option" type="button" data-tile-option="library" onclick="toggleStartTile('library')"><i class="fa-solid fa-book-open"></i><span>library</span></button>
+                        <button class="start-tile-option" type="button" data-tile-option="discover" onclick="toggleStartTile('discover')"><i class="fa-solid fa-magnifying-glass"></i><span>discover</span></button>
+                        <button class="start-tile-option" type="button" data-tile-option="inbox" onclick="toggleStartTile('inbox')"><i class="fa-solid fa-envelope"></i><span>inbox</span></button>
+                        <button class="start-tile-option" type="button" data-tile-option="community" onclick="toggleStartTile('community')"><i class="fa-solid fa-users"></i><span>community</span></button>
+                    </div>
+                    <div class="start-tile-options" aria-label="add new tiles">
+                        <button class="start-tile-option" type="button" data-tile-option="airing" onclick="toggleOptionalTile('airing')"><i class="fa-solid fa-calendar-days"></i><span>add airing today</span></button>
+                        <button class="start-tile-option" type="button" data-tile-option="watching" onclick="toggleOptionalTile('watching')"><i class="fa-solid fa-play"></i><span>add currently watching</span></button>
+                        <button class="start-tile-option" type="button" data-tile-option="quick-search" onclick="toggleOptionalTile('quick-search')"><i class="fa-solid fa-magnifying-glass"></i><span>add quick search</span></button>
+                        <button class="start-tile-option" type="button" data-tile-option="random" onclick="toggleOptionalTile('random')"><i class="fa-solid fa-shuffle"></i><span>add random anime</span></button>
+                        <button class="start-tile-option" type="button" data-tile-option="unread" onclick="toggleOptionalTile('unread')"><i class="fa-solid fa-envelope"></i><span>add unread notifications</span></button>
+                    </div>
+                </aside>
             </div>
         </section>
 
@@ -4520,7 +4573,7 @@
             </div>
         </section>
 
-        <!-- SECTION 5: INBOX -->
+        <!-- SECTION 6: INBOX -->
         <section class="header-section">
             <h1 class="metro-huge-title" id="notif-page-title">inbox</h1>
             <div class="content-scroll">
@@ -4539,7 +4592,7 @@
             </div>
         </section>
 
-        <!-- SECTION 6: SYSTEM -->
+        <!-- SECTION 7: SYSTEM -->
         <section class="header-section">
             <h1 class="metro-huge-title">system</h1>
             <div class="content-scroll">
@@ -4586,6 +4639,14 @@
                                 <option value="system">system</option>
                                 <option value="dark">dark</option>
                                 <option value="light">light</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">icon color</div>
+                            <div class="settings-item-sub">choose the icon color independently from the theme</div>
+                            <select class="metro-select" id="icon-color-select" onchange="setIconColor(this.value)">
+                                <option value="white">white</option>
+                                <option value="dark">dark</option>
                             </select>
                         </div>
                         <div class="settings-item">
@@ -5270,6 +5331,24 @@
         let liveTileRotationIndex = -1;
         let liveTileMediaQueue = [];
         let liveTileMediaIndex = -1;
+        const sharedAnimeTileNames = ['discover', 'airing', 'watching', 'random'];
+        let activeAnimeTileName = 'discover';
+        const sharedAnimeTileState = media => ({
+            heading: 'anime now',
+            detail: media?.title?.english || media?.title?.romaji || 'popular anime',
+            image: media?.coverImage?.large || ''
+        });
+        function applySharedAnimeTile(media) {
+            if (!media) return;
+            const state = sharedAnimeTileState(media);
+            const availableTile = sharedAnimeTileNames.find(name =>
+                document.querySelector(`.metro-tile-start[data-live-tile="${name}"]`)
+            );
+            if (availableTile) activeAnimeTileName = availableTile;
+            liveTileContent[activeAnimeTileName] = state;
+            const tile = document.querySelector(`.metro-tile-start[data-live-tile="${activeAnimeTileName}"]`);
+            if (tile) renderLiveTile(tile);
+        }
         function getLiveTileState(name) {
             const username = document.getElementById('start-tile-user')?.textContent?.trim() || 'guest';
             const profileSummary = document.getElementById('user-page-sub')?.textContent?.trim() || 'browse without syncing';
@@ -5280,9 +5359,12 @@
                 ? { heading: 'your library', detail: 'sign in to sync anime and manga lists', image: '' }
                 : (liveTileContent.library || { heading: `${username}'s library`, detail: `${profileSummary} tracked`, image: '' });
             if (name === 'inbox') return { heading: isGuest ? 'inbox' : `${unreadCount} unread`, detail: isGuest ? 'sign in to see notifications' : 'notifications from your anilist account', image: '' };
-            return liveTileContent[name] || (name === 'discover'
-                ? { heading: 'discover anime', detail: 'trending picks and seasonal favorites', image: '' }
-                : { heading: 'community', detail: 'recent updates from anilist members', image: '' });
+            if (name === activeAnimeTileName && liveTileContent[name]) return liveTileContent[name];
+            if (name === 'discover') return { heading: 'discover anime', detail: 'trending picks and seasonal favorites', image: '' };
+            if (name === 'airing') return { heading: 'airing today', detail: 'see what is playing now', image: '' };
+            if (name === 'watching') return { heading: 'currently watching', detail: 'continue your anime list', image: '' };
+            if (name === 'random') return { heading: 'random anime', detail: 'find something new to watch', image: '' };
+            return { heading: 'community', detail: 'recent updates from anilist members', image: '' };
         }
 
         function renderLiveTile(tile) {
@@ -5324,9 +5406,8 @@
             document.querySelectorAll('.metro-tile-start[data-live-tile]').forEach(renderLiveTile);
         }
 
-        function initLiveTiles() {
-            const tiles = Array.from(document.querySelectorAll('.metro-tile-start[data-live-tile]'));
-            tiles.forEach(tile => {
+        function initLiveTile(tile) {
+            if (!tile || tile.classList.contains('live-start-tile')) return;
                 const front = document.createElement('div');
                 front.className = 'live-tile-front';
                 while (tile.firstChild) front.appendChild(tile.firstChild);
@@ -5339,9 +5420,15 @@
                 tile.appendChild(inner);
                 tile.classList.add('live-start-tile');
                 renderLiveTile(tile);
-            });
+        }
+
+        window.initLiveTile = initLiveTile;
+
+        function initLiveTiles() {
+            document.querySelectorAll('.metro-tile-start[data-live-tile]').forEach(initLiveTile);
 
             setInterval(() => {
+                const tiles = Array.from(document.querySelectorAll('.metro-tile-start[data-live-tile]'));
                 const app = document.getElementById('app-container');
                 if (document.hidden || !app || app.style.display === 'none' || getCurrentSectionIndex() !== 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     tiles.forEach(tile => tile.classList.remove('live-flipped'));
@@ -5353,17 +5440,14 @@
                 if (liveTileMediaQueue.length > 1) {
                     liveTileMediaIndex = (liveTileMediaIndex + 1) % liveTileMediaQueue.length;
                     const media = liveTileMediaQueue[liveTileMediaIndex];
-                    if (media) updateLiveTile('discover', {
-                        heading: 'trending now',
-                        detail: media.title?.english || media.title?.romaji || 'popular anime',
-                        image: media.coverImage?.large || ''
-                    });
+                    applySharedAnimeTile(media);
                     tiles.forEach(renderLiveTile);
                 }
-                liveTileRotationIndex = (liveTileRotationIndex + 1) % tiles.length;
-                tiles[liveTileRotationIndex]?.classList.add('live-flipped');
-                window.setTimeout(() => tiles[liveTileRotationIndex]?.classList.remove('live-flipped'), 3600);
-            }, 7200);
+                const animeTile = tiles.find(tile => tile.dataset.liveTile === activeAnimeTileName);
+                const movingTiles = animeTile ? [animeTile] : tiles.slice(0, 1);
+                movingTiles.forEach(tile => tile.classList.add('live-flipped'));
+                window.setTimeout(() => movingTiles.forEach(tile => tile.classList.remove('live-flipped')), 1500);
+            }, 2800);
         }
         initLiveTiles();
 
@@ -5409,57 +5493,56 @@
             const grid = document.querySelector('.start-screen-grid');
             if (!grid) return;
             applySavedStartTileOrder();
-            let draggedTile = null;
-            let dragActive = false;
-            let lastDragEndedAt = 0;
+            grid.querySelectorAll('.metro-tile-start').forEach(tile => tile.setAttribute('draggable', String(grid.classList.contains('reordering'))));
+            if (grid.dataset.reorderEventsInitialized === 'true') return;
+            grid.dataset.reorderEventsInitialized = 'true';
+            const state = { draggedTile: null, dragActive: false, lastDragEndedAt: 0 };
+            const tileFromEvent = event => event.target.closest('.metro-tile-start');
 
-            grid.querySelectorAll('.metro-tile-start').forEach(tile => {
-                tile.setAttribute('draggable', 'true');
-
-                tile.addEventListener('dragstart', event => {
-                    draggedTile = tile;
-                    dragActive = true;
-                    grid.classList.add('reordering');
-                    tile.classList.add('is-dragging');
-                    event.dataTransfer.effectAllowed = 'move';
-                    event.dataTransfer.setData('text/plain', tile.dataset.liveTile || '');
-                });
-
-                tile.addEventListener('dragend', () => {
-                    tile.classList.remove('is-dragging');
-                    grid.classList.remove('reordering');
-                    lastDragEndedAt = Date.now();
-                    grid.querySelectorAll('.metro-tile-start').forEach(candidate => candidate.classList.remove('drag-over'));
-                    window.setTimeout(() => { dragActive = false; draggedTile = null; }, 0);
-                });
-
-                tile.addEventListener('dragover', event => {
-                    if (!draggedTile || draggedTile === tile) return;
+            grid.addEventListener('dragstart', event => {
+                const tile = tileFromEvent(event);
+                if (!tile || !grid.classList.contains('reordering')) {
                     event.preventDefault();
-                    event.dataTransfer.dropEffect = 'move';
-                    tile.classList.add('drag-over');
-                });
-
-                tile.addEventListener('dragleave', () => tile.classList.remove('drag-over'));
-
-                tile.addEventListener('drop', event => {
-                    event.preventDefault();
-                    tile.classList.remove('drag-over');
-                    if (!draggedTile || draggedTile === tile) return;
-                    const rect = tile.getBoundingClientRect();
-                    const insertAfter = event.clientX > rect.left + rect.width / 2;
-                    grid.insertBefore(draggedTile, insertAfter ? tile.nextSibling : tile);
-                    saveStartTileOrder();
-                });
-
-                // Suppress the tile's inline onclick after a drag gesture.
-                tile.addEventListener('click', event => {
-                    if (!dragActive && Date.now() - lastDragEndedAt > 300) return;
-                    event.preventDefault();
-                    event.stopPropagation();
-                }, true);
+                    return;
+                }
+                state.draggedTile = tile;
+                state.dragActive = true;
+                tile.classList.add('is-dragging');
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', tile.dataset.liveTile || '');
             });
+            grid.addEventListener('dragend', event => {
+                const tile = tileFromEvent(event);
+                tile?.classList.remove('is-dragging');
+                state.lastDragEndedAt = Date.now();
+                grid.querySelectorAll('.metro-tile-start').forEach(candidate => candidate.classList.remove('drag-over'));
+                window.setTimeout(() => { state.dragActive = false; state.draggedTile = null; }, 0);
+            });
+            grid.addEventListener('dragover', event => {
+                const tile = tileFromEvent(event);
+                if (!state.draggedTile || !tile || state.draggedTile === tile) return;
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+                tile.classList.add('drag-over');
+            });
+            grid.addEventListener('dragleave', event => tileFromEvent(event)?.classList.remove('drag-over'));
+            grid.addEventListener('drop', event => {
+                const tile = tileFromEvent(event);
+                event.preventDefault();
+                tile?.classList.remove('drag-over');
+                if (!state.draggedTile || !tile || state.draggedTile === tile) return;
+                const rect = tile.getBoundingClientRect();
+                const insertAfter = event.clientX > rect.left + rect.width / 2;
+                grid.insertBefore(state.draggedTile, insertAfter ? tile.nextSibling : tile);
+                saveStartTileOrder();
+            });
+            grid.addEventListener('click', event => {
+                if (!state.dragActive && Date.now() - state.lastDragEndedAt > 300) return;
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
         }
+        window.initStartTileReorder = initStartTileReorder;
         initStartTileReorder();
 
         let hoverWallpaperTimer = null;
@@ -5588,6 +5671,10 @@
         let activeNavIndex = -1;
         let isDown = false, startX, scrollLeft;
         let sectionLoadTimer = null;
+        let scrollSettleTimer = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchTracking = false;
 
         const interactiveElements = 'button, a, i, input, select, .status-btn, .tile, .prog-item, .pivot-item, .filter-chip, .mts-btn, .feed-tab, .trending-tile, .inbox-item, .detail-close, canvas, .color-swatch, .dropbtn, .dropdown-content, .metro-tile-start, .anime-poster, iframe, .btn-back, .wp-setting-item, .btn-back-text, .switch, .check';
 
@@ -5601,6 +5688,27 @@
         container.addEventListener('mousemove', (e) => {
             if (!isDown) return; e.preventDefault(); container.scrollLeft = scrollLeft - (e.pageX - container.offsetLeft - startX) * 1.5;
         });
+        container.addEventListener('touchstart', event => {
+            const touch = event.touches[0];
+            if (!touch || event.target.closest('.content-scroll, input, select, textarea, button, a, canvas, iframe')) {
+                touchTracking = false;
+                return;
+            }
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchTracking = true;
+        }, { passive: true });
+        container.addEventListener('touchend', event => {
+            if (!touchTracking) return;
+            touchTracking = false;
+            const touch = event.changedTouches[0];
+            if (!touch) return;
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+            if (Math.abs(deltaX) < 36 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+            const current = getSectionIndexAtScroll();
+            scrollToSection(current + (deltaX < 0 ? 1 : -1));
+        }, { passive: true });
         container.addEventListener('wheel', (evt) => {
             if (Math.abs(evt.deltaX) > Math.abs(evt.deltaY)) return;
             if (evt.shiftKey && evt.deltaY !== 0) { evt.preventDefault(); container.scrollLeft += evt.deltaY * 2; }
@@ -5618,35 +5726,45 @@
                 if (lastArrowPress && now - lastArrowPress < ARROW_THROTTLE_MS) return;
                 lastArrowPress = now;
 
-                const w = container ? container.clientWidth : window.innerWidth;
-                if (e.key === 'ArrowRight') container.scrollBy({ left: w, behavior: 'smooth' });
-                if (e.key === 'ArrowLeft') container.scrollBy({ left: -w, behavior: 'smooth' });
+                if (e.key === 'ArrowRight') scrollPanorama(1);
+                if (e.key === 'ArrowLeft') scrollPanorama(-1);
             }
         });
 
-        function getSectionWidth() {
-            return window.innerWidth;
+        function getSections() {
+            return container ? Array.from(container.querySelectorAll('.header-section')) : [];
+        }
+
+        function getSectionIndexAtScroll(left = container?.scrollLeft || 0) {
+            const sections = getSections();
+            if (!sections.length) return 0;
+            return sections.reduce((closest, section, index) => {
+                const currentDistance = Math.abs(section.offsetLeft - left);
+                const closestDistance = Math.abs(sections[closest].offsetLeft - left);
+                return currentDistance < closestDistance ? index : closest;
+            }, 0);
         }
 
         function scrollToSection(index) {
-            const width = getSectionWidth();
-            if (container) container.scrollTo({ left: width * index, behavior: 'smooth' });
-            // Update mobile nav
+            const sections = getSections();
+            const target = sections[Math.max(0, Math.min(sections.length - 1, Number(index) || 0))];
+            if (container && target) {
+                container.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+                updateActiveNavigation(sections.indexOf(target));
+            }
             document.querySelectorAll('.mobile-nav-item').forEach(el => {
-                el.classList.toggle('active', parseInt(el.dataset.section) === index);
+                el.classList.toggle('active', Number(el.dataset.section) === Number(index));
             });
         }
         function scrollToSectionMobile(index) {
-            const width = getSectionWidth();
-            if (container) container.scrollTo({ left: width * index, behavior: 'smooth' });
-            document.querySelectorAll('.mobile-nav-item').forEach(el => {
-                el.classList.toggle('active', parseInt(el.dataset.section) === index);
-            });
+            scrollToSection(index);
         }
 
         function scrollPanorama(dir) {
-            const w = getSectionWidth();
-            if (container) container.scrollBy({ left: dir * w, behavior: 'smooth' });
+            const sections = getSections();
+            const current = getSectionIndexAtScroll();
+            const target = sections[Math.max(0, Math.min(sections.length - 1, current + dir))];
+            if (container && target) container.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
         }
 
         function scheduleVisibleSectionLoad(index) {
@@ -5657,24 +5775,33 @@
             }, 180);
         }
 
-        container.addEventListener('scroll', () => {
-            const width = getSectionWidth();
-            const scrollRatio = container.scrollLeft / width;
+        function updateActiveNavigation(index) {
+            if (activeNavIndex === index) return;
+            if (activeNavIndex !== -1 && typeof Sfx !== 'undefined') Sfx.play('pan');
+            activeNavIndex = index;
+            navItems.forEach((item, itemIndex) => item.classList.toggle('active', itemIndex === index));
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.toggle('active', Number(item.dataset.section) === index);
+            });
+            scheduleVisibleSectionLoad(index);
+            const navItem = navItems[index];
+            if (navItem && topNav) topNav.style.transform = `translateX(-${navItem.offsetLeft}px)`;
+        }
 
+        container.addEventListener('scroll', () => {
             // Keep the marquee inside its clipped viewport while sections scroll.
             if (bgHero) bgHero.style.removeProperty('transform');
 
-            const idx = Math.round(scrollRatio);
-            if (activeNavIndex !== idx) {
-                if (activeNavIndex !== -1 && typeof Sfx !== 'undefined') Sfx.play('pan');
-                activeNavIndex = idx;
-                navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
-                scheduleVisibleSectionLoad(idx);
-                if (navItems[idx]) {
-                    const offset = navItems[idx].offsetLeft;
-                    topNav.style.transform = `translateX(-${offset}px)`;
-                }
-            }
+            const idx = getSectionIndexAtScroll();
+            updateActiveNavigation(idx);
+            clearTimeout(scrollSettleTimer);
+            scrollSettleTimer = setTimeout(() => {
+                const sections = getSections();
+                const settledIndex = getSectionIndexAtScroll();
+                const target = sections[settledIndex];
+                if (!target || Math.abs(container.scrollLeft - target.offsetLeft) < 2) return;
+                container.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+            }, 180);
         });
 
         // ==========================================
@@ -6024,6 +6151,7 @@
             const params = new URLSearchParams(window.location.hash.substring(1));
             const token = params.get('access_token');
             if (token) {
+                window.metroJustLoggedIn = true;
                 localStorage.setItem('anilist_token', token);
                 accessToken = token;
                 try { window.history.replaceState(null, null, window.location.pathname); } catch (e) { console.warn("Could not replace history state, likely local file protocol.", e); }
@@ -6058,8 +6186,7 @@
         }
 
         function getCurrentSectionIndex() {
-            const width = container?.clientWidth || window.innerWidth || 1;
-            return Math.max(0, Math.min(7, Math.round((container?.scrollLeft || 0) / width)));
+            return Math.max(0, Math.min(7, getSectionIndexAtScroll()));
         }
 
         function ensureSectionContent(index) {
@@ -6070,7 +6197,7 @@
             else if (index === 3) load = () => communityMode === 'following' && !isGuest ? loadFollowingFeed() : loadPublicCommunityFeed();
             else if (index === 4) load = () => loadTrending();
             else if (index === 5) load = () => { initAiringCalendar(); loadAiringSchedule(airingView); };
-            else if (index === 6 && !isGuest) load = () => loadNotifications(inboxMode);
+            else if (index === 6) load = () => loadNotifications(inboxMode);
             if (!load) return;
             loadedSections.add(index);
             Promise.resolve().then(load).then(result => {
@@ -6809,6 +6936,12 @@
                 .catch(e => { console.error(e); showToast('could not update progress'); });
         }
 
+        function playAchievementIfCompleted(previousStatus, nextStatus) {
+            if (previousStatus !== 'COMPLETED' && nextStatus === 'COMPLETED' && window.Sfx) {
+                window.Sfx.play('achievement');
+            }
+        }
+
         // ==========================================
         // TRENDING & CURRENTLY WATCHING
         // ==========================================
@@ -6827,11 +6960,7 @@
                 const featured = data.Page.media.find(Boolean);
                 liveTileMediaQueue = data.Page.media.filter(Boolean);
                 liveTileMediaIndex = 0;
-                if (featured) updateLiveTile('discover', {
-                    heading: 'trending now',
-                    detail: featured.title?.english || featured.title?.romaji || 'popular anime',
-                    image: featured.coverImage?.large || ''
-                });
+                applySharedAnimeTile(featured);
                 data.Page.media.forEach((m, i) => {
                     if (!m) return;
                     const title = (m.title && (m.title.english || m.title.romaji)) || 'unknown';
@@ -7792,7 +7921,11 @@
 
         async function loadNotifications(mode, append = false) {
             const el = document.getElementById('notif-list');
-            if (isGuest || !accessToken) { el.innerHTML = loginRequiredMarkup('view your notifications', 'Notifications belong to your AniList account and are unavailable in guest mode.'); return; }
+            if (!el) return false;
+            if (isGuest || !accessToken) {
+                el.innerHTML = loginRequiredMarkup('view your notifications', 'Notifications belong to your AniList account and are unavailable in guest mode.');
+                return true;
+            }
             if (!append) { el.innerHTML = '<div style="color:var(--text-dim);">loading...</div>'; notifPage = 1; }
             // Fetch notifications (without resetting count automatically)
             const q = `query ($page: Int) { Page(page:$page,perPage:50) { pageInfo { hasNextPage } notifications(resetNotificationCount:false) {
@@ -7805,7 +7938,10 @@
     } } }`;
             try {
                 const data = await fetchAPI(q, { page: notifPage });
-                if (!data || !data.Page) { el.innerHTML = '<div style="color:var(--text-dim);">could not load notifications.</div>'; return; }
+                if (!data || !data.Page) {
+                    el.innerHTML = '<div style="color:var(--text-dim);">could not load notifications. <button class="metro-btn small" type="button" onclick="loadNotifications(inboxMode, false)">try again</button></div>';
+                    return false;
+                }
                 if (!append) el.innerHTML = '';
 
                 let notifications = data.Page.notifications || [];
@@ -7853,7 +7989,12 @@
                 });
                 let btn = document.getElementById('load-more-notif-btn'); if (btn) btn.remove();
                 if (data.Page.pageInfo.hasNextPage) el.innerHTML += `<button class="load-more-btn" id="load-more-notif-btn" onclick="loadMoreNotifications()" style="grid-column: 1 / -1;">load more...</button>`;
-            } catch (e) { console.error(e); }
+                return true;
+            } catch (e) {
+                console.error('notification load failed:', e);
+                el.innerHTML = '<div style="color:var(--text-dim);">could not load notifications. <button class="metro-btn small" type="button" onclick="loadNotifications(inboxMode, false)">try again</button></div>';
+                return false;
+            }
         }
         function loadMoreNotifications() { notifPage++; loadNotifications(inboxMode, true); }
 
@@ -9049,6 +9190,7 @@
             const q = `mutation ($mediaId:Int,$status:MediaListStatus) { SaveMediaListEntry(mediaId:$mediaId,status:$status) { id status } }`;
             try {
                 await fetchAPI(q, { mediaId, status });
+                if (status === 'COMPLETED' && window.Sfx) window.Sfx.play('achievement');
                 showToast('saved: ' + status.toLowerCase());
                 loadLibrary(type);
                 document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
@@ -9131,6 +9273,7 @@
         async function saveMediaEntry(event, mediaId, type) {
             event.preventDefault();
             const form = event.target;
+            const previousStatus = currentMediaCache?.mediaListEntry?.status || '';
             const data = {
                 mediaId,
                 status: form.status.value,
@@ -9146,7 +9289,8 @@
         }
     }`;
             try {
-                await fetchAPI(q, data);
+                const result = await fetchAPI(q, data);
+                playAchievementIfCompleted(previousStatus, result?.SaveMediaListEntry?.status || data.status);
                 showToast('entry updated');
                 closeMediaEditor();
                 loadLibrary(type);
@@ -9404,6 +9548,7 @@
                     const q = `mutation($mid:Int,$s:MediaListStatus){SaveMediaListEntry(mediaId:$mid,status:$s){id}}`;
                     try { await fetchAPI(q, {mid:parseInt(id), s:status}); } catch(e) {}
                 }
+                if (status === 'COMPLETED' && window.Sfx) window.Sfx.play('achievement');
                 showToast(`updated ${bulkSelectedIds.size} entries`);
             } else if (action === 'delete') {
                 if (!confirm(`delete ${bulkSelectedIds.size} entries?`)) return;
@@ -10187,19 +10332,28 @@
                 select: 'xbox360 metro soundeffects/Select.wav',
                 back: 'xbox360 metro soundeffects/Back.wav',
                 hover: 'xbox360 metro soundeffects/SelectB.wav',
-                pan: 'xbox360 metro soundeffects/PageRight.wav'
+                pan: 'xbox360 metro soundeffects/PageRight.wav',
+                welcome: 'xbox360 metro soundeffects/Welcome.wav',
+                login: 'xbox360 metro soundeffects/LogIn.wav',
+                achievement: 'xbox360 metro soundeffects/Achievement.wav'
             },
             soft: {
                 select: 'xbox360 metro soundeffects/SelectB.wav',
                 back: 'xbox360 metro soundeffects/Back2.wav',
                 hover: 'xbox360 metro soundeffects/Unknown1.wav',
-                pan: 'xbox360 metro soundeffects/PageLeft.wav'
+                pan: 'xbox360 metro soundeffects/PageLeft.wav',
+                welcome: 'xbox360 metro soundeffects/Welcome.wav',
+                login: 'xbox360 metro soundeffects/LogIn.wav',
+                achievement: 'xbox360 metro soundeffects/Achievement.wav'
             },
             minimal: {
                 select: 'xbox360 metro soundeffects/Bing.wav',
                 back: 'xbox360 metro soundeffects/Back2.wav',
                 hover: 'xbox360 metro soundeffects/Unknown2.wav',
-                pan: 'xbox360 metro soundeffects/Unknown3.wav'
+                pan: 'xbox360 metro soundeffects/Unknown3.wav',
+                welcome: 'xbox360 metro soundeffects/Welcome.wav',
+                login: 'xbox360 metro soundeffects/LogIn.wav',
+                achievement: 'xbox360 metro soundeffects/Achievement.wav'
             }
         };
 
@@ -10209,6 +10363,7 @@
             ctx: null,
             buffers: {},
             lastPlay: {},
+            lastHoverTarget: null,
             get sounds() { return SFX_PACKS[this.currentPack] || SFX_PACKS.classic; },
             init() {
                 if (!this.ctx) {
@@ -10248,58 +10403,24 @@
                 }
                 this.play('select');
             },
-            synth(type, vol = 0.12) {
-                try {
-                    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
-                    const now = this.ctx.currentTime;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-
-                    if (type === 'select') {
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(587.33, now);
-                        osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-                        gain.gain.setValueAtTime(vol, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-                        osc.start(now);
-                        osc.stop(now + 0.12);
-                    } else if (type === 'back') {
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(783.99, now);
-                        osc.frequency.exponentialRampToValueAtTime(440, now + 0.1);
-                        gain.gain.setValueAtTime(vol, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-                        osc.start(now);
-                        osc.stop(now + 0.14);
-                    } else if (type === 'hover') {
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(520, now);
-                        gain.gain.setValueAtTime(vol * 0.35, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-                        osc.start(now);
-                        osc.stop(now + 0.04);
-                    } else { // pan
-                        osc.type = 'triangle';
-                        osc.frequency.setValueAtTime(320, now);
-                        osc.frequency.linearRampToValueAtTime(540, now + 0.06);
-                        gain.gain.setValueAtTime(vol * 0.6, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-                        osc.start(now);
-                        osc.stop(now + 0.1);
-                    }
-                } catch(e) {}
-            },
             play(type) {
                 if (!this.enabled) return;
                 const now = Date.now();
-                if (this.lastPlay[type] && now - this.lastPlay[type] < (type === 'hover' ? 80 : 50)) return;
+                const cooldown = type === 'hover' ? 80 : 50;
+                if (this.lastPlay[type] && now - this.lastPlay[type] < cooldown) return;
                 this.lastPlay[type] = now;
-
-                const volumes = { hover: 0.04, pan: 0.10, select: 0.16, back: 0.16 };
-                const vol = volumes[type] || 0.14;
+                const volumes = {
+                    hover: 0.04,
+                    pan: 0.10,
+                    select: 0.16,
+                    back: 0.16,
+                    welcome: 0.16,
+                    login: 0.16,
+                    achievement: 0.16
+                };
+                const volume = volumes[type] || 0.1;
+                const canVaryPitch = type === 'hover' || type === 'pan' || type === 'select';
+                const playbackRate = canVaryPitch ? 0.96 + Math.random() * 0.08 : 1;
 
                 // 1. Try decoded Web Audio buffer if available
                 if (this.ctx && this.buffers[type]) {
@@ -10308,10 +10429,8 @@
                         const source = this.ctx.createBufferSource();
                         source.buffer = this.buffers[type];
                         const gain = this.ctx.createGain();
-                        gain.gain.value = vol;
-                        if (type === 'pan' || type === 'hover' || type === 'select') {
-                            source.playbackRate.value = 0.96 + Math.random() * 0.08;
-                        }
+                        gain.gain.value = volume;
+                        source.playbackRate.value = playbackRate;
                         source.connect(gain);
                         gain.connect(this.ctx.destination);
                         source.start(0);
@@ -10324,18 +10443,16 @@
                     const url = this.sounds[type];
                     if (url) {
                         const audio = new Audio(encodeURI(url));
-                        audio.volume = vol;
-                        if (type === 'pan' || type === 'hover' || type === 'select') {
-                            audio.playbackRate = 0.96 + Math.random() * 0.08;
-                        }
+                        audio.volume = volume;
+                        audio.playbackRate = playbackRate;
                         const p = audio.play();
                         if (p && p.catch) {
-                            p.catch(() => this.synth(type, vol));
+                        p.catch(error => console.warn(`could not play ${type} sound from ${url}:`, error));
                         }
                         return;
                     }
                 } catch (e) {
-                    this.synth(type, vol);
+                    console.warn(`could not load ${type} sound:`, e);
                 }
             },
             toggle(enabled) {
@@ -10348,6 +10465,8 @@
                 if (this.enabled) this.play('select');
             }
         };
+
+        window.Sfx = Sfx;
 
         function updateSfxToggleUI(enabled) {
             const btn = document.getElementById('sfx-toggle-btn');
@@ -10644,8 +10763,15 @@
         else initControllerSupport();
 
         function initSfxSystem() {
-            const unlockAudio = () => {
+            const playStartupSounds = () => {
+                if (window.metroStartupSoundsPlayed) return;
                 Sfx.init();
+                Sfx.play('welcome');
+                if (accessToken) setTimeout(() => Sfx.play('login'), 220);
+                window.metroStartupSoundsPlayed = true;
+            };
+            const unlockAudio = () => {
+                playStartupSounds();
                 window.removeEventListener('pointerdown', unlockAudio);
                 window.removeEventListener('keydown', unlockAudio);
             };
@@ -10709,6 +10835,10 @@
             initSfxSystem();
         }
     </script>
+    <script src="js/api.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/tiles.js"></script>
+    <script src="js/app.js"></script>
 </body>
 
 </html>

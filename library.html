@@ -1,0 +1,32 @@
+<!-- SECTION 2: LIBRARY -->
+        <section class="header-section library-section">
+            <h1 class="metro-huge-title">library <span style="font-size:14px;vertical-align:middle;color:var(--text-dim);letter-spacing:0;">beta</span></h1>
+            <div class="content-scroll">
+                <div class="library-explorer" id="library-explorer" data-layout="grid">
+                    <aside class="library-sidebar" aria-label="Library filters">
+                        <div class="library-sidebar-search"><label class="library-sidebar-heading" for="library-filter-search">Filter</label><input id="library-filter-search" type="search" placeholder="Search your lists" oninput="renderLibrary()"></div>
+                        <div class="library-sidebar-lists"><h2 class="library-sidebar-heading">Lists</h2><nav class="library-list-nav" id="library-list-nav" aria-label="Anime and manga lists"></nav><button class="metro-btn library-list-manager-trigger" id="library-list-manager-trigger" type="button" onclick="openLibraryListManager()"><i class="fa-solid fa-sliders"></i> manage lists</button></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-format">Format</label><select id="library-filter-format" onchange="renderLibrary()"><option value="">Any format</option></select></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-status">Status</label><select id="library-filter-status" onchange="renderLibrary()"><option value="">Any status</option><option value="FINISHED">Finished</option><option value="RELEASING">Releasing</option><option value="NOT_YET_RELEASED">Not yet released</option><option value="CANCELLED">Cancelled</option><option value="HIATUS">Hiatus</option></select></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-genre">Genres &amp; Tags</label><input id="library-filter-genre" type="search" placeholder="e.g. comedy, fantasy" oninput="renderLibrary()"></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-country">Country</label><select id="library-filter-country" onchange="renderLibrary()"><option value="">Any country</option><option value="JP">Japan</option><option value="KR">South Korea</option><option value="CN">China</option><option value="TW">Taiwan</option></select></div>
+                        <div><label class="library-sidebar-heading" for="library-filter-year">Year</label><input id="library-filter-year" type="number" min="1940" max="2100" placeholder="Any year" oninput="renderLibrary()"></div>
+                        <div><label class="library-sidebar-heading" for="library-sort-select">Sort</label><select id="library-sort-select" onchange="renderLibrary()"><option value="added">Last added</option><option value="title">Title</option><option value="score">Score</option><option value="progress">Progress</option></select></div>
+                    </aside>
+                    <main class="library-main">
+                        <div class="library-toolbar">
+                            <div class="media-type-switch" id="library-media-switch">
+                                <button class="mts-btn active" onclick="switchMediaType('ANIME',this)">anime</button>
+                                <button class="mts-btn" onclick="switchMediaType('MANGA',this)">manga</button>
+                            </div>
+                            <div class="library-layout-toggle" role="group" aria-label="Library layout">
+                                <button class="active" data-layout-choice="grid" onclick="setLibraryLayout('grid',this)" aria-label="Poster grid"><i class="fa-solid fa-table-cells-large"></i></button>
+                                <button data-layout-choice="list" onclick="setLibraryLayout('list',this)" aria-label="List layout"><i class="fa-solid fa-list"></i></button>
+                                <button data-layout-choice="compact" onclick="setLibraryLayout('compact',this)" aria-label="Compact grid"><i class="fa-solid fa-table-cells"></i></button>
+                            </div>
+                        </div>
+                        <div id="library-grid" aria-live="polite"><div class="library-empty">sign in to load your lists.</div></div>
+                    </main>
+                </div>
+            </div>
+        </section>

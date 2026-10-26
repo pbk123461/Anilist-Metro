@@ -1,0 +1,150 @@
+<!-- SECTION 1: USER -->
+        <section class="header-section">
+            <h1 class="metro-huge-title" id="user-section-title">user</h1>
+            <div class="content-scroll">
+                <div class="user-hero">
+                    <div class="user-avatar-shell">
+                        <img id="user-page-avatar"
+                            src="https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png"
+                            onerror="this.onerror=null; this.src='https://s4.anilist.co/file/anilistcdn/user/avatar/large/default.png';"
+                            style="width:100%; height:100%; object-fit: cover;" alt="avatar">
+                    </div>
+                    <div style="min-width:0;">
+                        <div class="user-meta-row">
+                            <div style="min-width:0;">
+                                <h1 class="metro-huge-title" id="user-page-name"
+                                    style="color: var(--accent); margin-bottom: 10px;">guest</h1>
+                                <div style="color: var(--text-dim); font-size: 1.2rem;" id="user-page-sub">login via anilist
+                                </div>
+                            </div>
+                            <div class="user-quick-links">
+                                <button class="metro-btn" onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">anime list</button>
+                                <button class="metro-btn" onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">manga list</button>
+                                <button class="metro-btn" onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">full profile</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-stat-strip" id="user-stat-strip">
+                    <div class="user-stat-tile accent">
+                        <div class="user-stat-value" id="user-stat-anime-count">0</div>
+                        <div class="user-stat-label">anime tracked</div>
+                        <div class="user-stat-sub" id="user-stat-episodes">0 episodes watched</div>
+                    </div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-days">0.0</div>
+                        <div class="user-stat-label">days watched</div>
+                        <div class="user-stat-sub">anime time</div>
+                    </div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-anime-mean">0.0</div>
+                        <div class="user-stat-label">anime mean</div>
+                        <div class="user-stat-sub">score</div>
+                    </div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-manga-count">0</div>
+                        <div class="user-stat-label">manga tracked</div>
+                        <div class="user-stat-sub" id="user-stat-chapters">0 chapters read</div>
+                    </div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-volumes">0</div>
+                        <div class="user-stat-label">volumes read</div>
+                        <div class="user-stat-sub">manga time</div>
+                    </div>
+                    <div class="user-stat-tile">
+                        <div class="user-stat-value" id="user-stat-manga-mean">0.0</div>
+                        <div class="user-stat-label">manga mean</div>
+                        <div class="user-stat-sub">score</div>
+                    </div>
+                </div>
+
+                <div class="user-overview-grid">
+                    <div class="user-stack">
+                        <div class="panel">
+                            <div class="user-section-head">
+                                <div class="user-section-title">activity history</div>
+                                <div class="user-section-kicker" id="user-heatmap-caption">last 126 updates</div>
+                            </div>
+                            <div class="user-activity-heatmap" id="user-activity-heatmap">
+                                <div class="user-empty">sign in to load activity history.</div>
+                            </div>
+                            <div class="user-mini-legend">
+                                <span>quiet</span>
+                                <div class="user-mini-legend-scale">
+                                    <span></span><span class="heat-cell l1"></span><span class="heat-cell l2"></span><span class="heat-cell l3"></span><span class="heat-cell l4"></span>
+                                </div>
+                                <span>busy</span>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="user-section-head">
+                                <div class="user-section-title">recent activity</div>
+                                <div class="user-section-kicker">latest list updates</div>
+                            </div>
+                            <div class="user-activity-feed" id="user-home-activity-feed">
+                                <div class="user-empty">sign in to load activity.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-stack">
+                        <div class="panel">
+                            <div class="user-section-head">
+                                <div class="user-section-title">genre overview</div>
+                                <div class="user-section-kicker">from your library</div>
+                            </div>
+                            <div class="genre-overview-list" id="user-genre-overview">
+                                <div class="user-empty">sign in to map your top genres.</div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="user-section-head">
+                                <div class="user-section-title">quick access</div>
+                                <div class="user-section-kicker">jump deeper</div>
+                            </div>
+                            <div class="settings-list" style="margin-bottom: 0;">
+                                <div class="wp-setting-item"
+                                    onclick="scrollToSection(2); switchMediaType('ANIME', document.querySelector('.mts-btn:nth-child(1)'))">
+                                    <div class="wp-setting-title">anime list</div>
+                                    <div class="wp-setting-sub">track watching and completed</div>
+                                </div>
+                                <div class="wp-setting-item"
+                                    onclick="scrollToSection(2); switchMediaType('MANGA', document.querySelector('.mts-btn:nth-child(2)'))">
+                                    <div class="wp-setting-title">manga list</div>
+                                    <div class="wp-setting-sub">track reading and completed</div>
+                                </div>
+                                <div class="wp-setting-item"
+                                    onclick="if(document.getElementById('user-page-name').innerText !== 'guest') openUserDetail(document.getElementById('user-page-name').innerText)">
+                                    <div class="wp-setting-title">full profile</div>
+                                    <div class="wp-setting-sub">favorites, followers, and extended history</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-favorites-band">
+                    <div class="user-favorites-row">
+                        <div class="user-section-head">
+                            <div class="user-section-title">favorite anime</div>
+                            <div class="user-section-kicker">current signals</div>
+                        </div>
+                        <div class="favorite-strip-grid" id="user-home-fav-anime">
+                            <div class="user-empty">sign in to load favorites.</div>
+                        </div>
+                    </div>
+                    <div class="user-favorites-row">
+                        <div class="user-section-head">
+                            <div class="user-section-title">favorite manga</div>
+                            <div class="user-section-kicker">shelves</div>
+                        </div>
+                        <div class="favorite-strip-grid" id="user-home-fav-manga">
+                            <div class="user-empty">sign in to load favorites.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>

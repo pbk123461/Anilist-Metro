@@ -22,7 +22,7 @@
 22: 14. ✅ System: Refined rate limit handling in fetchAPI (token expiry detection)
 23: 15. ✅ Search: added character, staff, and studio search support
 24:
-24: ALL TASKS COMPLETED - SEE restoresesh.txt FOR SESSION STATE
+24: ALL TASKS COMPLETED - SEE docs/notes/restoresesh.txt FOR SESSION STATE
 25: 
 26: 
 27: ================================================================================

@@ -1,0 +1,76 @@
+AniList Metro project information
+================================
+
+Purpose
+-------
+AniList Metro is a browser-based AniList anime and manga tracker styled after
+the Windows Phone 7 and Zune Metro interface.
+
+Technology stack
+----------------
+- HTML5, CSS3, and modern browser JavaScript (ES6+)
+- AniList GraphQL v2 at https://graphql.anilist.co
+- Metro UI v4 assets and Font Awesome icons
+- Web Audio API for navigation sound effects
+- localStorage for authentication, themes, wallpaper, tile preferences, and
+  other user settings
+- Python's built-in http.server for local development
+- No framework, package manager, bundler, or build step
+
+Primary entry points
+--------------------
+- index.html: primary experimental entry and current legacy-first application
+- index_v2.html: stable/reference entry for comparison
+- index-legacy.html: preserved legacy source/reference copy
+- Indexhtmlextract/: extracted reference material, not the primary app
+
+Application structure
+---------------------
+- index.html contains the shared shell, panorama sections, overlays, CSS, and
+  the legacy application runtime.
+- start.html, user.html, library.html, community.html, discover.html,
+  airing.html, inbox.html, and system.html are preserved section fragments for
+  the split migration/reference work. The primary legacy-first entry does not
+  depend on their loader.
+- css/metro.css contains shared responsive, tile-editor, and navigation
+  overrides used by the split-compatible UI.
+- js/api.js, js/app.js, js/settings.js, and js/tiles.js contain compatibility
+  enhancements that are loaded after the primary runtime.
+- docs/ contains module notes and organized project notes.
+- docs/notes/ contains historical implementation notes and function inventories.
+- vendor/metro-ui/ contains vendored Metro UI assets when present.
+- xbox360 metro soundeffects/ contains Web Audio API source files.
+
+Runtime flow
+------------
+1. The browser loads index.html and its inline styles/runtime.
+2. The login overlay is shown until OAuth or guest mode is selected.
+3. Guest mode or a stored AniList token reveals the panorama app.
+4. The eight sections use zero-based indexes:
+   start, user, library, community, discover, airing, inbox, system.
+5. Section loading and AniList requests are lazy where the legacy runtime
+   supports it.
+6. Compatibility modules apply tile, icon-color, fuzzy-search, and activity
+   enhancements without replacing legacy globals.
+
+Data and safety contracts
+-------------------------
+- Never rename or remove existing localStorage keys or required global
+  variables. See CLAUDE.md.
+- Never commit tokens, personal AniList data, or other secrets.
+- Preserve GraphQL error handling, token-expiry detection, and rate-limit
+  behavior.
+- Keep Metro geometry: square corners, no shadows, flat surfaces, lowercase UI,
+  and responsive panorama sections.
+
+Development and validation
+--------------------------
+Run from the repository root:
+
+    python3 -m http.server 8000
+
+Then open http://127.0.0.1:8000/index.html. Validate guest startup, desktop
+and mobile navigation, settings/theme controls, tile editing and persistence,
+and authenticated behavior when credentials are available. Static checks use
+node --check for JavaScript and git diff --check for whitespace because the
+project has no automated test suite.

@@ -1,6 +1,6 @@
 # Class: Sfx (AudioEngine)
 
-The `Sfx` class (implemented as a singleton audio controller) manages the procedural sound effects engine for AniList Metro. Designed around the Windows Phone 7, Xbox 360 Metro dashboard, and Zune HD tactile feedback experience, it utilizes the native **Web Audio API (`AudioContext`)** to deliver zero-latency, pitch-randomized, non-fatiguing auditory cues for all user interface interactions.
+The `Sfx` class (implemented as a singleton audio controller) manages the audio effects engine for AniList Metro. Designed around the Windows Phone 7, Xbox 360 Metro dashboard, and Zune HD tactile feedback experience, it uses the native **Web Audio API (`AudioContext`)** when available while preserving the original WAV audio.
 
 ---
 
@@ -12,7 +12,7 @@ In standard web applications, UI audio is often implemented using HTML5 `<audio>
 - Creating a shared, persistent `AudioContext` hardware pipeline.
 - Pre-fetching and decoding `.wav` audio files into uncompressed, in-memory `AudioBuffer` objects.
 - Spawning lightweight, garbage-collected `AudioBufferSourceNode` instances on-demand with linear `GainNode` volume attenuation.
-- Applying real-time subtle pitch modulation to prevent acoustic fatigue.
+- Preserving the legacy WAV character, mappings, cooldowns, and playback behavior.
 - Enforcing hardware-level event throttling to eliminate stutter during rapid hover and mouse drag operations.
 
 ---
@@ -34,6 +34,10 @@ The audio engine includes three curated acoustic profiles stored in `xbox360 met
 - **`classic`**: Authentic Xbox 360 Dashboard acoustics (`Select.wav`, `Back.wav`, `SelectB.wav`, `PageRight.wav`).
 - **`soft`**: Subdued, low-frequency clicks ideal for prolonged evening sessions.
 - **`minimal`**: Crisp, subtle blips for distraction-free navigation.
+
+All packs also use the legacy milestone cues: `Welcome.wav` on startup,
+`LogIn.wav` when an authenticated session is loaded, and `Achievement.wav`
+when an anime list entry is changed to `COMPLETED`.
 
 ---
 
@@ -85,7 +89,7 @@ await Sfx.switchPack('soft');
 ---
 
 ### `play(type: 'select' | 'back' | 'hover' | 'pan'): Promise<void>`
-Triggers zero-latency playback of a specific UI sound cue with pitch variation and gain attenuation.
+Triggers playback of a specific UI sound cue with source pitch preserved and gain attenuation.
 
 - **Parameters**:
   - `type` (`string`): Interaction type (`'select'`, `'back'`, `'hover'`, or `'pan'`).
@@ -95,13 +99,9 @@ Triggers zero-latency playback of a specific UI sound cue with pitch variation a
   - Checks throttle timestamps: throttles `'hover'` calls within 80ms and other cues within 50ms.
   - Auto-initializes `AudioContext` if not yet constructed.
   - Creates an `AudioBufferSourceNode` linked to `this.buffers[type]`.
-  - Connects a calibrated `GainNode`:
-    - `hover`: `0.04` (4% gain)
-    - `pan`: `0.08` (8% gain)
-    - `select`: `0.12` (12% gain)
-    - `back`: `0.12` (12% gain)
-  - Applies random pitch shifting for natural sound:
-    $$\text{playbackRate} = 0.96 + (\text{random}() \times 0.08) \quad [0.96 - 1.04]$$
+  - Connects a unity-gain `GainNode` so the source WAV is not attenuated.
+  - Uses the legacy `0.96`–`1.04` playback-rate range for short navigation cues,
+    while milestone cues keep `playbackRate = 1`.
   - Dispatches `source.start(0)`.
 
 ```javascript
@@ -172,9 +172,13 @@ document.body.addEventListener('click', e => {
 
 1. **Web Audio API vs. Audio Element**:
    The native HTML `<audio>` tag introduces noticeable 50–150ms latency on user clicks. By using `AudioContext` and pre-decoded `AudioBuffer` objects, latency drops below 5ms, matching the native responsiveness of Xbox 360 and Windows Phone OS.
-2. **Strict Gain Calibration (4%–12%)**:
-   Many web apps play loud, intrusive 100% gain beeps. `Sfx` limits gain between 0.04 and 0.12, ensuring that rapid browsing through hundreds of anime tiles does not cause headphone fatigue.
-3. **Organic Pitch Randomization**:
-   Repeating the exact same audio frequency dozens of times per minute creates mechanical fatigue. Randomizing the `playbackRate` by $\pm 4\%$ gives each click an organic, physical feel.
+2. **Legacy Source Playback**:
+   The source WAV is played directly using the legacy per-cue gain, cooldown,
+   mapping, and short-navigation pitch behavior. Welcome, login, and
+   achievement cues retain their original pitch.
+3. **Source Pitch Preservation**:
+   Legacy WAV files remain the source; navigation variation uses the legacy
+   ±4% range
+   so repeated interactions do not sound mechanically identical or harsh.
 4. **Resilience to Browser Autoplay Restrictions**:
    Modern browsers block audio contexts from playing until the user interacts with the document. `Sfx.init()` automatically detects suspended contexts and resumes them cleanly on the first user interaction.

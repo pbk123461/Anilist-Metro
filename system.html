@@ -1,0 +1,339 @@
+<!-- SECTION 6: SYSTEM -->
+        <section class="header-section">
+            <h1 class="metro-huge-title">system</h1>
+            <div class="content-scroll">
+                <div id="settings-main-list" class="settings-list">
+                    <div class="wp-setting-item" onclick="openSettingsView('theme')">
+                        <div class="wp-setting-title">theme</div>
+                        <div class="wp-setting-sub" id="st-theme-sub">dark, cobalt</div>
+                    </div>
+                    <div class="wp-setting-item" onclick="openSettingsView('account')">
+                        <div class="wp-setting-title">account</div>
+                        <div class="wp-setting-sub">anilist integration</div>
+                    </div>
+                    <div class="wp-setting-item" onclick="openSettingsView('animemanga')">
+                        <div class="wp-setting-title">anime & manga</div>
+                        <div class="wp-setting-sub">title language, content settings</div>
+                    </div>
+                    <div class="wp-setting-item" onclick="openSettingsView('lists')">
+                        <div class="wp-setting-title">list settings</div>
+                        <div class="wp-setting-sub">scoring, custom lists, display</div>
+                    </div>
+                    <div class="wp-setting-item" onclick="openSettingsView('app')">
+                        <div class="wp-setting-title">app settings</div>
+                        <div class="wp-setting-sub">default tab, export, cache</div>
+                    </div>
+                    <div class="wp-setting-item" onclick="openSettingsView('notifications')">
+                        <div class="wp-setting-title">notifications</div>
+                        <div class="wp-setting-sub">type preferences</div>
+                    </div>
+                    <div class="wp-setting-item" onclick="openSettingsView('about')">
+                        <div class="wp-setting-title">about</div>
+                        <div class="wp-setting-sub">anilist metro v5 — amoled zune edition</div>
+                    </div>
+                </div>
+
+                <div id="settings-subview-container" style="display: none;">
+                    <button class="btn-back-text" onclick="closeSettingsView()"><i class="fa-solid fa-arrow-left"></i>
+                        settings</button>
+
+                    <div id="settings-tab-theme" class="settings-subview">
+                        <div class="settings-item">
+                            <div class="settings-item-header">background</div>
+                            <select class="metro-select" id="theme-select" onchange="setThemeMode(this.value)"
+                                style="margin-bottom: 30px;">
+                                <option value="system">system</option>
+                                <option value="dark">dark</option>
+                                <option value="light">light</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">ui style</div>
+                            <div class="settings-item-sub">metro = flat tiles, fluent = rounded & blurred</div>
+                            <select class="metro-select" id="ui-style-select" onchange="setUIStyle(this.value)">
+                                <option value="metro">metro (classic)</option>
+                                <option value="fluent">fluent 1 (windows 11)</option>
+                            </select>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-item-header">ui sound effects</div>
+                            <div class="settings-item-sub">xbox 360 dashboard sounds for navigation</div>
+                            <button class="metro-toggle-btn" id="sfx-toggle-btn" onclick="toggleSfxBtn()"></button>
+                            <span class="toggle-label">toggle sounds</span>
+                            <div style="margin-top: 15px;">
+                                <div class="settings-item-sub" style="margin-bottom: 8px;">sound pack</div>
+                                <select class="metro-select" id="sfx-pack-select" style="max-width: 280px;">
+                                    <option value="classic">classic (xbox 360)</option>
+                                    <option value="soft">soft</option>
+                                    <option value="minimal">minimal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-item-header">top blur effect</div>
+                            <div class="settings-item-sub">zune-style frosted glass blur on navigation bar</div>
+                            <label class="switch">
+                                <input type="checkbox" id="blur-toggle">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">toggle blur</span>
+                        </div>
+
+                        <div class="settings-item">
+                            <div class="settings-item-header">accent color</div>
+                            <div class="color-picker" id="theme-colors" style="display:none">
+                                <!-- Hidden but kept for logic compatibility if needed -->
+                            </div>
+                            <!-- Color Wheel (from index.html) -->
+                            <div class="color-wheel-wrap">
+                                <canvas id="color-wheel-canvas" width="200" height="200"></canvas>
+                                <div class="color-wheel-crosshair" id="wheel-crosshair" style="left:100px;top:100px;">
+                                </div>
+                            </div>
+                            <div class="color-preview-row">
+                                <div class="color-preview-box" id="color-preview-box" onclick="applyWheelColor()"></div>
+                                <div class="color-hex" id="color-hex-display">#1ba1e2</div>
+                                <div
+                                    style="font-size:12px;color:var(--text-dim); text-transform:uppercase; letter-spacing:1px;">
+                                    click square to apply</div>
+                            </div>
+                            <div class="settings-item" style="margin-top: 24px;">
+                                <div class="settings-item-header">wallpaper</div>
+                                <div class="settings-item-sub" id="anime-hover-wallpaper-help">show an anime's banner behind the app while hovering its cards; banners are cached by anilist.</div>
+                                <label class="switch" for="anime-hover-wallpaper-toggle">
+                                    <input type="checkbox" id="anime-hover-wallpaper-toggle" aria-describedby="anime-hover-wallpaper-help">
+                                    <span class="toggle-track"></span>
+                                </label>
+                                <label class="toggle-label" for="anime-hover-wallpaper-toggle">anime banner on hover</label>
+                                <div class="wallpaper-controls">
+                                    <label class="metro-btn small wallpaper-button" for="wallpaper-input"><i
+                                            class="fa-solid fa-plus"></i> choose wallpaper</label>
+                                    <button type="button" class="metro-btn small" onclick="resetWallpaper()"><i
+                                            class="fa-solid fa-trash"></i> clear wallpaper</button>
+                                    <button type="button" class="metro-btn small" onclick="extractWallpaperAccent()"><i
+                                            class="fa-solid fa-eye-dropper"></i> take accent color from wallpaper</button>
+                                </div>
+                                <input type="file" id="wallpaper-input" accept="image/*" style="display:none"
+                                    onchange="handleWallpaperUpload(event)">
+                                <div class="wallpaper-preview" id="wallpaper-preview">
+                                    <div class="wallpaper-preview-inner" id="wallpaper-preview-inner">no wallpaper set
+                                    </div>
+                                    <div class="wallpaper-preview-label" id="wallpaper-name">default</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="settings-tab-account" class="settings-subview">
+                        <div class="settings-item">
+                            <div class="settings-item-header">account status</div>
+                            <p style="color:var(--text-dim); margin-top:10px;">logged in securely via anilist oauth.</p>
+                            <button class="metro-btn primary" style="margin-top:20px;" onclick="logout()"><i
+                                    class="fa-solid fa-power-off"></i> sign out</button>
+                        </div>
+                    </div>
+
+                    <div id="settings-tab-animemanga" class="settings-subview">
+                        <div class="settings-item">
+                            <div class="settings-item-header">title language</div>
+                            <select class="metro-select" id="title-select" style="margin-bottom: 30px;">
+                                <option value="romaji">romaji</option>
+                                <option value="english">english</option>
+                                <option value="native">native</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">show spoilers</div>
+                            <div class="settings-item-sub">reveal spoiler content in descriptions</div>
+                            <label class="switch">
+                                <input type="checkbox" id="spoiler-toggle">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">toggle spoilers</span>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">adult content</div>
+                            <div class="settings-item-sub">allow 18+ content in searches and feeds</div>
+                            <label class="switch">
+                                <input type="checkbox" id="adult-toggle">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">toggle adult content</span>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">content settings</div>
+                            <div class="settings-item-sub">quick access to anilist services</div>
+                            <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                                <a href="https://anilist.co/settings" target="_blank" class="metro-btn"
+                                    style="text-align:left;"><i class="fa-solid fa-gear"></i> account settings</a>
+                                <a href="https://anilist.co/api" target="_blank" class="metro-btn"
+                                    style="text-align:left;"><i class="fa-solid fa-code"></i> api documentation</a>
+                                <a href="https://anilist.co/forum" target="_blank" class="metro-btn"
+                                    style="text-align:left;"><i class="fa-solid fa-comments"></i> community forums</a>
+                                <a href="https://anilist.co/support" target="_blank" class="metro-btn"
+                                    style="text-align:left;"><i class="fa-solid fa-life-ring"></i> support &
+                                    feedback</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="settings-tab-lists" class="settings-subview">
+                        <div class="settings-item">
+                            <div class="settings-item-header">scoring format</div>
+                            <div class="settings-item-sub">how scores are displayed and entered</div>
+                            <select class="metro-select" id="scoring-format-select">
+                                <option value="POINT_100">point 100</option>
+                                <option value="POINT_10_DECIMAL">point 10 decimal</option>
+                                <option value="POINT_10">point 10</option>
+                                <option value="POINT_5">point 5 (stars)</option>
+                                <option value="POINT_3">point 3 (smileys)</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">split completed lists</div>
+                            <div class="settings-item-sub">separate completed entries by format</div>
+                            <label class="switch"><input type="checkbox" id="split-anime-toggle"><span class="toggle-track"></span></label>
+                            <span class="toggle-label">split anime</span>
+                            <label class="switch" style="margin-left:15px;"><input type="checkbox" id="split-manga-toggle"><span class="toggle-track"></span></label>
+                            <span class="toggle-label">split manga</span>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">list display</div>
+                            <div class="settings-item-sub">default view mode for lists</div>
+                            <select class="metro-select" id="list-display-select">
+                                <option value="grid">grid cards</option>
+                                <option value="detail">detailed list</option>
+                                <option value="compact">compact list</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">custom lists</div>
+                            <div class="settings-item-sub">add, remove, and reorder custom lists from the beta library.</div>
+                            <button type="button" class="metro-btn" style="display:inline-block;margin-top:10px;" onclick="scrollToSection(2);openLibraryListManager();">manage library lists</button>
+                        </div>
+                    </div>
+
+                    <div id="settings-tab-app" class="settings-subview">
+                        <div class="settings-item">
+                            <div class="settings-item-header">version channel</div>
+                            <div class="settings-item-sub">this beta is experimental. open index_v2.html for the current stable experience.</div>
+                            <button class="metro-btn primary" type="button" onclick="openStableVersion()">
+                                <i class="fa-solid fa-shield-halved"></i> open stable version
+                            </button>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">controller support</div>
+                            <div class="settings-item-sub" id="controller-navigation-help">navigate the app with a connected xbox or playstation controller. button hints appear when a controller is connected.</div>
+                            <label class="switch" for="controller-navigation-toggle" role="switch" tabindex="0" aria-checked="true">
+                                <input type="checkbox" id="controller-navigation-toggle" aria-describedby="controller-navigation-help">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">controller navigation</span>
+                            <div class="settings-item-sub" style="margin-top:12px;">button prompt style</div>
+                            <select class="metro-select" id="controller-prompt-style" aria-label="controller button prompt style">
+                                <option value="auto">automatic</option>
+                                <option value="xbox">xbox</option>
+                                <option value="playstation">playstation</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">default home tab</div>
+                            <div class="settings-item-sub">which section to show on launch</div>
+                            <select class="metro-select" id="default-home-select">
+                                <option value="0">start</option>
+                                <option value="1">user</option>
+                                <option value="2">library</option>
+                                <option value="3">community</option>
+                                <option value="4">discover</option>
+                                <option value="5">airing</option>
+                                <option value="6">inbox</option>
+                                <option value="7">system</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">preferred media type</div>
+                            <div class="settings-item-sub">default type for search & library</div>
+                            <select class="metro-select" id="preferred-media-select">
+                                <option value="ANIME">anime</option>
+                                <option value="MANGA">manga</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">nsfw thumbnails</div>
+                            <div class="settings-item-sub">how to handle 18+ cover images</div>
+                            <div class="nsfw-options">
+                                <span class="nsfw-option filter-chip" data-value="blur">blur</span>
+                                <span class="nsfw-option filter-chip" data-value="hide">hide</span>
+                                <span class="nsfw-option filter-chip" data-value="show">show</span>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">calendar view</div>
+                            <div class="settings-item-sub">how to group airing schedule</div>
+                            <select class="metro-select" id="calendar-view-select">
+                                <option value="week">group by day</option>
+                                <option value="flat">flat chronological</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">countdown format</div>
+                            <div class="settings-item-sub">how to display airing times</div>
+                            <select class="metro-select" id="countdown-format-select">
+                                <option value="relative">relative (in 3h)</option>
+                                <option value="absolute">absolute (thu 22:00)</option>
+                            </select>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">export list</div>
+                            <div class="settings-item-sub">download your library data</div>
+                            <div style="display:flex;gap:10px;margin-top:10px;">
+                                <button class="metro-btn small" onclick="exportList('csv')">export as csv</button>
+                                <button class="metro-btn small" onclick="exportList('json')">export as json</button>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">clear saved api data</div>
+                            <div class="settings-item-sub">remove cached anilist responses from this browser</div>
+                            <button class="metro-btn small" onclick="clearApiCache()">clear cache</button>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-item-header">rate limit</div>
+                            <div class="settings-item-sub" id="rate-limit-indicator">api: --/90</div>
+                        </div>
+                    </div>
+
+                    <div id="settings-tab-notifications" class="settings-subview">
+                        <div class="settings-item">
+                            <div class="settings-item-header">notification types</div>
+                            <div class="settings-item-sub">toggle which notifications to display</div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px;" id="notif-type-toggles">
+                                <label class="switch" style="justify-content:space-between;"><span style="font-size:13px;color:var(--text-dim);">airing</span><input type="checkbox" checked><span class="toggle-track"></span></label>
+                                <label class="switch" style="justify-content:space-between;"><span style="font-size:13px;color:var(--text-dim);">following</span><input type="checkbox" checked><span class="toggle-track"></span></label>
+                                <label class="switch" style="justify-content:space-between;"><span style="font-size:13px;color:var(--text-dim);">activity mention</span><input type="checkbox" checked><span class="toggle-track"></span></label>
+                                <label class="switch" style="justify-content:space-between;"><span style="font-size:13px;color:var(--text-dim);">activity reply</span><input type="checkbox" checked><span class="toggle-track"></span></label>
+                                <label class="switch" style="justify-content:space-between;"><span style="font-size:13px;color:var(--text-dim);">activity like</span><input type="checkbox" checked><span class="toggle-track"></span></label>
+                                <label class="switch" style="justify-content:space-between;"><span style="font-size:13px;color:var(--text-dim);">thread reply</span><input type="checkbox" checked><span class="toggle-track"></span></label>
+                                <label class="switch" style="justify-content:space-between;"><span style="font-size:13px;color:var(--text-dim);">thread like</span><input type="checkbox" checked><span class="toggle-track"></span></label>
+                                <label class="switch" style="justify-content:space-between;"><span style="font-size:13px;color:var(--text-dim);">media data change</span><input type="checkbox" checked><span class="toggle-track"></span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="settings-tab-about" class="settings-subview">
+                        <div class="settings-item">
+                            <div class="settings-item-header">anilist metro</div>
+                            <p style="color:var(--text-dim); margin-top:10px; line-height:1.6; font-size:16px;">
+                                version 5.0 — amoled zune edition.<br><br>
+                                redesigned to mimic the classic windows phone 7 and zune hd interfaces while providing
+                                social anime tracking.<br><br>
+                                <span style="font-size:13px;">powered by the <a href="https://anilist.co/api" target="_blank" style="color:var(--accent);">anilist api</a> &bull; fontawesome 6.4 &bull; open-source</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>

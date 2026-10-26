@@ -1,0 +1,178 @@
+<!-- SECTION 4: DISCOVER -->
+        <section class="header-section">
+            <h1 class="metro-huge-title">discover</h1>
+            <div class="content-scroll">
+                <div class="pivot-headers" id="discover-pivots">
+                    <div class="pivot-item active" data-mode="trending" onclick="switchDiscoverMode('trending', this)">
+                        trending</div>
+                    <div class="pivot-item" data-mode="search" onclick="switchDiscoverMode('search', this)">search</div>
+                    <div class="pivot-item" data-mode="discussions" onclick="switchDiscoverMode('discussions', this)">
+                        discussions</div>
+                </div>
+
+                <div id="discover-trending" style="display: block;">
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
+                        <button class="metro-btn small" onclick="openBrowseView('popular')"><i class="fa-solid fa-fire"></i> popular season</button>
+                        <button class="metro-btn small" onclick="openBrowseView('upcoming')"><i class="fa-solid fa-clock"></i> upcoming</button>
+                        <button class="metro-btn small" onclick="openBrowseView('top100')"><i class="fa-solid fa-trophy"></i> top 100</button>
+                        <button class="metro-btn small" onclick="openBrowseView('newreleases')"><i class="fa-solid fa-star"></i> new releases</button>
+                        <button class="metro-btn small" onclick="openBrowseView('seasonal')"><i class="fa-solid fa-calendar-week"></i> seasonal chart</button>
+                        <button class="metro-btn small" onclick="openBrowseView('studio')"><i class="fa-solid fa-clapperboard"></i> studios</button>
+                    </div>
+                    <div
+                        style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
+                        currently watching <button class="metro-btn small"
+                            onclick="openFullGrid('watching')">more</button></div>
+                    <div class="trending-row" id="watching-row">
+                        <div style="color:var(--text-dim);">log in to see...</div>
+                    </div>
+
+                    <div
+                        style="font-size: 1.5rem; font-weight: 300; margin: 30px 0 10px; color: var(--accent); display:flex; align-items:center; gap:15px;">
+                        trending now <button class="metro-btn small" onclick="openFullGrid('trending')">more</button>
+                    </div>
+                    <div class="trending-row" id="trending-row">
+                        <div style="color:var(--text-dim);">loading...</div>
+                    </div>
+                </div>
+
+                <div id="discover-search" style="display: none;">
+                    <input type="search" class="metro-input" id="search-input" placeholder="search anime, manga, people, or studios..." autocomplete="off">
+                    <div class="search-filters" id="search-type-filters" aria-label="search category">
+                        <button class="filter-chip active" data-type="ANIME"
+                            onclick="setSearchType('ANIME',this)">anime</button>
+                        <button class="filter-chip" data-type="MANGA"
+                            onclick="setSearchType('MANGA',this)">manga</button>
+                        <button class="filter-chip" data-type="USER" onclick="setSearchType('USER',this)">user</button>
+                        <button class="filter-chip" data-type="CHARACTER" onclick="setSearchType('CHARACTER',this)">characters</button>
+                        <button class="filter-chip" data-type="STAFF" onclick="setSearchType('STAFF',this)">staff</button>
+                        <button class="filter-chip" data-type="STUDIO" onclick="setSearchType('STUDIO',this)">studios</button>
+                    </div>
+                    <div class="search-filters" id="media-search-filters">
+                    <div class="search-filters" id="advanced-filters">
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('season')" id="season-btn">all seasons <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="season-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('season','','all seasons')">all seasons</div>
+                                <div class="metro-select-opt" data-value="WINTER" onclick="setFilter('season','WINTER','winter')">winter</div>
+                                <div class="metro-select-opt" data-value="SPRING" onclick="setFilter('season','SPRING','spring')">spring</div>
+                                <div class="metro-select-opt" data-value="SUMMER" onclick="setFilter('season','SUMMER','summer')">summer</div>
+                                <div class="metro-select-opt" data-value="FALL" onclick="setFilter('season','FALL','fall')">fall</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('format')" id="format-btn">all formats <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="format-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('format','','all formats')">all formats</div>
+                                <div class="metro-select-opt" data-value="TV" onclick="setFilter('format','TV','tv')">tv</div>
+                                <div class="metro-select-opt" data-value="TV_SHORT" onclick="setFilter('format','TV_SHORT','tv short')">tv short</div>
+                                <div class="metro-select-opt" data-value="MOVIE" onclick="setFilter('format','MOVIE','movie')">movie</div>
+                                <div class="metro-select-opt" data-value="OVA" onclick="setFilter('format','OVA','ova')">ova</div>
+                                <div class="metro-select-opt" data-value="SPECIAL" onclick="setFilter('format','SPECIAL','special')">special</div>
+                                <div class="metro-select-opt" data-value="ONA" onclick="setFilter('format','ONA','ona')">ona</div>
+                                <div class="metro-select-opt" data-value="MUSIC" onclick="setFilter('format','MUSIC','music')">music</div>
+                                <div class="metro-select-opt" data-value="NOVEL" onclick="setFilter('format','NOVEL','novel')">novel</div>
+                                <div class="metro-select-opt" data-value="ONE_SHOT" onclick="setFilter('format','ONE_SHOT','one shot')">one shot</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('status')" id="status-btn">all status <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="status-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('status','','all status')">all status</div>
+                                <div class="metro-select-opt" data-value="RELEASING" onclick="setFilter('status','RELEASING','airing')">airing</div>
+                                <div class="metro-select-opt" data-value="FINISHED" onclick="setFilter('status','FINISHED','finished')">finished</div>
+                                <div class="metro-select-opt" data-value="NOT_YET_RELEASED" onclick="setFilter('status','NOT_YET_RELEASED','upcoming')">upcoming</div>
+                                <div class="metro-select-opt" data-value="CANCELLED" onclick="setFilter('status','CANCELLED','cancelled')">cancelled</div>
+                                <div class="metro-select-opt" data-value="HIATUS" onclick="setFilter('status','HIATUS','hiatus')">hiatus</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('episodes')" id="episodes-btn">any length <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="episodes-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('episodes','','any length')">any length</div>
+                                <div class="metro-select-opt" data-value="1-12" onclick="setFilter('episodes','1-12','1-12 eps')">1-12 eps</div>
+                                <div class="metro-select-opt" data-value="13-26" onclick="setFilter('episodes','13-26','13-26 eps')">13-26 eps</div>
+                                <div class="metro-select-opt" data-value="27-50" onclick="setFilter('episodes','27-50','27-50 eps')">27-50 eps</div>
+                                <div class="metro-select-opt" data-value="51-100" onclick="setFilter('episodes','51-100','51-100 eps')">51-100 eps</div>
+                                <div class="metro-select-opt" data-value="100-" onclick="setFilter('episodes','100-','100+ eps')">100+ eps</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('source')" id="source-btn">any source <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="source-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('source','','any source')">any source</div>
+                                <div class="metro-select-opt" data-value="ORIGINAL" onclick="setFilter('source','ORIGINAL','original')">original</div>
+                                <div class="metro-select-opt" data-value="MANGA" onclick="setFilter('source','MANGA','manga')">manga</div>
+                                <div class="metro-select-opt" data-value="LIGHT_NOVEL" onclick="setFilter('source','LIGHT_NOVEL','light novel')">light novel</div>
+                                <div class="metro-select-opt" data-value="VISUAL_NOVEL" onclick="setFilter('source','VISUAL_NOVEL','visual novel')">visual novel</div>
+                                <div class="metro-select-opt" data-value="VIDEO_GAME" onclick="setFilter('source','VIDEO_GAME','video game')">video game</div>
+                                <div class="metro-select-opt" data-value="ANIME" onclick="setFilter('source','ANIME','anime')">anime</div>
+                                <div class="metro-select-opt" data-value="NOVEL" onclick="setFilter('source','NOVEL','novel')">novel</div>
+                                <div class="metro-select-opt" data-value="COMIC" onclick="setFilter('source','COMIC','comic')">comic</div>
+                            </div>
+                        </div>
+                        <div class="metro-select-wrap">
+                            <button class="metro-select-btn" onclick="toggleMetroSelect('country')" id="country-btn">any country <i class="fa-solid fa-chevron-down"></i></button>
+                            <div class="metro-select-dropdown" id="country-dropdown">
+                                <div class="metro-select-opt" data-value="" onclick="setFilter('country','','any country')">any country</div>
+                                <div class="metro-select-opt" data-value="JP" onclick="setFilter('country','JP','japan')">japan</div>
+                                <div class="metro-select-opt" data-value="KR" onclick="setFilter('country','KR','south korea')">south korea</div>
+                                <div class="metro-select-opt" data-value="CN" onclick="setFilter('country','CN','china')">china</div>
+                                <div class="metro-select-opt" data-value="TW" onclick="setFilter('country','TW','taiwan')">taiwan</div>
+                            </div>
+                        </div>
+                        <button class="filter-chip" onclick="openGenreSelector()">genre +</button>
+                        <button class="filter-chip" onclick="openTagSelector()">tags +</button>
+                    </div>
+                    <div class="search-filters" id="filter-row-scores" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:8px 0;">
+                        <div class="range-slider-wrap" style="flex:1;min-width:180px;">
+                            <label for="filter-score" style="font-size:12px;color:var(--text-dim);">minimum rating</label>
+                            <input type="range" id="filter-score" min="0" max="10" step="0.1" value="0" oninput="updateScoreFilterLabel()" onchange="applySearchFilters()" aria-label="Minimum rating, 0 to 10" style="width:140px;">
+                            <output id="score-filter-label" class="range-value" for="filter-score" style="width:52px;">0.0 / 10</output>
+                        </div>
+                        <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+                            <span style="font-size:12px;color:var(--text-dim);margin-right:4px;">year</span>
+                            <button class="metro-btn small" onclick="showYearPicker('start')" style="font-size:10px;padding:2px 6px;">from</button>
+                            <span id="year-start-display" style="min-width:36px;text-align:center;background:var(--surface-hover);padding:2px 4px;font-size:11px;">any</span>
+                            <span style="color:var(--text-dim);font-size:11px;">-</span>
+                            <button class="metro-btn small" onclick="showYearPicker('end')" style="font-size:10px;padding:2px 6px;">to</button>
+                            <span id="year-end-display" style="min-width:36px;text-align:center;background:var(--surface-hover);padding:2px 4px;font-size:11px;">any</span>
+                        </div>
+                        <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+                            <span style="font-size:12px;color:var(--text-dim);">premiere month</span>
+                            <button id="discover-month-button" class="metro-btn small" type="button" onclick="showDiscoverMonthPicker()" style="font-size:10px;padding:2px 6px;">any month</button>
+                        </div>
+                    </div>
+                    <div class="search-filters" id="media-sort-filters">
+                        <button class="filter-chip active" data-sort="SEARCH_MATCH"
+                            onclick="setSort('SEARCH_MATCH',this)">relevance</button>
+                        <button class="filter-chip" data-sort="TRENDING_DESC"
+                            onclick="setSort('TRENDING_DESC',this)">trending</button>
+                        <button class="filter-chip" data-sort="SCORE_DESC" onclick="setSort('SCORE_DESC',this)">top
+                            rated</button>
+                        <button class="filter-chip" data-sort="POPULARITY_DESC"
+                            onclick="setSort('POPULARITY_DESC',this)">popular</button>
+                        <button class="filter-chip" data-sort="FAVOURITES_DESC"
+                            onclick="setSort('FAVOURITES_DESC',this)">most favorited</button>
+                    </div>
+                    </div>
+                    <div class="tile-grid" id="search-results" style="margin-bottom: 40px;"></div>
+                </div>
+
+                <div id="discover-discussions" style="display: none;">
+                    <div style="font-size: 1.5rem; font-weight: 300; margin-bottom: 10px; color: var(--accent);">
+                        community discussions</div>
+                    <div class="trending-row">
+                        <div class="wide-info-tile" onclick="switchDiscoverMode('discussions', this)">
+                            <div class="wide-info-title"><i class="fa-regular fa-comments"></i> episode discussions
+                            </div>
+                            <div class="wide-info-sub">community reactions and reviews</div>
+                        </div>
+                        <div class="wide-info-tile" onclick="switchDiscoverMode('discussions', this)">
+                            <div class="wide-info-title"><i class="fa-solid fa-book-open"></i> manga reader corner</div>
+                            <div class="wide-info-sub">adaptation differences and theories</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
