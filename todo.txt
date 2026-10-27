@@ -22,7 +22,7 @@
 22: 14. ✅ System: Refined rate limit handling in fetchAPI (token expiry detection)
 23: 15. ✅ Search: added character, staff, and studio search support
 24:
-24: ALL TASKS COMPLETED - SEE docs/notes/restoresesh.txt FOR SESSION STATE
+24: CORE TASKS COMPLETED; SEE THE FEATURE BACKLOG BELOW FOR REMAINING OPTIONAL WORK
 25: 
 26: 
 27: ================================================================================
@@ -30,28 +30,28 @@
 29: ================================================================================
 30: 
 31: === Media Browsing & Discovery ===
-32: [ ] Search: Full-text search across anime, manga, characters, staff, studios, users
-33: [ ] Search: Filter by type (anime/manga), format, status, season+year
-34: [ ] Search: Filter by genre (multi-select), tag (multi-select, grouped), min tag %
-35: [ ] Search: Filter by source, country of origin, year range
-36: [ ] Search: Filter by episodes/chapters/volumes range, duration range
-37: [ ] Search: Filter by avg score range, popularity range
-38: [ ] Search: Filter by isAdult (18+ toggle, gated by user setting)
-39: [ ] Search: Filter by on my list / not on my list
-40: [ ] Search: Sort by trending, popularity, score, newest, oldest, title, dates, episodes, etc.
-41: [ ] Search: Fuzzy search (search_id + synonyms)
-42: [ ] Search: Save and recall recent searches
-43: [ ] Browse: Trending now (anime + manga tabs)
-44: [ ] Browse: Popular this season
-45: [ ] Browse: Upcoming next season
-46: [ ] Browse: All-time popular
-47: [ ] Browse: Top 100 anime / manga (by score)
-48: [ ] Browse: New releases (recently added to database)
-49: [ ] Browse: By genre landing pages
-50: [ ] Browse: By tag landing pages
-51: [ ] Browse: By studio
+32: [x] Search: Full-text search across anime, manga, characters, staff, studios, users
+33: [x] Search: Filter by type (anime/manga), format, status, season+year
+34: [x] Search: Filter by genre (multi-select), tag (multi-select, grouped), min tag %
+35: [x] Search: Filter by source, country of origin, year range
+36: [x] Search: Filter by episodes/chapters/volumes range, duration range
+37: [x] Search: Filter by avg score range, popularity range
+38: [x] Search: Filter by isAdult (18+ toggle, gated by user setting)
+39: [x] Search: Filter by on my list / not on my list
+40: [x] Search: Sort by trending, popularity, score, newest, oldest, title, dates, episodes, etc.
+41: [x] Search: Fuzzy search (search_id + synonyms)
+42: [x] Search: Save and recall recent searches
+43: [x] Browse: Trending now (anime + manga tabs)
+44: [x] Browse: Popular this season
+45: [x] Browse: Upcoming next season
+46: [x] Browse: All-time popular
+47: [x] Browse: Top 100 anime / manga (by score)
+48: [x] Browse: New releases (recently added to database)
+49: [x] Browse: By genre landing pages
+50: [x] Browse: By tag landing pages
+51: [x] Browse: By studio
 52: [ ] Browse: AniChart-style seasonal calendar (grid by day of week)
-53: [ ] Browse: Airing schedule with next episode countdown timers
+53: [x] Browse: Airing schedule with next episode countdown timers
 54: 
 55: === Media Detail Page ===
 56: [x] Detail: Title (romaji/english/native, user-configurable), all synonyms
@@ -117,8 +117,8 @@
 116: [x] Profile: Favourites (anime, manga, characters, staff, studios) all paged
 117: [x] Stats: Anime (count, mean score, minutes, episodes, chapters)
 118: [x] Stats: Manga (count, mean score, chapters, volumes)
-119: [ ] Stats: Breakdown by format, status, score, length, year, genre, tag, country, VA, staff, studio
-120: [ ] Stats: Graphs (score distribution, format, genres, tags, timeline, activity)
+119: [x] Stats: Breakdown by format, status, score, length, year, genre, tag, country, VA, staff, studio
+120: [x] Stats: Graphs (score distribution, format, genres, tags, timeline, activity)
 121: 
 122: === Social & Activity ===
 123: [ ] Activity: Global feed and following-only feed toggle [auth]
@@ -151,9 +151,9 @@
 151: [ ] Notifications: ThreadCommentMention, ThreadCommentReply, ThreadCommentSubscribed
 152: [ ] Notifications: ThreadCommentLike, ThreadLike
 153: [ ] Notifications: RelatedMediaAddition, MediaDataChange, MediaMerge, MediaDeletion
-154: [ ] Notifications: Unread count badge
-155: [ ] Notifications: Mark all as read
-156: [ ] Notifications: Filter by type
+154: [x] Notifications: Unread count badge
+155: [x] Notifications: Mark all as read
+156: [x] Notifications: Filter by type
 157: [ ] Notifications: Push notifications for airing (local scheduling)
 158: 
 159: === Characters & Staff ===
@@ -188,39 +188,39 @@
 188: [ ] Settings: Notification preferences (toggle each type)
 189: 
 190: === App-Level Local Settings ===
-191: [ ] Local: Theme (system/light/dark)
-192: [ ] Local: Accent colour (sync from profile or override)
-193: [ ] Local: Default home tab, preferred media type
+191: [x] Local: Theme (system/light/dark)
+192: [x] Local: Accent colour (sync from profile or override)
+193: [x] Local: Default home tab, preferred media type
 194: [ ] Local: Image quality (bandwidth saving)
-195: [ ] Local: NSFW thumbnail override (blur/hide/show)
-196: [ ] Local: Spoiler tag reveal default
-197: [ ] Local: List display default (compact/detailed/grid)
-198: [ ] Local: Swipe gesture shortcuts
-199: [ ] Local: Calendar view (group by day vs flat), countdown format
+195: [x] Local: NSFW thumbnail override (blur/hide/show)
+196: [x] Local: Spoiler tag reveal default
+197: [x] Local: List display default (compact/detailed/grid)
+198: [x] Local: Swipe gesture shortcuts
+199: [x] Local: Calendar view (group by day vs flat), countdown format
 200: [ ] Local: Notification polling interval, haptic feedback toggle
-201: [ ] Local: Clear image cache
-202: [ ] Local: Export list to CSV/JSON
-203: [ ] Local: About (app version, API version, licenses)
-204: [ ] Local: Rate limit indicator display
-205: [ ] Local: Logout / switch account
+201: [x] Local: Clear image cache
+202: [x] Local: Export list to CSV/JSON
+203: [x] Local: About (app version, API version, licenses)
+204: [x] Local: Rate limit indicator display
+205: [x] Local: Logout / switch account
 206: 
 207: === Auth & Onboarding ===
-208: [ ] Auth: OAuth2 implicit flow (redirect + capture token)
+208: [x] Auth: OAuth2 implicit flow (redirect + capture token)
 209: [ ] Auth: Token storage (secure keychain / encrypted)
-210: [ ] Auth: Token expiry detection (1 year, prompt re-auth)
-211: [ ] Auth: Guest/unauthenticated mode
-212: [ ] Auth: Onboarding (explain features, prompt login, sample data)
-213: [ ] Auth: Deep-link support (media/character/staff/user pages)
+210: [x] Auth: Token expiry detection (1 year, prompt re-auth)
+211: [x] Auth: Guest/unauthenticated mode
+212: [x] Auth: Onboarding (explain features, prompt login, sample data)
+213: [x] Auth: Deep-link support (media/character/staff/user pages)
 214: 
 215: === Pagination & API Hygiene ===
-216: [ ] API: All list queries use Page with pageInfo
-217: [ ] API: Infinite scroll / load-more on all paged content
-218: [ ] API: Rate limit handling (X-RateLimit headers, 90 req/min)
-219: [ ] API: Retry with backoff on 429
-220: [ ] API: MediaListCollection limit (11k entries) documented
-221: [ ] API: Error boundary for GraphQL errors
-222: [ ] API: Optimistic UI updates for list mutations
-223: [ ] API: Offline cache (serve stale data)
+216: [x] API: All list queries use Page with pageInfo
+217: [x] API: Infinite scroll / load-more on all paged content
+218: [x] API: Rate limit handling (X-RateLimit headers, 90 req/min)
+219: [x] API: Retry with backoff on 429
+220: [x] API: MediaListCollection limit (11k entries) documented
+221: [x] API: Error boundary for GraphQL errors
+222: [x] API: Optimistic UI updates for list mutations
+223: [x] API: Offline cache (serve stale data)
 224: 
 225: ================================================================================
 226: END OF FEATURE BACKLOG

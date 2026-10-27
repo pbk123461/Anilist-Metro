@@ -357,9 +357,9 @@
             display: none;
             position: absolute;
             right: 0;
-            top: 55px;
+            top: 70px;
             background-color: var(--surface);
-            min-width: 220px;
+            min-width: 190px;
             z-index: 1001;
             border: 2px solid var(--surface-hover);
         }
@@ -398,6 +398,30 @@
         .dropdown.open .dropdown-content {
             display: block;
         }
+
+        .charms-bar {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            z-index: 1200;
+            display: flex;
+            align-items: stretch;
+            transform: translate(100%, -50%);
+            transition: transform 0.4s var(--metro-easing);
+        }
+        .charms-bar.nudged { transform: translate(calc(100% - 10px), -50%); }
+        .charms-bar.open { transform: translate(0, -50%); }
+        .charms-nudge, .charms-panel { background: var(--surface); border: 2px solid var(--surface-hover); }
+        .charms-nudge { width: 10px; border-right: 0; cursor: pointer; }
+        .charms-panel { width: 220px; padding: 10px; }
+        .charms-heading { color: var(--text-dim); font-size: 11px; letter-spacing: 1px; margin: 0 0 8px; text-transform: lowercase; }
+        .charms-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .charms-action { display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 8px; border: 0; background: var(--bg); color: var(--text-main); cursor: pointer; font: inherit; text-align: left; }
+        .charms-action:hover, .charms-action:focus-visible { background: var(--accent); color: var(--accent-ink); outline: 0; }
+        .charms-action i { width: 18px; text-align: center; }
+        .charms-close { float: right; border: 0; background: transparent; color: var(--text-dim); cursor: pointer; }
+        .charms-tutorial { position: fixed; right: 24px; bottom: 90px; z-index: 1300; width: min(320px, calc(100vw - 40px)); padding: 18px; background: var(--surface); border-left: 4px solid var(--accent); }
+        .charms-tutorial[hidden] { display: none; }
 
         /* NAV ARROWS */
         .nav-arrows {
@@ -1900,6 +1924,44 @@
             margin-bottom: 26px;
         }
 
+        .user-section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-banner-backdrop {
+            position: absolute;
+            top: 150px;
+            left: 0;
+            right: 0;
+            height: 390px;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s var(--metro-easing);
+            z-index: 0;
+        }
+
+        .user-banner-backdrop.active {
+            opacity: 1;
+        }
+
+        .user-banner-backdrop::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), var(--bg) 92%);
+        }
+
+        .user-banner-backdrop img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(20px);
+            opacity: 0.5;
+            transform: scale(1.08);
+        }
+
         .user-avatar-shell {
             width: 140px;
             height: 140px;
@@ -2765,6 +2827,10 @@
         }
         @media (max-width: 768px) {
             .panorama-container { padding-bottom: 56px; }
+            .charms-bar { top: auto; bottom: 56px; transform: translate(100%, 0); }
+            .charms-bar.nudged { transform: translate(calc(100% - 10px), 0); }
+            .charms-bar.open { transform: translate(0, 0); }
+            .charms-tutorial { right: 12px; bottom: 70px; }
         }
         
         /* MOBILE */
@@ -3596,6 +3662,28 @@
                             <div id="dropdown-sub" style="color:var(--text-dim); font-size:12px;">0 anime // 0 manga</div>
                         </div>
                     </div>
+                    <aside class="charms-bar" id="charms-bar" aria-label="quick access">
+                        <button class="charms-nudge" type="button" aria-label="open quick access" onclick="toggleCharmsBar()"></button>
+                        <div class="charms-panel">
+                            <button class="charms-close" type="button" aria-label="close quick access" onclick="closeCharmsBar()"><i class="fa-solid fa-xmark"></i></button>
+                            <div class="charms-heading">quick access</div>
+                            <div class="charms-actions">
+                                <button class="charms-action" type="button" onclick="charmsNavigate(0)"><i class="fa-solid fa-house"></i><span>home</span></button>
+                                <button class="charms-action" type="button" onclick="focusQuickSearch()"><i class="fa-solid fa-magnifying-glass"></i><span>search</span></button>
+                                <button class="charms-action" type="button" onclick="charmsNavigate(1)"><i class="fa-solid fa-user"></i><span>profile</span></button>
+                                <button class="charms-action" type="button" onclick="charmsNavigate(2)"><i class="fa-solid fa-book"></i><span>library</span></button>
+                                <button class="charms-action" type="button" onclick="charmsNavigate(4)"><i class="fa-solid fa-compass"></i><span>discover</span></button>
+                                <button class="charms-action" type="button" onclick="charmsNavigate(6)"><i class="fa-solid fa-envelope"></i><span>inbox</span></button>
+                                <button class="charms-action" type="button" onclick="charmsNavigate(7)"><i class="fa-solid fa-gear"></i><span>settings</span></button>
+                            </div>
+                        </div>
+                    </aside>
+                    <aside class="charms-tutorial" id="charms-tutorial" hidden>
+                        <strong>quick access</strong>
+                        <p style="color:var(--text-dim);margin:8px 0;">pull from the right edge, swipe diagonally up from the bottom, or press ctrl+shift+m.</p>
+                        <button class="metro-btn small" type="button" onclick="dismissCharmsTutorial()">got it</button>
+                        <button class="metro-btn small" type="button" onclick="disableCharmsTutorial()">skip tutorial</button>
+                    </aside>
                 </div>
                 <a href="#" onclick="scrollToSection(1); closeDropdown(); return false;"><i class="fa-solid fa-user fa-fw"></i> profile</a>
                 <a href="#" onclick="scrollToSection(6); closeDropdown(); return false;"><i class="fa-solid fa-envelope fa-fw"></i> inbox</a>
@@ -3663,8 +3751,11 @@
         </section>
 
         <!-- SECTION 1: USER -->
-        <section class="header-section">
+        <section class="header-section user-section">
             <h1 class="metro-huge-title" id="user-section-title">user</h1>
+            <div class="user-banner-backdrop" id="user-banner-backdrop" aria-hidden="true">
+                <img id="user-page-banner" alt="">
+            </div>
             <div class="content-scroll">
                 <div class="user-hero">
                     <div class="user-avatar-shell">
@@ -3912,6 +4003,7 @@
 
                 <div id="discover-search" style="display: none;">
                     <input type="text" class="metro-input" id="search-input" placeholder="search anime or manga...">
+                    <div id="recent-searches" class="search-filters" aria-label="recent searches"></div>
                     <div class="search-filters">
                         <button class="filter-chip active" data-type="ANIME"
                             onclick="setSearchType('ANIME',this)">anime</button>
@@ -4329,6 +4421,18 @@
                     </div>
 
                     <div id="settings-tab-app" class="settings-subview">
+                        <div class="settings-item">
+                            <div class="settings-item-header">charms quick access</div>
+                            <div class="settings-item-sub">open the right-side quick access rail from any page.</div>
+                            <label class="switch" for="charms-enabled-toggle" role="switch" tabindex="0" aria-checked="true">
+                                <input type="checkbox" id="charms-enabled-toggle">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span class="toggle-label">enable charms bar</span>
+                            <div class="settings-item-sub" style="margin-top:12px;">keyboard shortcut</div>
+                            <input class="metro-input" id="charms-shortcut-input" value="Ctrl+Shift+M" aria-label="charms keyboard shortcut" style="max-width:220px;">
+                            <button class="metro-btn small" type="button" onclick="saveCharmsShortcut()">save shortcut</button>
+                        </div>
                         <div class="settings-item">
                             <div class="settings-item-header">experimental beta version</div>
                             <div class="settings-item-sub">switch to the beta client in index.html to try unfinished changes</div>
@@ -4909,6 +5013,7 @@
             if (accessToken) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
+                initCharmsBar();
                 document.getElementById('main-nav').style.display = 'flex';
                 document.getElementById('top-right-nav').style.display = 'flex';
                 if (window.innerWidth > 768) document.getElementById('main-arrows').style.display = 'flex';
@@ -4924,7 +5029,10 @@
                 });
             }
         }
-        function login() { window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`; }
+        function login() {
+            if (window.Sfx) { Sfx.init(); Sfx.play('login'); }
+            window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CLIENT_ID}&response_type=token`;
+        }
         function openBetaVersion() {
             localStorage.removeItem('metro_experimental_stable');
             window.location.href = 'index.html';
@@ -4933,6 +5041,7 @@
             isGuest = true;
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('app-container').style.display = 'flex';
+            initCharmsBar();
             document.getElementById('main-nav').style.display = window.innerWidth > 768 ? 'flex' : 'none';
             document.getElementById('top-right-nav').style.display = 'flex';
             if (window.innerWidth > 768) document.getElementById('main-arrows').style.display = 'flex';
@@ -4952,6 +5061,8 @@
             document.getElementById('user-page-name').innerText = 'guest';
             document.getElementById('start-tile-user').innerText = 'guest';
             document.getElementById('user-page-sub').innerText = 'browse the metro shell without syncing';
+            const userBanner = document.getElementById('user-banner-backdrop');
+            if (userBanner) userBanner.classList.remove('active');
             renderUserHomeStats({ statistics: { anime: {}, manga: {} } });
             setUserHomeGuestState();
             document.getElementById('notif-list').innerHTML = '<div style="color:var(--text-dim);">sign in to see notifications.</div>';
@@ -5000,6 +5111,110 @@
         function closeSettingsView() {
             document.getElementById('settings-subview-container').style.display = 'none';
             document.getElementById('settings-main-list').style.display = 'flex';
+        }
+
+        let charmsEnabled = localStorage.getItem('charms_enabled') !== 'false';
+        let charmsShortcut = localStorage.getItem('charms_shortcut') || 'CTRL+SHIFT+M';
+        let charmsTouchStart = null;
+        function normalizeCharmsShortcut(value) { return String(value || '').trim().toUpperCase().replace(/\s+/g, ''); }
+        function charmsShortcutMatches(event) {
+            const key = String(event.key || '').toUpperCase();
+            return normalizeCharmsShortcut(`${event.ctrlKey ? 'CTRL+' : ''}${event.altKey ? 'ALT+' : ''}${event.shiftKey ? 'SHIFT+' : ''}${event.metaKey ? 'META+' : ''}${key}`) === charmsShortcut;
+        }
+        function openCharmsBar() {
+            if (!charmsEnabled) return;
+            const bar = document.getElementById('charms-bar');
+            if (!bar) return;
+            bar.classList.remove('nudged');
+            bar.classList.add('open');
+            bar.querySelector('.charms-close')?.focus();
+        }
+        function closeCharmsBar() { document.getElementById('charms-bar')?.classList.remove('open'); }
+        function toggleCharmsBar() {
+            const bar = document.getElementById('charms-bar');
+            if (!bar || !charmsEnabled) return;
+            bar.classList.contains('open') ? closeCharmsBar() : openCharmsBar();
+        }
+        function focusQuickSearch() {
+            closeCharmsBar();
+            scrollToSection(4);
+            setTimeout(() => document.querySelector('.quick-search-input')?.focus(), 450);
+        }
+        function charmsNavigate(index) { closeCharmsBar(); scrollToSection(index); }
+        function dismissCharmsTutorial() {
+            localStorage.setItem('charms_tutorial_seen', 'true');
+            const tutorial = document.getElementById('charms-tutorial');
+            if (tutorial) tutorial.hidden = true;
+        }
+        function disableCharmsTutorial() {
+            localStorage.setItem('charms_tutorial_seen', 'true');
+            setCharmsEnabled(false);
+            const tutorial = document.getElementById('charms-tutorial');
+            if (tutorial) tutorial.hidden = true;
+        }
+        function setCharmsEnabled(enabled) {
+            charmsEnabled = Boolean(enabled);
+            localStorage.setItem('charms_enabled', charmsEnabled ? 'true' : 'false');
+            if (!charmsEnabled) {
+                closeCharmsBar();
+                document.getElementById('charms-bar')?.classList.remove('nudged');
+            }
+            const toggle = document.getElementById('charms-enabled-toggle');
+            if (toggle) {
+                toggle.checked = charmsEnabled;
+                toggle.closest('label')?.setAttribute('aria-checked', String(charmsEnabled));
+            }
+        }
+        function saveCharmsShortcut() {
+            const input = document.getElementById('charms-shortcut-input');
+            const value = normalizeCharmsShortcut(input?.value);
+            if (!value || !/(CTRL|ALT|META)\+/.test(value)) {
+                showToast('use a shortcut with ctrl, alt, or meta');
+                return;
+            }
+            charmsShortcut = value;
+            localStorage.setItem('charms_shortcut', charmsShortcut);
+            if (input) input.value = charmsShortcut;
+            showToast('charms shortcut saved');
+        }
+        function initCharmsBar() {
+            if (window.charmsBarInitialized) return;
+            window.charmsBarInitialized = true;
+            setCharmsEnabled(charmsEnabled);
+            const input = document.getElementById('charms-shortcut-input');
+            if (input) input.value = charmsShortcut;
+            document.getElementById('charms-enabled-toggle')?.addEventListener('change', event => setCharmsEnabled(event.target.checked));
+            document.addEventListener('keydown', event => {
+                if (charmsShortcutMatches(event)) {
+                    event.preventDefault();
+                    toggleCharmsBar();
+                } else if (event.key === 'Escape') closeCharmsBar();
+            });
+            document.addEventListener('touchstart', event => {
+                const touch = event.touches[0];
+                charmsTouchStart = { x: touch.clientX, y: touch.clientY };
+            }, { passive: true });
+            document.addEventListener('touchend', event => {
+                if (!charmsTouchStart || !charmsEnabled) return;
+                const touch = event.changedTouches[0];
+                const dx = touch.clientX - charmsTouchStart.x;
+                const dy = charmsTouchStart.y - touch.clientY;
+                if (charmsTouchStart.y > window.innerHeight - 100 && dx > 45 && dy > 35) openCharmsBar();
+                charmsTouchStart = null;
+            }, { passive: true });
+            if (!localStorage.getItem('charms_tutorial_seen')) {
+                setTimeout(() => {
+                    const tutorial = document.getElementById('charms-tutorial');
+                    if (tutorial && charmsEnabled && document.getElementById('app-container')?.style.display !== 'none') tutorial.hidden = false;
+                }, 900);
+            }
+            setTimeout(() => {
+                const bar = document.getElementById('charms-bar');
+                if (bar && charmsEnabled) {
+                    bar.classList.add('nudged');
+                    setTimeout(() => bar.classList.remove('nudged'), 1200);
+                }
+            }, 1200);
         }
 
         // ==========================================
@@ -5309,6 +5524,12 @@
                 const data = await fetchAPI(q);
                 if (!data || !data.Viewer) { showToast('error loading user data'); return; }
                 const v = data.Viewer; currentUserId = v.id;
+                const userBanner = document.getElementById('user-banner-backdrop');
+                const userBannerImage = document.getElementById('user-page-banner');
+                if (userBanner && userBannerImage) {
+                    userBannerImage.src = v.bannerImage || '';
+                    userBanner.classList.toggle('active', Boolean(v.bannerImage));
+                }
                 document.getElementById('user-page-name').innerText = v.name ? v.name.toLowerCase() : 'user';
                 document.getElementById('start-tile-user').innerText = v.name ? v.name.toLowerCase() : 'user';
                 if (v.avatar && v.avatar.large) {
@@ -5943,11 +6164,46 @@
         // SEARCH
         // ==========================================
         let searchTimeout = null;
+        function getRecentSearches() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('recent_searches') || '[]');
+                return Array.isArray(saved) ? saved.filter(term => typeof term === 'string').slice(0, 8) : [];
+            } catch (error) {
+                console.error('could not read recent searches:', error);
+                return [];
+            }
+        }
+        function renderRecentSearches() {
+            const container = document.getElementById('recent-searches');
+            if (!container) return;
+            const searches = getRecentSearches();
+            container.innerHTML = searches.length
+                ? `<span style="color:var(--text-dim);font-size:12px;">recent</span>${searches.map(term => `<button type="button" class="filter-chip" onclick="useRecentSearch(${JSON.stringify(term).replace(/</g, '&lt;')})">${escapeHtml(term)}</button>`).join('')}<button type="button" class="filter-chip" onclick="clearRecentSearches()">clear</button>`
+                : '';
+        }
+        function saveRecentSearch(term) {
+            const normalized = String(term || '').trim();
+            if (normalized.length < 2) return;
+            const searches = [normalized, ...getRecentSearches().filter(item => item.toLowerCase() !== normalized.toLowerCase())].slice(0, 8);
+            localStorage.setItem('recent_searches', JSON.stringify(searches));
+            renderRecentSearches();
+        }
+        function useRecentSearch(term) {
+            const input = document.getElementById('search-input');
+            if (!input) return;
+            input.value = term;
+            doSearch(term);
+        }
+        function clearRecentSearches() {
+            localStorage.removeItem('recent_searches');
+            renderRecentSearches();
+        }
         document.getElementById('search-input').addEventListener('input', e => {
             clearTimeout(searchTimeout); const term = e.target.value.trim();
             if (term.length < 2) { document.getElementById('search-results').innerHTML = ''; return; }
             searchTimeout = setTimeout(() => doSearch(term), 450);
         });
+        renderRecentSearches();
 
         function applySearchFilters() {
             const term = document.getElementById('search-input').value.trim();
@@ -5958,6 +6214,7 @@
         async function doSearch(term) {
             const el = document.getElementById('search-results'); el.innerHTML = '<div style="color:var(--text-dim);">searching...</div>';
             el.classList.add('zoom-in');
+            saveRecentSearch(term);
 
             // Sync range labels
             const scoreMinEl = document.getElementById('filter-score-min');
