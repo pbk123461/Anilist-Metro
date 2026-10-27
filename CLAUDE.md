@@ -8,9 +8,9 @@
 
 **AniList Metro** is a legacy-first Vanilla HTML/CSS/JS web application with preserved split-section fragments. It provides a Windows Phone 7 / Zune HD–style interface for the AniList anime/manga tracking platform. It is AMOLED-optimized, strictly Metro-designed, and authentication-aware.
 
-- **Main file:** `/Users/BrijeshKrishnan/BRIJESH KRISHNAN/projectgobrr/index.html`
-- **Comparison entry:** `/Users/BrijeshKrishnan/BRIJESH KRISHNAN/projectgobrr/index_v2.html`
-- **Preserved legacy source:** `/Users/BrijeshKrishnan/BRIJESH KRISHNAN/projectgobrr/index-legacy.html`
+- **Main file:** `index.html`
+- **Comparison entry:** `ndex_v2.html`
+- **Preserved legacy source:** `index-legacy.html`
 - **Stack:** Vanilla HTML5 + CSS3 + ES6+ JavaScript — **no build tools, no package manager, no framework**
 - **API:** AniList GraphQL v2 — `https://graphql.anilist.co`
 - **UI Framework:** Vendored Metro UI v4 (`vendor/metro-ui/dist/`) with custom AMOLED overrides
