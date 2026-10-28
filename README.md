@@ -46,13 +46,11 @@ Then visit [http://localhost:8000](http://localhost:8000).
 - `docs/` contains notes on the app's main modules.
 - `docs/notes/` contains historical implementation notes and function inventories.
 - `info.txt` documents the stack, runtime, file structure, and validation workflow.
-- `.github/copilot-instructions.md` contains repository-local guidance for coding agents.
-- `hooks/validate-static.sh` contains an optional static validation hook.
 - `xbox360 metro soundeffects/` contains the sound files used by the app.
 
 ## Development notes
 
-Read [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) before making changes. The app depends on AniList's public GraphQL API. Metro UI assets are kept in the repository; the page also loads Font Awesome and date-fns from CDNs.
+The app depends on AniList's public GraphQL API. Metro UI assets are kept in the repository; the page also loads Font Awesome and date-fns from CDNs.
 
 ## Credits
 

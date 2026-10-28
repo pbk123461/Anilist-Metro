@@ -1,0 +1,11 @@
+# Local AI and agent instructions
+.github/
+.claude/
+AGENTS.md
+CLAUDE.md
+handoff.md
+hooks/
+rules.txt
+skills.md
+docs/notes/claudetxt
+docs/notes/restoresesh.txt
