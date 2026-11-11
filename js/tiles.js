@@ -4,7 +4,7 @@
     const optionalKey = 'metro_optional_tiles';
     const visibilityKey = 'metro_tile_visibility';
     const defaultTiles = {
-        profile: { className: 'wide profile-tile', color: 'var(--surface)', icon: 'fa-user', label: 'guest', action: 'scrollToSection(1)' },
+        profile: { className: 'wide profile-tile', color: 'var(--surface)', icon: 'fa-user', label: 'User', action: 'scrollToSection(1)' },
         library: { className: 'medium', color: '#60a917', icon: 'fa-book-open', label: 'library', action: 'scrollToSection(2)' },
         discover: { className: 'medium', color: '#f39c12', icon: 'fa-magnifying-glass', label: 'discover', action: 'scrollToSection(4)' },
         inbox: { className: 'medium', color: '#d80073', icon: 'fa-envelope', label: 'inbox', action: 'scrollToSection(6)' },
@@ -42,7 +42,7 @@
             window.setStartTileSize(name, event.target.value);
         });
         option.appendChild(select);
-    };
+    }; // renderSizeControl
     const renderSizeControls = () => [...Object.keys(defaultTiles), ...Object.keys(optionalTiles)].forEach(renderSizeControl);
     const createTile = name => {
         const definition = optionalTiles[name] || defaultTiles[name];
